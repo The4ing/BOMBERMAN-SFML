@@ -34,6 +34,19 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     m_helpText.setCharacterSize(30);
     m_helpText.setFillColor(sf::Color::White);
     m_helpText.setPosition(50, 50); // Adjust position as needed
+
+     //this is for explanation how each button works 
+ ////add
+ //// Configure hover area
+ //m_robotArea.setSize(sf::Vector2f(300.f, 50.f));
+ //m_robotArea.setPosition(100.f, 150.f); // Adjust position as needed
+ //m_robotArea.setFillColor(sf::Color::Transparent); // No color but can debug with borders
+
+ //// Configure tooltip
+ //m_hoverExplanationText.setFont(m_font);
+ //m_hoverExplanationText.setCharacterSize(20);
+ //m_hoverExplanationText.setFillColor(sf::Color::White);
+ //m_hoverExplanationText.setString("ROBOT"); // Empty by default    
 }
 
 void MainMenuDisplay::configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset) {
@@ -66,6 +79,34 @@ void MainMenuDisplay::show() {
         m_backgroundSprite.setTexture(m_helpBackgroundTexture); // Set texture to help background
         m_window->draw(m_backgroundSprite);
         m_window->draw(m_helpText);
+
+        ////add
+//sf::Vector2f m_robotAreaPosition(100.f, 200.f); // Hover area position
+//sf::Vector2f m_robotAreaSize(150.f, 100.f);    // Hover area size
+
+//// Load texture for debugging or visualization
+//sf::Texture debugTexture;
+//if (!debugTexture.loadFromFile("robot.png")) {
+//    std::cerr << "Error: Could not load hover debug image!" << std::endl;
+//}
+
+//// Create a sprite to represent the hover area
+//sf::Sprite debugSprite;
+//debugSprite.setTexture(debugTexture);
+
+//// Adjust the sprite to fit the hover area (optional)
+//debugSprite.setPosition(m_robotAreaPosition.x, m_robotAreaPosition.y);
+//debugSprite.setScale(
+//    m_robotAreaSize.x / debugTexture.getSize().x,
+//    m_robotAreaSize.y / debugTexture.getSize().y
+//);
+
+//// Draw the sprite to the window
+//m_window->draw(debugSprite);
+
+//if (!m_hoverExplanationText.getString().isEmpty()) {
+//    m_window->draw(m_hoverExplanationText);
+//}
     }
 
     m_window->display();
@@ -94,6 +135,20 @@ int MainMenuDisplay::handleInput() {
             }
         }
     }
+    //ddd
+    //if (m_state == HELP_SCREEN) {
+    //    sf::Vector2i mousePosition = sf::Mouse::getPosition(*m_window);
+
+    //    // Check hover on robot area
+    //    if (m_robotArea.getGlobalBounds().contains(static_cast<float>(mousePosition.x), static_cast<float>(mousePosition.y))) {
+   //        m_hoverExplanationText.setString("The robot helps navigate through the maze.");
+   //        m_hoverExplanationText.setPosition(static_cast<float>(mousePosition.x) + 15.f, static_cast<float>(mousePosition.y) + 15.f);
+   //    }
+   //    else {
+   //        m_hoverExplanationText.setString(""); // Clear tooltip if not hovering
+  //    }
+   //}
+    
 }
 
 // Handle button clicks
