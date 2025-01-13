@@ -35,3 +35,7 @@ void GameManager::startGame()
 }
 
 
+
+bool GameManager::loadLevel(const std::string& fileName) {
+    return true;
+}
