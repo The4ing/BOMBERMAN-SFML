@@ -30,9 +30,9 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
 
     // Configure help text
     m_helpText.setFont(m_font);
-    m_helpText.setString("Help Information\nPress ESC to return to the menu.");
+    m_helpText.setString("Use the arrow keys to direct Bomberman in any one of the four cardinal directions.\nUse the B button : Press the B button to drop a bomb on the tile that Bomberman is currently standing on.\nthe bomb will self destruct after four seconds\nPress ESC to return to the menu.");
     m_helpText.setCharacterSize(30);
-    m_helpText.setFillColor(sf::Color::Black);
+    m_helpText.setFillColor(sf::Color::White);
     m_helpText.setPosition(50, 50); // Adjust position as needed
 }
 
