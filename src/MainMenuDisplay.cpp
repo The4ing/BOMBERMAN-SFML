@@ -2,85 +2,88 @@
 #include <iostream>
 
 // Constructor
-// Constructor
-// Constructor
 MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
-    : m_window(window), m_game(game) {
-    // Load font
+    : m_window(window), m_game(game), m_state(MAIN_MENU) { // Initialize state
+    // Load music file
+    if (!menuMmusic.openFromFile("menuMusic.ogg")) {
+        std::cerr << "Error: Could not load music file!" << std::endl;
+    }
+
+    // Load fonts and textures
     if (!m_font.loadFromFile("PixelFontBlack.otf")) {
         std::cerr << "Error loading font!" << std::endl;
     }
 
-    // Load background texture
     if (!m_backgroundTexture.loadFromFile("menu.png")) {
         std::cerr << "Error loading background image!" << std::endl;
     }
     m_backgroundSprite.setTexture(m_backgroundTexture);
-    m_backgroundSprite.setScale(
-        static_cast<float>(m_window->getSize().x) / m_backgroundTexture.getSize().x,
-        static_cast<float>(m_window->getSize().y) / m_backgroundTexture.getSize().y
-    );
 
-    // Calculate button positions
+    if (!m_helpBackgroundTexture.loadFromFile("helpBackground.png")) {
+        std::cerr << "Error loading help background image!" << std::endl;
+    }
+
+    // Configure main menu buttons
+    configureButton(m_startButton, "Start Game", sf::Color::Black, -100);
+    configureButton(m_helpButton, "Help", sf::Color::Black, 0);
+    configureButton(m_exitButton, "Exit", sf::Color::Black, 100);
+
+    // Configure help text
+    m_helpText.setFont(m_font);
+    m_helpText.setString("Help Information\nPress ESC to return to the menu.");
+    m_helpText.setCharacterSize(30);
+    m_helpText.setFillColor(sf::Color::Black);
+    m_helpText.setPosition(50, 50); // Adjust position as needed
+}
+
+void MainMenuDisplay::configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset) {
     float windowWidth = m_window->getSize().x;
     float windowHeight = m_window->getSize().y;
 
-    // Configure "Start Game" button
-    m_startButton.setFont(m_font);
-    m_startButton.setString("Start Game");
-    m_startButton.setCharacterSize(40);
-    m_startButton.setFillColor(sf::Color::Black);
-    sf::FloatRect startButtonBounds = m_startButton.getGlobalBounds();
-    m_startButton.setPosition(
-        (windowWidth - startButtonBounds.width) / 2,
-        windowHeight / 2 - 100
-    );
-
-    // Configure "Help" button
-    m_helpButton.setFont(m_font);
-    m_helpButton.setString("Help");
-    m_helpButton.setCharacterSize(40);
-    m_helpButton.setFillColor(sf::Color::Black);
-    sf::FloatRect helpButtonBounds = m_helpButton.getGlobalBounds();
-    m_helpButton.setPosition(
-        (windowWidth - helpButtonBounds.width) / 2,
-        windowHeight / 2
-    );
-
-    // Configure "Exit" button
-    m_exitButton.setFont(m_font);
-    m_exitButton.setString("Exit");
-    m_exitButton.setCharacterSize(40);
-    m_exitButton.setFillColor(sf::Color::Black);
-    sf::FloatRect exitButtonBounds = m_exitButton.getGlobalBounds();
-    m_exitButton.setPosition(
-        (windowWidth - exitButtonBounds.width) / 2,
-        windowHeight / 2 + 100
+    button.setFont(m_font);
+    button.setString(label);
+    button.setCharacterSize(40);
+    button.setFillColor(color);
+    sf::FloatRect bounds = button.getGlobalBounds();
+    button.setPosition(
+        (windowWidth - bounds.width) / 2,
+        (windowHeight / 2) + yOffset
     );
 }
 
-// Show the main menu
+// Show the main menu or help screen
 void MainMenuDisplay::show() {
-    m_window->clear(sf::Color::Black); // Clear with a black background
+    m_window->clear(sf::Color::Black);
 
-    // Draw the background
-    m_window->draw(m_backgroundSprite);
-
-    // Draw buttons
-    m_window->draw(m_startButton);
-    m_window->draw(m_helpButton);
-    m_window->draw(m_exitButton);
+    if (m_state == MAIN_MENU) {
+        m_backgroundSprite.setTexture(m_backgroundTexture); // Reset texture to main menu background
+        m_window->draw(m_backgroundSprite);
+        m_window->draw(m_startButton);
+        m_window->draw(m_helpButton);
+        m_window->draw(m_exitButton);
+    }
+    else if (m_state == HELP_SCREEN) {
+        m_backgroundSprite.setTexture(m_helpBackgroundTexture); // Set texture to help background
+        m_window->draw(m_backgroundSprite);
+        m_window->draw(m_helpText);
+    }
 
     m_window->display();
 }
 
 
-// Handle input in the main menu
+// Handle input
 void MainMenuDisplay::handleInput() {
     sf::Event event;
     while (m_window->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
             m_window->close();
+        }
+
+        if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::Escape && m_state == HELP_SCREEN) {
+                m_state = MAIN_MENU; // Return to main menu
+            }
         }
 
         if (event.type == sf::Event::MouseButtonPressed) {
@@ -95,24 +98,26 @@ void MainMenuDisplay::handleInput() {
 void MainMenuDisplay::handleButtonClick(sf::Vector2i mousePosition) {
     if (m_startButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
         std::cout << "Start Game button clicked!" << std::endl;
-        // Logic to transition to the game display
+        menuMmusic.stop();
     }
     else if (m_helpButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
         std::cout << "Help button clicked!" << std::endl;
-        // Show help information
+        m_state = HELP_SCREEN; // Change state to help screen
     }
     else if (m_exitButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
         std::cout << "Exit button clicked!" << std::endl;
-        m_window->close(); // Exit the application
+        m_window->close();
     }
 }
 
-// Main loop for the main menu
+// Main loop
 void MainMenuDisplay::Run() {
+    menuMmusic.setLoop(true);
+    menuMmusic.setVolume(50.0f);
+    menuMmusic.play();
+
     while (m_window->isOpen()) {
         handleInput();
         show();
     }
 }
-
-
