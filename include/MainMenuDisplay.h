@@ -42,6 +42,11 @@ private:
     // Help screen text
     sf::Text m_helpText;
 
+     //add
+     //sf::RectangleShape m_robotArea;  // Hover area
+    //sf::Text m_hoverExplanationText; // Tooltip text
+
+
     // Helper methods
     int handleButtonClick(sf::Vector2i mousePosition);
     void configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset);
