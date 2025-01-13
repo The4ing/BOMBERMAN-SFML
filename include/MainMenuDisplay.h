@@ -1,28 +1,48 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp> // Added for sf::Music
 #include "Display.h"
 
 class MainMenuDisplay : public Display {
-
-
 public:
     MainMenuDisplay(sf::RenderWindow* window, int game);
-    void show() override;
-    void handleInput() override;
+    void show() override; // Displays the menu or help screen
+    void handleInput() override; // Handles user input
     void Run(); // Main loop for the menu
+
 private:
-    sf::Texture m_backgroundTexture; // Texture for the background
-    sf::Sprite m_backgroundSprite;  // Sprite to display the background
+    // State enumeration for the menu
+    enum State {
+        MAIN_MENU,
+        HELP_SCREEN
+    };
+
+    State m_state; // Tracks the current state
 
     sf::RenderWindow* m_window;
     int m_game;
 
-    // Button-related members
+    // Music
+    sf::Music menuMmusic;
+
+    // Main menu background
+    sf::Texture m_backgroundTexture;
+    sf::Sprite m_backgroundSprite;
+
+    // Help screen background
+    sf::Texture m_helpBackgroundTexture;
+
+    // Buttons and text
     sf::Font m_font;
     sf::Text m_startButton;
     sf::Text m_helpButton;
     sf::Text m_exitButton;
 
+    // Help screen text
+    sf::Text m_helpText;
+
+    // Helper methods
     void handleButtonClick(sf::Vector2i mousePosition);
+    void configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset);
 };
