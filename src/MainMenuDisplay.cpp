@@ -73,7 +73,7 @@ void MainMenuDisplay::show() {
 
 
 // Handle input
-void MainMenuDisplay::handleInput() {
+int MainMenuDisplay::handleInput() {
     sf::Event event;
     while (m_window->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
@@ -88,17 +88,21 @@ void MainMenuDisplay::handleInput() {
 
         if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
-                handleButtonClick(sf::Mouse::getPosition(*m_window));
+                if (handleButtonClick(sf::Mouse::getPosition(*m_window)) == START_GAME) {
+                    return START_GAME;
+                }
             }
         }
     }
 }
 
 // Handle button clicks
-void MainMenuDisplay::handleButtonClick(sf::Vector2i mousePosition) {
+int MainMenuDisplay::handleButtonClick(sf::Vector2i mousePosition) {
+    int startGame = 0;
     if (m_startButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
         std::cout << "Start Game button clicked!" << std::endl;
         menuMmusic.stop();
+        startGame = START_GAME;
     }
     else if (m_helpButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
         std::cout << "Help button clicked!" << std::endl;
@@ -108,6 +112,7 @@ void MainMenuDisplay::handleButtonClick(sf::Vector2i mousePosition) {
         std::cout << "Exit button clicked!" << std::endl;
         m_window->close();
     }
+    return startGame;
 }
 
 // Main loop
@@ -117,7 +122,7 @@ void MainMenuDisplay::Run() {
     menuMmusic.play();
 
     while (m_window->isOpen()) {
-        handleInput();
+        if (handleInput() == START_GAME) break;
         show();
     }
 }

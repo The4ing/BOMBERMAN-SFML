@@ -21,6 +21,7 @@ void GameManager::startGame()
     while (m_window.isOpen()) {
         m_mainMenu.Run();
         sf::Event event;
+        std::cout << "hi" << std::endl;
         while (m_window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 m_window.close();

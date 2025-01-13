@@ -13,7 +13,7 @@ void GameDisplay::show() {
 }
 
 // Handle input in the game
-void GameDisplay::handleInput() {
+int GameDisplay::handleInput() {
     sf::Event event;
     while (m_window->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
@@ -21,4 +21,5 @@ void GameDisplay::handleInput() {
         }
         // Add game-specific input handling
     }
+    return 0;
 }

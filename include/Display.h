@@ -6,6 +6,6 @@ const int WINDOW_HEIGHT = 1080;
 class Display {
 public:
     virtual void show() = 0;       // Pure virtual for derived classes
-    virtual void handleInput() = 0; // Pure virtual for input handling
+    virtual int handleInput() = 0; // Pure virtual for input handling
     virtual ~Display() = default; // Virtual destructor for cleanup
 };

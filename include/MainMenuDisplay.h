@@ -3,12 +3,12 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp> // Added for sf::Music
 #include "Display.h"
-
+const int START_GAME = 1;
 class MainMenuDisplay : public Display {
 public:
     MainMenuDisplay(sf::RenderWindow* window, int game);
     void show() override; // Displays the menu or help screen
-    void handleInput() override; // Handles user input
+    int handleInput() override; // Handles user input
     void Run(); // Main loop for the menu
 
 private:
@@ -43,6 +43,6 @@ private:
     sf::Text m_helpText;
 
     // Helper methods
-    void handleButtonClick(sf::Vector2i mousePosition);
+    int handleButtonClick(sf::Vector2i mousePosition);
     void configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset);
 };

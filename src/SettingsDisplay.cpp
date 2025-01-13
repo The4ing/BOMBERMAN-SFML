@@ -13,7 +13,7 @@ void SettingsDisplay::show() {
 }
 
 // Handle input in the settings
-void SettingsDisplay::handleInput() {
+int SettingsDisplay::handleInput() {
     sf::Event event;
     while (m_window->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
@@ -21,4 +21,5 @@ void SettingsDisplay::handleInput() {
         }
         // Add settings-specific input handling
     }
+    return 0;
 }

@@ -6,7 +6,7 @@ class GameDisplay : public Display {
 public:
     GameDisplay(sf::RenderWindow* window);
     void show() override;          // Render the game screen
-    void handleInput() override;   // Handle input in the game
+    int handleInput() override;   // Handle input in the game
 private:
     sf::RenderWindow* m_window;
 };
