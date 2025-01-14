@@ -3,6 +3,7 @@
 #include "MainMenuDisplay.h"
 #include "GameDisplay.h"
 #include "SettingsDisplay.h"
+#include "Board.h"
 
 
 
@@ -11,11 +12,17 @@ public:
     GameManager();
     void startGame();
     bool loadLevel(const std::string& fileName);
+    void render();
 
 private:
     sf::RenderWindow m_window;   // SFML render window
     MainMenuDisplay m_mainMenu;
     GameDisplay m_gameScreen;
     SettingsDisplay m_settingsScreen;
+    Board m_board;
+
+    //for timer
+    sf::Font m_font;          // Font for displaying text
+    sf::Text m_timerText;     // Text object for the timer
 
 };
