@@ -10,9 +10,9 @@
 class GameManager {
 public:
     GameManager();
+    void newGame();
     void startGame();
     bool loadLevel(const std::string& fileName);
-    void render();
 
 private:
     sf::RenderWindow m_window;   // SFML render window
