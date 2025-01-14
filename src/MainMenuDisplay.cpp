@@ -2,12 +2,21 @@
 #include <iostream>
 
 // Constructor
+// Constructor
 MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     : m_window(window), m_game(game), m_state(MAIN_MENU) {
-    // Load music file
+    // Load menu music
     if (!menuMmusic.openFromFile("menuMusic.ogg")) {
-        std::cerr << "Error: Could not load music file!" << std::endl;
+        std::cerr << "Error: Could not load menu music file!" << std::endl;
     }
+    
+
+    // Load button click sound
+    if (!m_buttonClickBuffer.loadFromFile("ButtonMusic.ogg")) {
+        std::cerr << "Error: Could not load button click sound file!" << std::endl;
+    }
+    m_buttonClickSound.setBuffer(m_buttonClickBuffer);
+    m_buttonClickSound.setVolume(100.0f);  // Set button click sound volume (adjust as needed)
 
     // Load fonts and textures
     if (!m_font.loadFromFile("PixelFontBlack.otf")) {
@@ -23,19 +32,12 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
         std::cerr << "Error loading help background image!" << std::endl;
     }
 
-    // Configure main menu buttons
+    // Configure buttons
     configureButton(m_startButton, "Start Game", sf::Color::Black, -100);
     configureButton(m_helpButton, "Help", sf::Color::Black, 0);
     configureButton(m_exitButton, "Exit", sf::Color::Black, 100);
-
-
-
-    m_helpText.setFont(m_font);
-    m_helpText.setString("Use the arrow keys to direct Bomberman in any one of the four cardinal directions.\nUse the B button : Press the B button to drop a bomb on the tile that Bomberman is currently standing on.\nthe bomb will self destruct after four seconds\nPress ESC to return to the menu.");
-    m_helpText.setCharacterSize(30);
-    m_helpText.setFillColor(sf::Color::White);
-    m_helpText.setPosition(50, 50); // Adjust position as needed
 }
+
 
 // Configure button with hover background
 void MainMenuDisplay::configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset) {
@@ -61,6 +63,7 @@ void MainMenuDisplay::show() {
     m_window->clear(sf::Color::Black);
 
     if (m_state == MAIN_MENU) {
+        m_backgroundSprite.setTexture(m_backgroundTexture);  // Ensure background is the main menu texture
         m_window->draw(m_backgroundSprite);
 
         // Draw buttons
@@ -69,14 +72,13 @@ void MainMenuDisplay::show() {
         m_window->draw(m_exitButton);
     }
     else if (m_state == HELP_SCREEN) {
-        m_window->draw(m_backgroundSprite);
+        m_window->draw(m_backgroundSprite);  // Now it will draw the help background
         m_window->draw(m_helpText);
     }
 
     m_window->display();
 }
 
-// Handle user input
 int MainMenuDisplay::handleInput() {
     sf::Event event;
     while (m_window->pollEvent(event)) {
@@ -87,6 +89,7 @@ int MainMenuDisplay::handleInput() {
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Escape && m_state == HELP_SCREEN) {
                 m_state = MAIN_MENU;
+                m_backgroundSprite.setTexture(m_backgroundTexture);  // Set the background back to main menu when escaping
             }
         }
 
@@ -102,22 +105,27 @@ int MainMenuDisplay::handleInput() {
             }
         }
     }
-    return 0;
 }
 
 // Handle button clicks
 int MainMenuDisplay::handleButtonClick(sf::Vector2i mousePosition) {
     if (m_startButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
         std::cout << "Start Game button clicked!" << std::endl;
+         m_buttonClickSound.play();  // Play sound when the button is clicked
+
         menuMmusic.stop();
         return START_GAME;
     }
     else if (m_helpButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
         std::cout << "Help button clicked!" << std::endl;
+        m_buttonClickSound.play();
+      
         m_state = HELP_SCREEN;
+        m_backgroundSprite.setTexture(m_helpBackgroundTexture);
     }
     else if (m_exitButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
         std::cout << "Exit button clicked!" << std::endl;
+        m_buttonClickSound.play();
         m_window->close();
     }
     return 0;
@@ -144,7 +152,7 @@ void MainMenuDisplay::handleHover(sf::Vector2i mousePosition) {
 // Main loop
 void MainMenuDisplay::Run() {
     menuMmusic.setLoop(true);
-    menuMmusic.setVolume(50.0f);
+    menuMmusic.setVolume(10.0f);
     menuMmusic.play();
 
     while (m_window->isOpen()) {
