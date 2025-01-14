@@ -2,12 +2,11 @@
 
 
 Board::Board()
-    : m_FreezeGuardsStatus(false), m_lives(0), m_LevelDuration(0.0), m_TimeLeft(0.0), m_isTimerRunning(true) {
+    : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_lives(0), m_LevelDuration(0.0), m_TimeLeft(0.0), m_isTimerRunning(true) {
     // Initialize timer and set it to running
     m_clock.restart();  // Starts the clock immediately
-   
-}
 
+}
 //this is for the timer 
 // Optional: Use the clock to update the TimeLeft in each frame (could be in an update function)
 void Board::UpdateTimer() {
@@ -22,7 +21,6 @@ void Board::UpdateTimer() {
         }
     }
 }
-
 void Board::PowerUp(const object choice) {
     switch (choice) {
     case FreezeGuards:
@@ -112,5 +110,116 @@ void Board::setLevelDuration(float duration) {
     m_clock.restart();           // Restart the clock to begin timing
 }
 
+void Board::loadFromFile(const std::string& fileName) {
+    std::ifstream file(fileName);
+    if (!file.is_open()) {
+        std::cerr << "Error: Cannot open file " << fileName << std::endl;
+        return;
+    }
+
+    std::vector<std::string> lines;
+    std::string line;
+    while (std::getline(file, line)) {
+        lines.push_back(line);
+    }
+    file.close();
+
+    m_rows = lines.size();
+    m_cols = lines.empty() ? 0 : lines[0].size();
+    grid.resize(m_rows, std::vector<Cell>(m_cols));
+
+    for (int i = 0; i < m_rows; ++i) {
+        for (int j = 0; j < m_cols; ++j) {
+            char symbol = lines[i][j];
+            switch (symbol) {
+            case '#':
+                grid[i][j].content = new Wall();
+                grid[i][j].isWalkable = false;
+                grid[i][j].isExplodable = false;
+                break;
+            case ' ':
+                grid[i][j].content = new Empty();
+                grid[i][j].isWalkable = true;
+                grid[i][j].isExplodable = false;
+                break;
+            default:
+                std::cerr << "Unknown symbol '" << symbol << "' at (" << i << ", " << j << ")" << std::endl;
+                grid[i][j].content = nullptr;
+                break;
+            }
+        }
+    }
+}
+
+void Board::loadTextures() {
+    if (!wallTexture.loadFromFile("wall.png") || !emptyTexture.loadFromFile("empty.png")) {
+        std::cerr << "Error: Failed to load textures." << std::endl;
+    }
+}
+
+void Board::displayConsole() const {
+    for (const auto& row : grid) {
+        for (const auto& cell : row) {
+            if (cell.content) {
+                std::cout << cell.content->getSymbol();
+            }
+            else {
+                std::cout << ' ';
+            }
+        }
+        std::cout << '\n';
+    }
+}
+
+void Board::display(sf::RenderWindow& window) const {
+    if (m_rows == 0 || m_cols == 0) return;
+
+    // Calculate frame and grid size
+    float frameWidth = window.getSize().x * 0.8f;  // 80% of window width
+    float frameHeight = window.getSize().y * 0.8f; // 80% of window height
+    float cellWidth = frameWidth / static_cast<float>(m_cols);
+    float cellHeight = frameHeight / static_cast<float>(m_rows);
+
+    // Calculate frame top-left corner for centering
+    float frameX = (window.getSize().x - frameWidth) / 2.0f;
+    float frameY = (window.getSize().y - frameHeight) / 2.0f;
+
+    // Define a view for the grid
+    sf::View view(sf::FloatRect(0, 0, frameWidth, frameHeight));
+    view.setViewport(sf::FloatRect(frameX / window.getSize().x, frameY / window.getSize().y,
+        frameWidth / window.getSize().x, frameHeight / window.getSize().y));
+    window.setView(view);
+
+    // Draw the grid content
+    sf::Sprite sprite;
+
+    for (int i = 0; i < m_rows; ++i) {
+        for (int j = 0; j < m_cols; ++j) {
+            if (grid[i][j].content) {
+                if (grid[i][j].content->getSymbol() == '#') {
+                    sprite.setTexture(wallTexture);
+                }
+                else if (grid[i][j].content->getSymbol() == ' ') {
+                    sprite.setTexture(emptyTexture);
+                }
+
+                // Scale sprite to fit the cell
+                sprite.setScale(cellWidth / sprite.getTexture()->getSize().x,
+                    cellHeight / sprite.getTexture()->getSize().y);
+
+                // Position sprite inside the grid
+                sprite.setPosition(j * cellWidth, i * cellHeight);
+
+                // Draw the sprite
+                window.draw(sprite);
+            }
+        }
+    }
+
+    // Reset the window's view to default after drawing the grid
+    window.setView(window.getDefaultView());
+
+
+}
 
 
