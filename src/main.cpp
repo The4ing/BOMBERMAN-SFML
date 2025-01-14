@@ -5,7 +5,7 @@
 int main() {
 
     GameManager bomberman;
-	bomberman.startGame();
+	bomberman.newGame();
 
     return 0;
 }
