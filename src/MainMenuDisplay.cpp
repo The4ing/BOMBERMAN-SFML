@@ -153,31 +153,33 @@ int MainMenuDisplay::handleInput() {
 
 // Handle button clicks
 int MainMenuDisplay::handleButtonClick(sf::Vector2i mousePosition) {
+    sf::Vector2f worldMousePos = m_window->mapPixelToCoords(mousePosition);
+
     int startGame = 0;
-    if (m_startButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+    if (m_startButton.getGlobalBounds().contains(worldMousePos)) {
         std::cout << "Start Game button clicked!" << std::endl;
         menuMmusic.stop();
         startGame = START_GAME;
     }
-    else if (m_helpButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+    else if (m_helpButton.getGlobalBounds().contains(worldMousePos)) {
         std::cout << "Help button clicked!" << std::endl;
         m_state = HELP_SCREEN; // Change state to help screen
     }
-    else if (m_exitButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+    else if (m_exitButton.getGlobalBounds().contains(worldMousePos)) {
         std::cout << "Exit button clicked!" << std::endl;
         m_window->close();
     }
     return startGame;
 }
 
-// Main loop
+
 void MainMenuDisplay::Run() {
-    menuMmusic.setLoop(true);
+    menuMmusic.setLoop(false);
     menuMmusic.setVolume(50.0f);
     menuMmusic.play();
 
     while (m_window->isOpen()) {
-        if (handleInput() == START_GAME) break;
+        if (handleInput() == START_GAME) return;
         show();
     }
 }
