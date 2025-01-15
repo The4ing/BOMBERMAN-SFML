@@ -48,8 +48,8 @@ private:
 
 
     // Helper methods
-    int handleButtonClick(sf::Vector2i mousePosition);
-    void handleHover(sf::Vector2i mousePosition);
+    int handleButtonClick(sf::Vector2i mousePosition)  ;
+    void handleHover(const sf::Vector2i mousePosition);
     void configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset);
 
 
