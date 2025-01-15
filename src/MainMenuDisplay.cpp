@@ -201,11 +201,11 @@ int MainMenuDisplay::handleButtonClick(const sf::Vector2i mousePosition) {
     else if (m_helpButton.getGlobalBounds().contains(worldMousePos)) {
         std::cout << "Help button clicked!" << std::endl;
         m_buttonClickSound.play();
-      
+
         m_state = HELP_SCREEN;
 
         return 0;
-        
+
     }
     else if (m_exitButton.getGlobalBounds().contains(worldMousePos)) {
         std::cout << "Exit button clicked!" << std::endl;
@@ -218,8 +218,8 @@ int MainMenuDisplay::handleButtonClick(const sf::Vector2i mousePosition) {
 
 // Handle hover effects
 void MainMenuDisplay::handleHover(const sf::Vector2i mousePosition) {
+    sf::Vector2f worldMousePos = m_window->mapPixelToCoords(mousePosition);
     if (m_state == MAIN_MENU) {
-        sf::Vector2f worldMousePos = m_window->mapPixelToCoords(mousePosition);
         // Hover effects for main menu buttons
         auto setHoverEffect = [&](sf::Text& button) {
             if (button.getGlobalBounds().contains(worldMousePos)) {
@@ -240,9 +240,9 @@ void MainMenuDisplay::handleHover(const sf::Vector2i mousePosition) {
         bool hovered = false;
 
         for (const auto& object : m_helpObjects) {
-            if (object.first.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+            if (object.first.getGlobalBounds().contains(worldMousePos)) {
                 m_hoverExplanationText.setString(object.second);
-                m_hoverExplanationText.setPosition(mousePosition.x + 15, mousePosition.y + 15);
+                m_hoverExplanationText.setPosition(worldMousePos.x + 15, worldMousePos.y + 15);
                 hovered = true;
                 break;
             }
