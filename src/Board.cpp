@@ -5,6 +5,7 @@ Board::Board()
     : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_lives(0), m_LevelDuration(0.0), m_TimeLeft(0.0), m_isTimerRunning(true) {
     // Initialize timer and set it to running
     m_clock.restart();  // Starts the clock immediately
+    loadTextures();
 
 }
 //this is for the timer 
@@ -21,7 +22,7 @@ void Board::UpdateTimer() {
         }
     }
 }
-void Board::PowerUp(const object choice) {
+void Board::PowerUp(const powerUps choice) {
     switch (choice) {
     case FreezeGuards:
         FreezeAllGuards(true);  // Freeze all guards
@@ -126,25 +127,45 @@ void Board::loadFromFile(const std::string& fileName) {
 
     m_rows = lines.size();
     m_cols = lines.empty() ? 0 : lines[0].size();
-    grid.resize(m_rows, std::vector<Cell>(m_cols));
+    m_grid.resize(m_rows, std::vector<Cell>(m_cols));
 
     for (int i = 0; i < m_rows; ++i) {
         for (int j = 0; j < m_cols; ++j) {
             char symbol = lines[i][j];
             switch (symbol) {
             case '#':
-                grid[i][j].content = new Wall();
-                grid[i][j].isWalkable = false;
-                grid[i][j].isExplodable = false;
+                m_grid[i][j].content = new Wall();
+                m_grid[i][j].isWalkable = false;
+                m_grid[i][j].isExplodable = false;
                 break;
             case ' ':
-                grid[i][j].content = new Empty();
-                grid[i][j].isWalkable = true;
-                grid[i][j].isExplodable = false;
+                m_grid[i][j].content = new Empty();
+                m_grid[i][j].isWalkable = true;
+                m_grid[i][j].isExplodable = false;
+                break;
+            case '/':
+                m_grid[i][j].content = new Robot();
+                m_grid[i][j].isWalkable = false;
+                m_grid[i][j].isExplodable = true;
+                break;
+            case '!':
+                m_grid[i][j].content = new Guard();
+                m_grid[i][j].isWalkable = false;
+                m_grid[i][j].isExplodable = true;
+                break;
+            case '@':
+                m_grid[i][j].content = new Rock();
+                m_grid[i][j].isWalkable = false;
+                m_grid[i][j].isExplodable = true;
+                break;
+            case 'D':
+                m_grid[i][j].content = new Door();
+                m_grid[i][j].isWalkable = false;
+                m_grid[i][j].isExplodable = true;
                 break;
             default:
                 std::cerr << "Unknown symbol '" << symbol << "' at (" << i << ", " << j << ")" << std::endl;
-                grid[i][j].content = nullptr;
+                m_grid[i][j].content = nullptr;
                 break;
             }
         }
@@ -152,13 +173,29 @@ void Board::loadFromFile(const std::string& fileName) {
 }
 
 void Board::loadTextures() {
-    if (!wallTexture.loadFromFile("wall.png") || !emptyTexture.loadFromFile("empty.png")) {
-        std::cerr << "Error: Failed to load textures." << std::endl;
+    // Resize the vector to hold all textures based on TEXTURE_COUNT
+    m_textures.resize(TEXTURE_COUNT);
+
+    // Map each object type to its corresponding texture file
+    const std::map<int, std::string> textureFiles = {
+        {WALL, "wall.png"},
+        {ROCK, "rock.png"},
+        {ROBOT, "robot.png"},
+        {GUARD, "guard.png"},
+        {DOOR, "door.png"},
+        {EMPTY, "empty.png"}
+    };
+
+    // Load each texture and store it in the corresponding index
+    for (const auto& [index, filename] : textureFiles) {
+        if (!m_textures[index].loadFromFile(filename)) {
+            std::cerr << "Error: Could not load texture file " << filename << std::endl;
+        }
     }
 }
 
 void Board::displayConsole() const {
-    for (const auto& row : grid) {
+    for (const auto& row : m_grid) {
         for (const auto& cell : row) {
             if (cell.content) {
                 std::cout << cell.content->getSymbol();
@@ -169,57 +206,63 @@ void Board::displayConsole() const {
         }
         std::cout << '\n';
     }
+
 }
+
 
 void Board::display(sf::RenderWindow& window) const {
     if (m_rows == 0 || m_cols == 0) return;
 
-    // Calculate frame and grid size
+    // Calculate the size of each cell
     float frameWidth = window.getSize().x * 0.8f;  // 80% of window width
     float frameHeight = window.getSize().y * 0.8f; // 80% of window height
     float cellWidth = frameWidth / static_cast<float>(m_cols);
     float cellHeight = frameHeight / static_cast<float>(m_rows);
 
-    // Calculate frame top-left corner for centering
-    float frameX = (window.getSize().x - frameWidth) / 2.0f;
-    float frameY = (window.getSize().y - frameHeight) / 2.0f;
+    // Center the grid on the window
+    float offsetX = (window.getSize().x - frameWidth) / 2.0f;
+    float offsetY = (window.getSize().y - frameHeight) / 2.0f;
 
     // Define a view for the grid
     sf::View view(sf::FloatRect(0, 0, frameWidth, frameHeight));
-    view.setViewport(sf::FloatRect(frameX / window.getSize().x, frameY / window.getSize().y,
+    view.setViewport(sf::FloatRect(offsetX / window.getSize().x, offsetY / window.getSize().y,
         frameWidth / window.getSize().x, frameHeight / window.getSize().y));
     window.setView(view);
 
-    // Draw the grid content
+    // Draw each cell in the grid
     sf::Sprite sprite;
-
     for (int i = 0; i < m_rows; ++i) {
         for (int j = 0; j < m_cols; ++j) {
-            if (grid[i][j].content) {
-                if (grid[i][j].content->getSymbol() == '#') {
-                    sprite.setTexture(wallTexture);
+            // Determine the texture to use based on the cell content
+            if (m_grid[i][j].content) {
+                const sf::Texture* texture = nullptr;  // Use const pointer here
+                char symbol = m_grid[i][j].content->getSymbol();
+                switch (symbol) {
+                case '#': texture = &m_textures[WALL]; break;
+                case ' ': texture = &m_textures[EMPTY]; break;
+                case '/': texture = &m_textures[ROBOT]; break;
+                case '!': texture = &m_textures[GUARD]; break;
+                case 'D': texture = &m_textures[DOOR]; break;
+                case '@': texture = &m_textures[ROCK]; break;
+                default: continue;  // Skip unknown symbols
                 }
-                else if (grid[i][j].content->getSymbol() == ' ') {
-                    sprite.setTexture(emptyTexture);
+
+                if (texture) {
+                    sprite.setTexture(*texture);
+
+                    // Scale the sprite to fit the cell
+                    sprite.setScale(cellWidth / sprite.getTexture()->getSize().x,
+                        cellHeight / sprite.getTexture()->getSize().y);
+
+                    // Position the sprite in the grid
+                    sprite.setPosition(j * cellWidth, i * cellHeight);
+
+                    // Draw the sprite
+                    window.draw(sprite);
                 }
-
-                // Scale sprite to fit the cell
-                sprite.setScale(cellWidth / sprite.getTexture()->getSize().x,
-                    cellHeight / sprite.getTexture()->getSize().y);
-
-                // Position sprite inside the grid
-                sprite.setPosition(j * cellWidth, i * cellHeight);
-
-                // Draw the sprite
-                window.draw(sprite);
             }
         }
     }
-
     // Reset the window's view to default after drawing the grid
     window.setView(window.getDefaultView());
-
-
 }
-
-
