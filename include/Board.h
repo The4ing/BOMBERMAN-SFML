@@ -9,20 +9,34 @@
 #include "Cell.h"
 #include "Wall.h"
 #include "Empty.h"
+#include "Door.h"
+#include "Robot.h"
+#include "Guard.h"
+#include "Rock.h"
 
 // Enum to define power-up choices
-enum object {
+enum powerUps {
     FreezeGuards,
     ExtraLife,
     RemovedGuard,
     TimeIncrease
 };
 
+enum objects {
+	WALL,
+	ROCK,
+    ROBOT,
+	GUARD,
+    DOOR,
+    EMPTY,
+    TEXTURE_COUNT
+};
+
 class Board {
 public:
     Board();
     void UpdateTimer();
-    void PowerUp(const object choice);
+    void PowerUp(const powerUps choice);
     void FreezeAllGuards(const bool status);
     void GrantExtraLife();
     //void RemoveGuard();
@@ -49,9 +63,10 @@ private:
     sf::Clock m_clock;  // Starts the clock immediately
     bool m_isTimerRunning;
 
-    std::vector<std::vector<Cell>> grid;
+    std::vector<std::vector<Cell>> m_grid;
     int m_rows, m_cols;
 
+    std::vector<sf::Texture> m_textures;
     sf::Texture wallTexture;
     sf::Texture emptyTexture;
     sf::View m_view;
