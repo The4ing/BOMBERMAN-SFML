@@ -9,13 +9,13 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     if (!menuMmusic.openFromFile("menuMusic.ogg")) {
         std::cerr << "Error: Could not load menu music file!" << std::endl;
     }
-    
+
 
     // Load button click sound
     if (!m_buttonClickBuffer.loadFromFile("ButtonMusic.ogg")) {
         std::cerr << "Error: Could not load button click sound file!" << std::endl;
     }
-   
+
     // Load fonts and textures
     if (!m_font.loadFromFile("PixelFontBlack.otf")) {
         std::cerr << "Error loading font!" << std::endl;
@@ -30,18 +30,11 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
         std::cerr << "Error loading help background image!" << std::endl;
     }
 
-
-      
-
-
-
     // Configure buttons
     configureButton(m_startButton, "Start Game", sf::Color::Black, -100);
     configureButton(m_helpButton, "Help", sf::Color::Black, 0);
     configureButton(m_exitButton, "Exit", sf::Color::Black, 100);
 }
-
-
 // Configure button with hover background
 void MainMenuDisplay::configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset) {
     float windowWidth = m_window->getSize().x;
@@ -66,7 +59,7 @@ void MainMenuDisplay::show() {
     m_window->clear(sf::Color::Black);
 
     if (m_state == MAIN_MENU) {
-        m_backgroundSprite.setTexture(m_backgroundTexture);  // Ensure background is the main menu texture
+        m_backgroundSprite.setTexture(m_backgroundTexture); // Main menu texture
         m_window->draw(m_backgroundSprite);
 
         // Draw buttons
@@ -75,12 +68,16 @@ void MainMenuDisplay::show() {
         m_window->draw(m_exitButton);
     }
     else if (m_state == HELP_SCREEN) {
-        m_window->draw(m_backgroundSprite);  // Now it will draw the help background
+        m_backgroundSprite.setTexture(m_helpBackgroundTexture); // Help screen texture
+        m_window->draw(m_backgroundSprite);
+
+        // Optionally draw help-specific text or elements here
         m_window->draw(m_helpText);
     }
 
     m_window->display();
 }
+
 
 int MainMenuDisplay::handleInput() {
     sf::Event event;
@@ -110,34 +107,41 @@ int MainMenuDisplay::handleInput() {
     }
 }
 
-// Handle button clicks
-int MainMenuDisplay::handleButtonClick(const sf::Vector2i mousePosition)   {
-    if (m_startButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
-        std::cout << "Start Game button clicked!" << std::endl;
-         m_buttonClickSound.play();  // Play sound when the button is clicked
+int MainMenuDisplay::handleButtonClick(const sf::Vector2i mousePosition) {
+    if (m_state != MAIN_MENU) {
+        return 0; // Do nothing if not in the main menu
+    }
 
+    sf::Vector2f worldMousePos = m_window->mapPixelToCoords(mousePosition);
+    if (m_startButton.getGlobalBounds().contains(worldMousePos)) {
+        std::cout << "Start Game button clicked!" << std::endl;
+        m_buttonClickSound.play();
         menuMmusic.stop();
         return START_GAME;
     }
-    else if (m_helpButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+    else if (m_helpButton.getGlobalBounds().contains(worldMousePos)) {
         std::cout << "Help button clicked!" << std::endl;
         m_buttonClickSound.play();
-      
         m_state = HELP_SCREEN;
-        m_backgroundSprite.setTexture(m_helpBackgroundTexture);
+        return 0;
     }
-    else if (m_exitButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+    else if (m_exitButton.getGlobalBounds().contains(worldMousePos)) {
         std::cout << "Exit button clicked!" << std::endl;
         m_buttonClickSound.play();
         m_window->close();
+        return 0;
     }
+
     return 0;
 }
 
+
+
 // Handle hover effects
 void MainMenuDisplay::handleHover(const sf::Vector2i mousePosition) {
+    sf::Vector2f worldMousePos = m_window->mapPixelToCoords(mousePosition);
     auto setHoverEffect = [&](sf::Text& button) {
-        if (button.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+        if (button.getGlobalBounds().contains(worldMousePos)) {
             button.setFillColor(sf::Color::Red);
             button.setScale(1.2f, 1.23f);
         }
@@ -145,7 +149,7 @@ void MainMenuDisplay::handleHover(const sf::Vector2i mousePosition) {
             button.setFillColor(sf::Color::Black);
             button.setScale(1.0f, 1.0f);
         }
-    };
+        };
 
     setHoverEffect(m_startButton);
     setHoverEffect(m_helpButton);
