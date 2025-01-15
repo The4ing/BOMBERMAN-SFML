@@ -15,9 +15,7 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     if (!m_buttonClickBuffer.loadFromFile("ButtonMusic.ogg")) {
         std::cerr << "Error: Could not load button click sound file!" << std::endl;
     }
-    m_buttonClickSound.setBuffer(m_buttonClickBuffer);
-    m_buttonClickSound.setVolume(100.0f);  // Set button click sound volume (adjust as needed)
-
+   
     // Load fonts and textures
     if (!m_font.loadFromFile("PixelFontBlack.otf")) {
         std::cerr << "Error loading font!" << std::endl;
@@ -31,6 +29,11 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     if (!m_helpBackgroundTexture.loadFromFile("helpBackground.png")) {
         std::cerr << "Error loading help background image!" << std::endl;
     }
+
+
+      
+
+
 
     // Configure buttons
     configureButton(m_startButton, "Start Game", sf::Color::Black, -100);
@@ -108,7 +111,7 @@ int MainMenuDisplay::handleInput() {
 }
 
 // Handle button clicks
-int MainMenuDisplay::handleButtonClick(sf::Vector2i mousePosition) {
+int MainMenuDisplay::handleButtonClick(const sf::Vector2i mousePosition)   {
     if (m_startButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
         std::cout << "Start Game button clicked!" << std::endl;
          m_buttonClickSound.play();  // Play sound when the button is clicked
@@ -132,17 +135,17 @@ int MainMenuDisplay::handleButtonClick(sf::Vector2i mousePosition) {
 }
 
 // Handle hover effects
-void MainMenuDisplay::handleHover(sf::Vector2i mousePosition) {
+void MainMenuDisplay::handleHover(const sf::Vector2i mousePosition) {
     auto setHoverEffect = [&](sf::Text& button) {
         if (button.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
             button.setFillColor(sf::Color::Red);
-            button.setScale(1.1f, 1.1f);
+            button.setScale(1.2f, 1.23f);
         }
         else {
             button.setFillColor(sf::Color::Black);
             button.setScale(1.0f, 1.0f);
         }
-        };
+    };
 
     setHoverEffect(m_startButton);
     setHoverEffect(m_helpButton);
@@ -152,8 +155,11 @@ void MainMenuDisplay::handleHover(sf::Vector2i mousePosition) {
 // Main loop
 void MainMenuDisplay::Run() {
     menuMmusic.setLoop(true);
-    menuMmusic.setVolume(10.0f);
+    menuMmusic.setVolume(5.0f);
     menuMmusic.play();
+    m_buttonClickSound.setBuffer(m_buttonClickBuffer);
+    m_buttonClickSound.setVolume(200.0f);  // Set button click sound volume (adjust as needed)
+
 
     while (m_window->isOpen()) {
         if (handleInput() == START_GAME) break;
