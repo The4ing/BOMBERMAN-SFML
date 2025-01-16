@@ -91,7 +91,7 @@ void MainMenuDisplay::initializeHelpObjects() {
         std::string explanation;
         switch (i) {
         case 0: explanation = "Wall: An obstacle."; break;
-        case 1: explanation = "Robot: The main character which needs to escape through the door!"; break;
+        case 1: explanation = "Robot: The main character which\nneeds to escape through the door!"; break; 
         case 2: explanation = "Bomb: Handle with care."; break;
         case 3: explanation = "Guard: Be cautious!"; break;
         case 4: explanation = "Door: Leads to the next area."; break;
