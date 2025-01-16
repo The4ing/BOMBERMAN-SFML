@@ -111,6 +111,7 @@ void Board::setLevelDuration(float duration) {
     m_clock.restart();           // Restart the clock to begin timing
 }
 
+// Update the loadFromFile method in Board.cpp
 void Board::loadFromFile(const std::string& fileName) {
     std::ifstream file(fileName);
     if (!file.is_open()) {
@@ -144,9 +145,12 @@ void Board::loadFromFile(const std::string& fileName) {
                 m_grid[i][j].isExplodable = false;
                 break;
             case '/':
-                m_grid[i][j].content = new Robot();
+                m_grid[i][j].content = new Robot(); // Create a Robot object
                 m_grid[i][j].isWalkable = false;
                 m_grid[i][j].isExplodable = true;
+
+                // Save the robot's position
+                m_robotPosition = { static_cast<float>(j), static_cast<float>(i) };
                 break;
             case '!':
                 m_grid[i][j].content = new Guard();
@@ -172,6 +176,11 @@ void Board::loadFromFile(const std::string& fileName) {
     }
 }
 
+sf::Vector2f Board::getRobotPosition() const {
+    return { m_robotPosition.x , m_robotPosition.y }; // Scale to pixel units should be * CELL_SIZE
+}
+
+
 void Board::loadTextures() {
     // Resize the vector to hold all textures based on TEXTURE_COUNT
     m_textures.resize(TEXTURE_COUNT);
@@ -180,7 +189,7 @@ void Board::loadTextures() {
     const std::map<int, std::string> textureFiles = {
         {WALL, "wall.png"},
         {ROCK, "rock.png"},
-        {ROBOT, "robot.png"},
+       // {ROBOT, "robot.png"},
         {GUARD, "guard.png"},
         {DOOR, "door.png"},
         {EMPTY, "empty.png"}
