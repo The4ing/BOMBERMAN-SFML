@@ -51,6 +51,7 @@ public:
     void loadTextures();
     void displayConsole() const;
     void display(sf::RenderWindow& window) const;
+    sf::Vector2f getRobotPosition() const;
 
 private:
     bool m_FreezeGuardsStatus;    // Tracks whether the guards are frozen
@@ -70,4 +71,5 @@ private:
     sf::Texture wallTexture;
     sf::Texture emptyTexture;
     sf::View m_view;
+    sf::Vector2f m_robotPosition;
 };
