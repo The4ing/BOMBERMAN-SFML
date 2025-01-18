@@ -30,4 +30,9 @@ private:
     sf::Text m_timerText;
     bool m_pause;
     bool m_arrowKeyPressed;
+
+
+    //for the background picture for the game level 
+    sf::Texture m_BackgroundGameTexture;
+    sf::Sprite m_BackgroundGameSprite;
 };
