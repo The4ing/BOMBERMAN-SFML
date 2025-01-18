@@ -1,73 +1,60 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp> // Added for sf::Music
-#include "Display.h"
+#include <SFML/Audio.hpp>
 #include <string>
+#include <vector>
+
 const int START_GAME = 1;
 
-//for explanation in the help menu 
-//struct HelpObject {
-//    sf::FloatRect bounds;  // Position and size of the object
-//    std::string explanation;  // Explanation for the object
-//};
-
-
-class MainMenuDisplay : public Display {
+class MainMenuDisplay {
 public:
     MainMenuDisplay(sf::RenderWindow* window, int game);
-    void show() override; // Displays the menu or help screen
-    int handleInput() override; // Handles user input
-    void Run(); // Main loop for the menu
+    void show();           // Displays the menu or help screen
+    int handleInput();     // Handles user input
+    void Run();            // Main loop for the menu
 
 private:
-    // State enumeration for the menu
+    // States for the menu
     enum State {
         MAIN_MENU,
         HELP_SCREEN
     };
 
-    State m_state; // Tracks the current state
+    State m_state;                // Tracks the current state
 
-    sf::RenderWindow* m_window;
-    int m_game;
+    sf::RenderWindow* m_window;   // Render window
+    int m_game;                   // Game reference
 
-    // Music
-    sf::Music menuMmusic;
-
-    // Main menu background
-    sf::Texture m_backgroundTexture;
-    sf::Sprite m_backgroundSprite;
-
-    // Help screen background
+    // Backgrounds
+    sf::Texture m_mainBackgroundTexture;
+    sf::Sprite m_mainBackgroundSprite;
     sf::Texture m_helpBackgroundTexture;
+    sf::Sprite m_helpBackgroundSprite;
 
-    // Buttons and text
+    // Fonts and text
     sf::Font m_font;
     sf::Text m_startButton;
     sf::Text m_helpButton;
     sf::Text m_exitButton;
-
-    // Help screen text
-    sf::Text m_helpText;
-
-    // Tooltip text for hover
     sf::Text m_hoverExplanationText;
     sf::Text m_instructionText;
 
-    // Helper methods
-    int handleButtonClick(sf::Vector2i mousePosition);
-    void handleHover(const sf::Vector2i mousePosition);
-    void configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset);
-
+    // Button sounds
     sf::SoundBuffer m_buttonClickBuffer;
     sf::Sound m_buttonClickSound;
 
-    // Vector of textures and sprites for help objects
-    std::vector<std::pair<sf::Sprite, std::string>> m_helpObjects; // Pair of sprite and explanation
+    // Help objects (textures and sprites)
+    std::vector<sf::Texture> m_helpTextures;
+    std::vector<sf::Sprite> m_helpSprites;
+    std::vector<std::string> m_helpExplanations;
 
-    // Methods to initialize help objects with textures
+    // Menu music
+    sf::Music m_menuMusic;
+
+    // Helper methods
+    void configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset);
     void initializeHelpObjects();
-    // Class member to store textures
-    std::vector<sf::Texture> m_textures;
+    void handleHover(const sf::Vector2i mousePosition);
+    int handleButtonClick(const sf::Vector2i mousePosition);
 };
