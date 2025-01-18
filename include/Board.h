@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include <SFML/System/Clock.hpp>  // Include SFML clock
+#include <SFML/System/Clock.hpp>
 #include <sstream>
 #include "Cell.h"
 #include "Wall.h"
@@ -13,6 +13,8 @@
 #include "Robot.h"
 #include "Guard.h"
 #include "Rock.h"
+
+const int NUM_HEART = 3;
 
 // Enum to define power-up choices
 enum powerUps {
@@ -23,30 +25,48 @@ enum powerUps {
 };
 
 enum objects {
-	WALL,
-	ROCK,
+    WALL,
+    ROCK,
     ROBOT,
-	GUARD,
+    GUARD,
     DOOR,
     EMPTY,
-    TEXTURE_COUNT
+    HEART,
+    CLOCK,
+    ARROW,
+    TEXTURE_COUNT,
+   
 };
 
 class Board {
 public:
     Board();
-    void UpdateTimer();
+   
     void PowerUp(const powerUps choice);
     void FreezeAllGuards(const bool status);
     void GrantExtraLife();
     //void RemoveGuard();
 
-    //this is for the timer 
+    // Timer functions
+    void setTimer(const float duration)  ;
+    void animateProgressBar(float deltaTime, sf::RectangleShape& progressBar) const; 
+    void updateTimerDisplay(sf::Text& timerText, sf::RectangleShape& progressBar, sf::Sprite& arrow, std::vector<sf::Sprite>& heart,const  float deltaTime) ;
+    float getTimeLeft() const;           // Get the time left for the level
+    float getLevelDuration() const;
+    void CallUpdateTimer();
     void IncreaseTime(const int extraTime);
     std::string getTimeString() const;
-    void setLevelDuration(float duration);
+    
+    
+    //function for uplouding the sound
+    //void UploadSound();
 
-    // Other members and variables for game state (e.g., guards, lives, timer, etc.)
+    //function for the pictures 
+    const sf::Texture& GetTexture(const int choice) const ;
+    void SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const ;
+
+
+    // Other members and variables for game state
     void loadFromFile(const std::string& fileName);
     void loadTextures();
     void displayConsole() const;
@@ -56,13 +76,17 @@ public:
 private:
     bool m_FreezeGuardsStatus;    // Tracks whether the guards are frozen
     int m_lives;                  // Number of lives
+
+
+    //for timer
     float m_LevelDuration;        // Total duration of the level
     float m_TimeLeft;             // Time remaining for the level
-    //std::vector<Guard> guards;  // Vector storing the guards
+    sf::Clock m_clock;  // SFML Clock for timing
+    bool m_isTimerRunning;  // Timer running status
+    void setLevelDuration(const float duration);
+    void UpdateTimer();
+    
 
-    //this is for the timer 
-    sf::Clock m_clock;  // Starts the clock immediately
-    bool m_isTimerRunning;
 
     std::vector<std::vector<Cell>> m_grid;
     int m_rows, m_cols;
