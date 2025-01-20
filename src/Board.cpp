@@ -206,6 +206,9 @@ void Board::GrantExtraLife() {
 
 
 
+
+
+
 const sf::Texture& Board::GetTexture(const int chice) const
 {
     return m_textures[chice];
@@ -228,11 +231,11 @@ const int Board::getHeartCount()
     return m_Toolbar.getHeartCount();
 }
 
-
-
-
-
-
+void Board::SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const {
+    picture.setOrigin(picture.getGlobalBounds().width / 2, picture.getGlobalBounds().height / 2);  // Set origin to center of the sprite
+    picture.setPosition(POSx, POSy);  // Positioning the clock hand (adjust position as needed)
+    picture.setScale(thicknes, thicknes);  // Uniform scaling for both axes (width and height)
+}
 
 
 void Board::loadFromFile(const std::string& fileName) {
@@ -267,7 +270,7 @@ void Board::loadFromFile(const std::string& fileName) {
                 break;
             case '/':
                 m_grid[i][j].content = new Robot();
-                m_grid[i][j].isWalkable = false;
+                m_grid[i][j].isWalkable = true;
                 m_robotPosition = { static_cast<float>(j), static_cast<float>(i) };
                 break;
             case '!':
@@ -294,11 +297,13 @@ void Board::loadTextures() {
     m_textures.resize(TEXTURE_COUNT);
     const std::map<int, std::string> textureFiles = {
         {WALL, "wall.png"},
-        {ROCK, "Rock.png"},
-        {GUARD, "Guard.png"},
-        {DOOR, "Door.png"},
+        {ROCK, "rock.png"},
+        {GUARD, "guard.png"},
+        {DOOR, "door.png"},
         {EMPTY, "empty.png"},
-
+        {HEART,"heart.png"},
+         {CLOCK,"Clock.png"},
+         {ARROW, "arrow.png"}
     };
 
     for (const auto& [index, filename] : textureFiles) {
@@ -369,4 +374,40 @@ void Board::displayConsole() const {
 }
 sf::Vector2f Board::getRobotPosition() const {
     return { m_robotPosition.x , m_robotPosition.y };  // Returns the robot's position
+}
+int Board::getCols() const {
+    return m_cols;
+}
+
+int Board::getRows() const {
+    return m_rows;
+}
+
+sf::Vector2f Board::getRobotScreenPosition(const sf::RenderWindow& window){
+    if (m_rows == 0 || m_cols == 0) return { 0.f, 0.f };
+
+    float frameWidth = window.getSize().x * 0.8f;
+    float frameHeight = window.getSize().y * 0.8f;
+    float cellWidth = frameWidth / m_cols;
+    float cellHeight = frameHeight / m_rows;
+
+    float offsetX = (window.getSize().x - frameWidth) / 2.0f;
+    float offsetY = (window.getSize().y - frameHeight) / 2.0f;
+    m_cellSize = { cellWidth, cellHeight};
+    // Convert grid position to screen position
+    float screenX = m_robotPosition.x * cellWidth + offsetX;
+    float screenY = m_robotPosition.y * cellHeight + offsetY;
+
+    return { screenX, screenY };
+}
+
+bool Board::isWalkable(int row, int col) const {
+    if (row < 0 || row >= m_rows || col < 0 || col >= m_cols) {
+        return false; // Out of bounds is non-walkable
+    }
+    return m_grid[row][col].isWalkable;
+}
+
+sf::Vector2f Board::getCellSize() const {
+    return m_cellSize;
 }
