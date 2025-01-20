@@ -2,7 +2,7 @@
 #include <iostream>
 
 // Starting position for the robot
-const sf::Vector2f START_POSITION(100.f, 100.f);
+//const sf::Vector2f START_POSITION(100.f, 100.f);
 
 Robot::Robot()
     : m_velocity(0.f, 0.f),
@@ -19,7 +19,6 @@ Robot::Robot()
     // Set up the sprite
     m_sprite.setTexture(m_texture);
     m_sprite.setTextureRect(sf::IntRect(0, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
-    m_sprite.setPosition(START_POSITION);
     m_sprite.setScale(ROBOT_SCALE, ROBOT_SCALE);
 }
 
@@ -39,9 +38,14 @@ void Robot::setVelocity(float vx, float vy) {
 void Robot::update(float deltaTime) {
     // Update the position based on velocity and deltaTime
     m_sprite.move(m_velocity * deltaTime);
-
+    // Calculate and store the current cell position
+    sf::Vector2f spritePosition = m_sprite.getPosition();
+    m_currentCell = sf::Vector2f(
+        spritePosition.x, // Calculate cell column
+        spritePosition.y  // Calculate cell row
+    );
     // Check if the robot is supposed to be "dead"
-    if (/* condition for death */ false) { // Replace `false` with your actual death condition
+    if (/* condition for death */ false) { // Replace false with your actual death condition
         // Handle dead animation (second row in the sprite sheet)
         int deadFrame = (m_animationClock.getElapsedTime().asMilliseconds() / 100) % 7; // 3 frames for dead
         m_sprite.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, SPRITE_HEIGHT * 4, SPRITE_WIDTH, SPRITE_HEIGHT));
@@ -54,43 +58,87 @@ void Robot::update(float deltaTime) {
         m_animationFrame = (m_animationFrame + 1) % 3; // 3 frames per direction
 
         // Determine the sprite sheet coordinates for the animation
-        std::cout << m_direction << " and " << m_animationFrame << std::endl;
-        int textureX =  (m_animationFrame + ((m_direction - 1) * 3)) * SPRITE_WIDTH;              // Horizontal frame index
+        int textureX = (m_animationFrame + ((m_direction - 1) * 3)) * SPRITE_WIDTH;              // Horizontal frame index
         int textureY = 0;                                           // Always use the first row for all directions
         m_sprite.setTextureRect(sf::IntRect(textureX, textureY, SPRITE_WIDTH, SPRITE_HEIGHT));
 
         m_animationClock.restart(); // Reset the animation timer
     }
 
-
 }
+
+void Robot::handleInput(sf::Keyboard::Key key, bool isPressed) {
+    if (isPressed) {
+        // Handle key press for movement only
+        switch (key) {
+        case sf::Keyboard::Up:
+            m_velocity.y = -ROBOT_SPEED;
+            m_velocity.x = 0.f; // Prevent diagonal movement
+            m_direction = UP;
+            m_arrowKeyPressed = true;
+            break;
+        case sf::Keyboard::Down:
+            m_velocity.y = ROBOT_SPEED;
+            m_velocity.x = 0.f; // Prevent diagonal movement
+            m_direction = DOWN;
+            m_arrowKeyPressed = true;
+            break;
+        case sf::Keyboard::Left:
+            m_velocity.x = -ROBOT_SPEED;
+            m_velocity.y = 0.f; // Prevent diagonal movement
+            m_direction = LEFT;
+            m_arrowKeyPressed = true;
+            break;
+        case sf::Keyboard::Right:
+            m_velocity.x = ROBOT_SPEED;
+            m_velocity.y = 0.f; // Prevent diagonal movement
+            m_direction = RIGHT;
+            m_arrowKeyPressed = true;
+            break;
+        default:
+            // Ignore other keys
+            break;
+        }
+    }
+    else {
+        // Handle key release for movement only
+        switch (key) {
+        case sf::Keyboard::Up:
+        case sf::Keyboard::Down:
+            m_velocity.y = 0.f; // Stop vertical movement
+            break;
+        case sf::Keyboard::Left:
+        case sf::Keyboard::Right:
+            m_velocity.x = 0.f; // Stop horizontal movement
+            break;
+        default:
+            // Ignore other keys
+            break;
+        }
+
+        // If no movement keys are pressed, set direction to STAND
+        if (m_velocity.x == 0.f && m_velocity.y == 0.f) {
+            m_direction = STAND;
+            m_arrowKeyPressed = false;
+        }
+    }
+}
+
 
 
 void Robot::draw(sf::RenderWindow& window) const {
     window.draw(m_sprite);
 }
 
-void Robot::handleInput(sf::Keyboard::Key key, bool isPressed) {
-    // Handle keyboard inputs and set velocity/direction
-    switch (key) {
-    case sf::Keyboard::Up:
-        m_velocity.y = isPressed ? -ROBOT_SPEED : 0.f;
-        m_direction = isPressed ? UP : STAND;
-        break;
-    case sf::Keyboard::Down:
-        m_velocity.y = isPressed ? ROBOT_SPEED : 0.f;
-        m_direction = isPressed ? DOWN : STAND;
-        break;
-    case sf::Keyboard::Left:
-        m_velocity.x = isPressed ? -ROBOT_SPEED : 0.f;
-        m_direction = isPressed ? LEFT : STAND;
-        break;
-    case sf::Keyboard::Right:
-        m_velocity.x = isPressed ? ROBOT_SPEED : 0.f;
-        m_direction = isPressed ? RIGHT : STAND;
-        break;
-    default:
-        break;
+void Robot::setTilePosition(const sf::Vector2f& tilePosition) {
+    if (tilePosition.x >= 0 && tilePosition.y >= 0) {
+        setPosition(tilePosition.x, tilePosition.y);
     }
-    m_arrowKeyPressed = isPressed; // Update arrow key state
+    else {
+        std::cerr << "Error: Invalid tile position for the robot." << std::endl;
+    }
+}
+
+sf::Vector2f Robot::getCurrentCell() const {
+    return m_currentCell;
 }
