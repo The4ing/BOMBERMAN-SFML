@@ -1,220 +1,66 @@
-#include "MainMenuDisplay.h"
-#include <iostream>
+#pragma once
 
-// Constructor
-MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
-    : m_window(window), m_game(game), m_state(MAIN_MENU) {
-    // Load main menu background
-    if (!m_mainBackgroundTexture.loadFromFile("menu.png")) {
-        std::cerr << "Error loading main menu background!" << std::endl;
-    }
-    m_mainBackgroundSprite.setTexture(m_mainBackgroundTexture);
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <string>
+#include <vector>
 
-    // Load help menu background
-    if (!m_helpBackgroundTexture.loadFromFile("helpBackground.png")) {
-        std::cerr << "Error loading help menu background!" << std::endl;
-    }
-    m_helpBackgroundSprite.setTexture(m_helpBackgroundTexture);
+const int START_GAME = 1;
 
-    // Load font
-    if (!m_font.loadFromFile("PixelFontBlack.otf")) {
-        std::cerr << "Error loading font!" << std::endl;
-    }
+class MainMenuDisplay {
+public:
+    MainMenuDisplay(sf::RenderWindow* window, int game);
+    void show();           // Displays the menu or help screen
+    int handleInput();     // Handles user input
+    void Run();            // Main loop for the menu
 
-    // Configure buttons
-    configureButton(m_startButton, "Start Game", sf::Color::Black, -100);
-    configureButton(m_helpButton, "Help", sf::Color::Black, 0);
-    configureButton(m_exitButton, "Exit", sf::Color::Black, 100);
-
-    // Configure hover text
-    m_hoverExplanationText.setFont(m_font);
-    m_hoverExplanationText.setCharacterSize(24);
-    m_hoverExplanationText.setFillColor(sf::Color::Red);
-
-    // Configure instruction text
-    m_instructionText.setFont(m_font);
-    m_instructionText.setString("Hover over the pictures to see explanations.");
-    m_instructionText.setCharacterSize(24);
-    m_instructionText.setFillColor(sf::Color::White);
-    m_instructionText.setPosition(20, 20);
-
-    // Load button sound
-    if (!m_buttonClickBuffer.loadFromFile("ButtonMusic.ogg")) {
-        std::cerr << "Error loading button click sound!" << std::endl;
-    }
-    m_buttonClickSound.setBuffer(m_buttonClickBuffer);
-
-    // Load and initialize help objects
-    initializeHelpObjects();
-
-    // Load and play background music
-    if (!m_menuMusic.openFromFile("menuMusic.ogg")) {
-        std::cerr << "Error loading menu music!" << std::endl;
-    }
-    m_menuMusic.setLoop(true); // Loop the music
-    m_menuMusic.play();        // Start playing the music
-}
-
-// Configure buttons
-void MainMenuDisplay::configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset) {
-    float windowWidth = m_window->getSize().x;
-    float windowHeight = m_window->getSize().y;
-
-    button.setFont(m_font);
-    button.setString(label);
-    button.setCharacterSize(40);
-    button.setFillColor(color);
-
-    sf::FloatRect bounds = button.getLocalBounds();
-    button.setOrigin(bounds.width / 2, bounds.height / 2);
-    button.setPosition(windowWidth / 2, (windowHeight / 2) + yOffset);
-}
-
-// Initialize help objects
-void MainMenuDisplay::initializeHelpObjects() {
-    const std::vector<std::string> textureFiles = {
-        "wall.png", "Robot.png", "Bomb.png", "Guard.png", "Door.png", "Rock.png"
-    };
-    const std::vector<std::string> explanations = {
-        "Wall: An obstacle.",
-        "Robot: The main character which needs to escape through the door!",
-        "Bomb: Handle with care.",
-        "Guard: Be cautious!",
-        "Door: Leads to the next area.",
-        "Rock: A simple barrier."
+private:
+    // States for the menu
+    enum State {
+        MAIN_MENU,
+        HELP_SCREEN
     };
 
-    float windowWidth = m_window->getSize().x;
-    float windowHeight = m_window->getSize().y;
+    State m_state;                // Tracks the current state
 
-    float desiredWidth = windowWidth * 0.1f;
-    float desiredHeight = windowHeight * 0.1f;
+    sf::RenderWindow* m_window;   // Render window
+    int m_game;                   // Game reference
 
-    for (size_t i = 0; i < textureFiles.size(); ++i) {
-        sf::Texture texture;
-        if (!texture.loadFromFile(textureFiles[i])) {
-            std::cerr << "Error loading texture: " << textureFiles[i] << std::endl;
-            continue;
-        }
-        m_helpTextures.push_back(texture);
+    // Backgrounds
+    sf::Texture m_mainBackgroundTexture;
+    sf::Sprite m_mainBackgroundSprite;
+    sf::Texture m_helpBackgroundTexture;
+    sf::Sprite m_helpBackgroundSprite;
 
-        sf::Sprite sprite(m_helpTextures.back());
-        sf::Vector2u textureSize = texture.getSize();
-        sprite.setScale(desiredWidth / textureSize.x, desiredHeight / textureSize.y);
+    // Fonts and text
+    sf::Font m_font;
+    sf::Text m_startButton;
+    sf::Text m_helpButton;
+    sf::Text m_exitButton;
+    sf::Text m_hoverExplanationText;
+    sf::Text m_instructionText;
 
-        float x = windowWidth * (0.15f + (i % 3) * 0.3f);
-        float y = windowHeight * (0.3f + (i / 3) * 0.3f);
-        sprite.setPosition(x, y);
+    // Button sounds
+    sf::SoundBuffer m_buttonClickBuffer;
+    sf::Sound m_buttonClickSound;
 
-        m_helpSprites.push_back(sprite);
-        m_helpExplanations.push_back(explanations[i]);
-    }
-}
+    // Help objects (textures and sprites)
+    std::vector<sf::Texture> m_helpTextures;
+    std::vector<sf::Sprite> m_helpSprites;
+    std::vector<std::string> m_helpExplanations;
 
-// Handle user input
-int MainMenuDisplay::handleInput() {
-    sf::Event event;
-    while (m_window->pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
-            m_window->close();
-        }
 
-        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape && m_state == HELP_SCREEN) {
-            m_state = MAIN_MENU;
-        }
+    //for making the music in handlehover 
+    std::vector<sf::SoundBuffer> m_ButtonXPL;
+    sf::Sound ButtonSounds; // Declare outside the loop, so it persists
+    bool played = false;
 
-        if (event.type == sf::Event::MouseMoved) {
-            handleHover(sf::Mouse::getPosition(*m_window));
-        }
+    // Menu music
+    sf::Music m_menuMusic;
 
-        if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-            if (handleButtonClick(sf::Mouse::getPosition(*m_window)) == START_GAME) {
-                return START_GAME;
-            }
-        }
-    }
-    return 0;
-}
-
-// Handle hover effects
-void MainMenuDisplay::handleHover(const sf::Vector2i mousePosition) {
-    sf::Vector2f worldMousePos = m_window->mapPixelToCoords(mousePosition);
-    if (m_state == MAIN_MENU) {
-        auto setHoverEffect = [&](sf::Text& button) {
-            if (button.getGlobalBounds().contains(worldMousePos)) {
-                button.setFillColor(sf::Color::Red);
-                button.setScale(1.1f, 1.1f);
-            }
-            else {
-                button.setFillColor(sf::Color::Black);
-                button.setScale(1.0f, 1.0f);
-            }
-        };
-        setHoverEffect(m_startButton);
-        setHoverEffect(m_helpButton);
-        setHoverEffect(m_exitButton);
-    }
-    else if (m_state == HELP_SCREEN) {
-        bool hovered = false;
-        for (size_t i = 0; i < m_helpSprites.size(); ++i) {
-            if (m_helpSprites[i].getGlobalBounds().contains(worldMousePos)) {
-                m_hoverExplanationText.setString(m_helpExplanations[i]);
-                m_hoverExplanationText.setPosition(worldMousePos.x + 15, worldMousePos.y + 15);
-                hovered = true;
-                break;
-            }
-        }
-        if (!hovered) {
-            m_hoverExplanationText.setString("");
-        }
-    }
-}
-
-// Show menu or help screen
-void MainMenuDisplay::show() {
-    m_window->clear();
-
-    if (m_state == MAIN_MENU) {
-        m_window->draw(m_mainBackgroundSprite);
-        m_window->draw(m_startButton);
-        m_window->draw(m_helpButton);
-        m_window->draw(m_exitButton);
-    }
-    else if (m_state == HELP_SCREEN) {
-        m_window->draw(m_helpBackgroundSprite);
-        m_window->draw(m_instructionText);
-        for (const auto& sprite : m_helpSprites) {
-            m_window->draw(sprite);
-        }
-        m_window->draw(m_hoverExplanationText);
-    }
-
-    m_window->display();
-}
-
-// Handle button clicks
-int MainMenuDisplay::handleButtonClick(const sf::Vector2i mousePosition) {
-    sf::Vector2f worldMousePos = m_window->mapPixelToCoords(mousePosition);
-
-    if (m_startButton.getGlobalBounds().contains(worldMousePos)) {
-        m_buttonClickSound.play();
-        return START_GAME;
-    }
-    if (m_helpButton.getGlobalBounds().contains(worldMousePos)) {
-        m_buttonClickSound.play();
-        m_state = HELP_SCREEN;
-    }
-    if (m_exitButton.getGlobalBounds().contains(worldMousePos)) {
-        m_buttonClickSound.play();
-        m_window->close();
-    }
-    return 0;
-}
-
-// Run the menu loop
-void MainMenuDisplay::Run() {
-    while (m_window->isOpen()) {
-        if (handleInput() == START_GAME) break;
-        show();
-    }
-}
+    // Helper methods
+    void configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset);
+    void initializeHelpObjects();
+    void handleHover(const sf::Vector2i mousePosition);
+    int handleButtonClick(const sf::Vector2i mousePosition);
+};
