@@ -1,12 +1,9 @@
 #include "Guard.h"
 
-
-Guard::Guard(): {
-
-
-}
-
+//Guard::Guard()
+//{
+//}
 char Guard::getSymbol() const
 {
-	return  '!'; 
+	return  '!';
 }
