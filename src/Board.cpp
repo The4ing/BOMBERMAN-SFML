@@ -3,9 +3,9 @@
 
 
 Board::Board()
-    : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_lives(0), m_LevelDuration(0.0f), m_TimeLeft(0.0f), m_isTimerRunning(true) {
-    m_clock.restart();  // Start the clock immediately
+    : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_lives(0) {
     loadTextures();
+
     //Board::UploadSound();
 }
 
@@ -33,7 +33,7 @@ void Board::PowerUp(const powerUps choice) {
         std::cout << "A guard has been removed!" << std::endl;
         break;
     case TimeIncrease:
-        IncreaseTime(30);  // Increase time by 30 seconds
+        m_Toolbar.IncreaseTime(30);  // Increase time by 30 seconds
         std::cout << "Time has been increased!" << std::endl;
         break;
     default:
@@ -62,139 +62,140 @@ void Board::GrantExtraLife() {
 
 
 
-void Board::IncreaseTime(const int extraTime) {
-    m_TimeLeft += extraTime;  // Add extra time
-    if (m_TimeLeft > m_LevelDuration) {
-        m_TimeLeft = m_LevelDuration;  // Cap the time at the level duration
-    }
-    std::cout << "Time increased by " << extraTime << " seconds." << std::endl;
-}
 
-
-
-
-//functions for timer
-void Board::UpdateTimer() {
-    if (m_isTimerRunning) {
-        sf::Time elapsed = m_clock.getElapsedTime();  // Get elapsed time from clock
-        m_TimeLeft = m_LevelDuration - elapsed.asSeconds();  // Calculate remaining time
-
-        if (m_TimeLeft <= 0) {
-            m_TimeLeft = 0;
-            m_isTimerRunning = false;  // Stop the timer if time runs out
-            std::cout << "Time's up!" << std::endl;
-        }
-    }
-}
-
-std::string Board::getTimeString() const {
-    int minutes = static_cast<int>(m_TimeLeft) / 60;
-    int seconds = static_cast<int>(m_TimeLeft) % 60;
-    std::ostringstream oss;
-    oss << minutes << ":" << (seconds < 10 ? "0" : "") << seconds;
-    return oss.str();
-}
-
-
-
-void Board::setLevelDuration(const float duration) {
-    m_LevelDuration = duration;
-    m_TimeLeft = duration;
-    m_isTimerRunning = true;  // Ensure the timer is running
-    m_clock.restart();  // Restart the clock
-}
-
-// Get the time left for the level
-float Board::getTimeLeft() const {
-    return m_TimeLeft;
-}
-
-// Get the total level duration
-float Board::getLevelDuration() const {
-    return m_LevelDuration;
-}
-void Board::CallUpdateTimer() {
-    UpdateTimer();
-}
-void Board::setTimer(const float duration)  {
-    setLevelDuration(duration);
-}
-
-
-
-
-
-void Board::updateTimerDisplay(sf::Text& timerText, sf::RectangleShape& progressBar, sf::Sprite& arrow,std::vector<sf::Sprite>& heart, const float deltaTime) {
-    // Update the timer first (call your UpdateTimer() method)
-    CallUpdateTimer();
-
-
-
-    // Get the time left
-    float timeLeft = getTimeLeft();
-
-
-    
-
-    // Update the time left as a string
-    std::string timeText = "Time Left: " + getTimeString();
-    timerText.setString(timeText);
-
-    // Heartbeat effect on the timer text (pulsing)
-    if (timeLeft <= 10) { // Apply heartbeat effect only when time is low
-        float scaleFactor = 1.0f + 0.1f * sin(3.f * timeLeft);  // Sinusoidal pulse effect
-        timerText.setScale(scaleFactor, scaleFactor);  // Scale the text
-    }
-    else {
-        timerText.setScale(1.f, 1.f);  // Reset scale when time is not critical
-    }
-
-    // Fading Text Effect & Change Progress Bar Color
-    if (timeLeft > 30) {
-        timerText.setFillColor(sf::Color(255, 255, 255, 255));  // Full opacity for fading effect
-        progressBar.setFillColor(sf::Color::Green);  // Progress bar green
-    }
-    else if (timeLeft > 10) {
-        timerText.setFillColor(sf::Color(255, 255, 255, 150));  // Slightly faded text
-        progressBar.setFillColor(sf::Color::Yellow);  // Progress bar yellow
-    }
-    else {
-        timerText.setFillColor(sf::Color(255, 0, 0, 255));  // Red text for urgency
-        progressBar.setFillColor(sf::Color::Red);  // Progress bar red
-    }
-
-    // Rotation Effect: Rotate the timer text as the time gets closer to 0
-    float rotationSpeed = 30.f * (1.f - (timeLeft / m_LevelDuration));  // Increase speed as time runs out
-    timerText.setRotation(rotationSpeed * deltaTime);
-
-    // Smoothly animate the progress bar based on time left
-    animateProgressBar(deltaTime, progressBar);
-
-    // Update the rotation of the clock hand (robot texture)
-    float clockRotation = (1.0f - (timeLeft / m_LevelDuration)) * 360.f;  // Rotate based on time remaining
-    arrow.setRotation(clockRotation);  // Apply the calculated rotation to the clock hand
-
-    float heartscale =  0.3f * sin(3.f * timeLeft);;
-    for (int pos = 0; pos < heart.size(); pos++) {
-        heart[pos].setScale(heartscale, heartscale);  // Scale the text
-    }
-   
-}
-
-
-void Board::animateProgressBar(float deltaTime, sf::RectangleShape& progressBar) const {
-    float timeLeft = getTimeLeft();
-    float levelDuration = getLevelDuration();
-
-    // Calculate the target width based on remaining time
-    float targetWidth = 200.f * (timeLeft / levelDuration);
-    float currentWidth = progressBar.getSize().x;
-
-    // Smooth transition of width change
-    float smoothTransition = currentWidth + (targetWidth - currentWidth) * deltaTime * 5.f;  // The factor "5.f" controls the smoothness
-    progressBar.setSize(sf::Vector2f(smoothTransition, 10.f));
-}
-
+//void Board::IncreaseTime(const int extraTime) {
+//    m_TimeLeft += extraTime;  // Add extra time
+//    if (m_TimeLeft > m_LevelDuration) {
+//        m_TimeLeft = m_LevelDuration;  // Cap the time at the level duration
+//    }
+//    std::cout << "Time increased by " << extraTime << " seconds." << std::endl;
+//}
+//
+//
+//
+//
+////functions for timer
+//void Board::UpdateTimer() {
+//    if (m_isTimerRunning) {
+//        sf::Time elapsed = m_clock.getElapsedTime();  // Get elapsed time from clock
+//        m_TimeLeft = m_LevelDuration - elapsed.asSeconds();  // Calculate remaining time
+//
+//        if (m_TimeLeft <= 0) {
+//            m_TimeLeft = 0;
+//            m_isTimerRunning = false;  // Stop the timer if time runs out
+//            std::cout << "Time's up!" << std::endl;
+//        }
+//    }
+//}
+//
+//std::string Board::getTimeString() const {
+//    int minutes = static_cast<int>(m_TimeLeft) / 60;
+//    int seconds = static_cast<int>(m_TimeLeft) % 60;
+//    std::ostringstream oss;
+//    oss << minutes << ":" << (seconds < 10 ? "0" : "") << seconds;
+//    return oss.str();
+//}
+//
+//
+//
+//void Board::setLevelDuration(const float duration) {
+//    m_LevelDuration = duration;
+//    m_TimeLeft = duration;
+//    m_isTimerRunning = true;  // Ensure the timer is running
+//    m_clock.restart();  // Restart the clock
+//}
+//
+//// Get the time left for the level
+//float Board::getTimeLeft() const {
+//    return m_TimeLeft;
+//}
+//
+//// Get the total level duration
+//float Board::getLevelDuration() const {
+//    return m_LevelDuration;
+//}
+//void Board::CallUpdateTimer() {
+//    UpdateTimer();
+//}
+//void Board::setTimer(const float duration)  {
+//    setLevelDuration(duration);
+//}
+//
+//
+//
+//
+//
+//void Board::updateTimerDisplay(sf::Text& timerText, sf::RectangleShape& progressBar, sf::Sprite& arrow,std::vector<sf::Sprite>& heart, const float deltaTime) {
+//    // Update the timer first (call your UpdateTimer() method)
+//    CallUpdateTimer();
+//
+//
+//
+//    // Get the time left
+//    float timeLeft = getTimeLeft();
+//
+//
+//    
+//
+//    // Update the time left as a string
+//    std::string timeText = "Time Left: " + getTimeString();
+//    timerText.setString(timeText);
+//
+//    // Heartbeat effect on the timer text (pulsing)
+//    if (timeLeft <= 10) { // Apply heartbeat effect only when time is low
+//        float scaleFactor = 1.0f + 0.1f * sin(3.f * timeLeft);  // Sinusoidal pulse effect
+//        timerText.setScale(scaleFactor, scaleFactor);  // Scale the text
+//    }
+//    else {
+//        timerText.setScale(1.f, 1.f);  // Reset scale when time is not critical
+//    }
+//
+//    // Fading Text Effect & Change Progress Bar Color
+//    if (timeLeft > 30) {
+//        timerText.setFillColor(sf::Color(255, 255, 255, 255));  // Full opacity for fading effect
+//        progressBar.setFillColor(sf::Color::Green);  // Progress bar green
+//    }
+//    else if (timeLeft > 10) {
+//        timerText.setFillColor(sf::Color(255, 255, 255, 150));  // Slightly faded text
+//        progressBar.setFillColor(sf::Color::Yellow);  // Progress bar yellow
+//    }
+//    else {
+//        timerText.setFillColor(sf::Color(255, 0, 0, 255));  // Red text for urgency
+//        progressBar.setFillColor(sf::Color::Red);  // Progress bar red
+//    }
+//
+//    // Rotation Effect: Rotate the timer text as the time gets closer to 0
+//    float rotationSpeed = 30.f * (1.f - (timeLeft / m_LevelDuration));  // Increase speed as time runs out
+//    timerText.setRotation(rotationSpeed * deltaTime);
+//
+//    // Smoothly animate the progress bar based on time left
+//    animateProgressBar(deltaTime, progressBar);
+//
+//    // Update the rotation of the clock hand (robot texture)
+//    float clockRotation = (1.0f - (timeLeft / m_LevelDuration)) * 360.f;  // Rotate based on time remaining
+//    arrow.setRotation(clockRotation);  // Apply the calculated rotation to the clock hand
+//
+//    float heartscale =  0.3f * sin(3.f * timeLeft);;
+//    for (int pos = 0; pos < heart.size(); pos++) {
+//        heart[pos].setScale(heartscale, heartscale);  // Scale the text
+//    }
+//   
+//}
+//
+//
+//void Board::animateProgressBar(float deltaTime, sf::RectangleShape& progressBar) const {
+//    float timeLeft = getTimeLeft();
+//    float levelDuration = getLevelDuration();
+//
+//    // Calculate the target width based on remaining time
+//    float targetWidth = 200.f * (timeLeft / levelDuration);
+//    float currentWidth = progressBar.getSize().x;
+//
+//    // Smooth transition of width change
+//    float smoothTransition = currentWidth + (targetWidth - currentWidth) * deltaTime * 5.f;  // The factor "5.f" controls the smoothness
+//    progressBar.setSize(sf::Vector2f(smoothTransition, 10.f));
+//}
+//
 
 
 
@@ -210,11 +211,28 @@ const sf::Texture& Board::GetTexture(const int chice) const
     return m_textures[chice];
 }
 
-void Board::SetSprite(sf::Sprite& picture,const float POSx, const float POSy,const float thicknes) const  {
-    picture.setOrigin(picture.getGlobalBounds().width / 2, picture.getGlobalBounds().height / 2);  // Set origin to center of the sprite
-    picture.setPosition(POSx, POSy);  // Positioning the clock hand (adjust position as needed)
-    picture.setScale(thicknes, thicknes);  // Uniform scaling for both axes (width and height)
+void Board::callUpdateToolbar(const float deltatime) {
+
+    m_Toolbar.callUpdateToolbar(deltatime);
 }
+
+void Board::draw(sf::RenderWindow& window)
+{
+    m_Toolbar.draw(window);
+}
+
+
+
+const int Board::getHeartCount()
+{
+    return m_Toolbar.getHeartCount();
+}
+
+
+
+
+
+
 
 
 void Board::loadFromFile(const std::string& fileName) {
@@ -276,13 +294,11 @@ void Board::loadTextures() {
     m_textures.resize(TEXTURE_COUNT);
     const std::map<int, std::string> textureFiles = {
         {WALL, "wall.png"},
-        {ROCK, "rock.png"},
-        {GUARD, "guard.png"},
-        {DOOR, "door.png"},
+        {ROCK, "Rock.png"},
+        {GUARD, "Guard.png"},
+        {DOOR, "Door.png"},
         {EMPTY, "empty.png"},
-        {HEART,"heart.png"},
-         {CLOCK,"Clock.png"},
-         {ARROW, "arrow.png"}
+
     };
 
     for (const auto& [index, filename] : textureFiles) {
