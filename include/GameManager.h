@@ -6,6 +6,7 @@
 #include "Board.h"
 #include "Utilities.h"
 #include "Robot.h" // Include Robot class
+#include <set> // Include for std::set
 
 class GameManager {
 public:
@@ -15,9 +16,11 @@ public:
     bool loadLevel(const std::string& fileName);
     void processGameEvents();
     void handleMoveKeys(sf::Keyboard::Key key, const bool isPressed);
+    void setRobotPosition();
 
 private:
     sf::RenderWindow m_window;   // SFML render window
+    sf::Vector2f m_cellSize;
     MainMenuDisplay m_mainMenu;
     GameDisplay m_gameScreen;
     SettingsDisplay m_settingsScreen;
@@ -30,9 +33,8 @@ private:
     sf::Text m_timerText;
     bool m_pause;
     bool m_arrowKeyPressed;
+    std::set<sf::Keyboard::Key> m_activeKeys;
 
-
-    //for the background picture for the game level 
     sf::Texture m_BackgroundGameTexture;
     sf::Sprite m_BackgroundGameSprite;
 };
