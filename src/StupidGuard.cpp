@@ -1,8 +1,15 @@
-#include "StupidGuard.h"
+#pragma once
+
+#include "Guard.h"
 
 
-StupidGuard::StupidGuard(): {
+class StupidGuard : public Gaurd {
+
+public:
+
+
+private:
 
 
 
-}
+};
