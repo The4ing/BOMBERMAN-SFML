@@ -7,7 +7,7 @@ public:
         // Example: Default patrol velocity
         setVelocity(0.0f, 50.0f); // Moves 50 units/sec vertically
     }
-    char getSymbol() const override { return '!'; }
+    char getSymbol() const override ;
     void update(float deltaTime) override {
         // Update position based on velocity
         x += vx * deltaTime;
