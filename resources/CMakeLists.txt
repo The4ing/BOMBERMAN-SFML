@@ -17,4 +17,4 @@ configure_file ("ButtonMusic.ogg" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("heart.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("clock.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("arrow.png" ${CMAKE_BINARY_DIR} COPYONLY)
-
+configure_file ("RobotXPL.ogg" ${CMAKE_BINARY_DIR} COPYONLY)
