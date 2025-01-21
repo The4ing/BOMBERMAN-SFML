@@ -183,7 +183,7 @@ void ToolbarGame::updateTimerDisplay(const float deltaTime) {
 
     CallUpdateTimer();
 
-
+    m_timerText.setString("Time Left: " + getTimeString());
 
     // Get the time left
     float timeLeft = getTimeLeft();

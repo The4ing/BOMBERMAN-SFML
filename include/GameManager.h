@@ -1,21 +1,24 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <set>
+#include <vector>
+#include <memory>
 #include "MainMenuDisplay.h"
 #include "GameDisplay.h"
 #include "SettingsDisplay.h"
 #include "Board.h"
 #include "Utilities.h"
-#include "Robot.h" // Include Robot class
-#include <set> // Include for std::set
+#include "Robot.h"
+#include "MovingGameObject.h"
 
 class GameManager {
 public:
     GameManager();
     void newGame();
     void startGame();
-    bool loadLevel(const std::string& fileName);
+  //  bool loadLevel(const std::string& fileName);
     void processGameEvents();
-    void handleMoveKeys(sf::Keyboard::Key key, const bool isPressed);
+   // void handleMoveKeys(sf::Keyboard::Key key, const bool isPressed);
     void setRobotPosition();
 
 private:
@@ -25,10 +28,11 @@ private:
     GameDisplay m_gameScreen;
     SettingsDisplay m_settingsScreen;
     Board m_board;
-    Robot m_robot;              // Add Robot instance
+
+    std::vector<std::unique_ptr<MovingGameObject>> m_movingObjects; // Manage all game objects dynamically
+
     int m_robotLives;
     Direction m_robotDirection;
-    // Timer for game events
     sf::Font m_font;
     sf::Text m_timerText;
     bool m_pause;

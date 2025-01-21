@@ -301,9 +301,7 @@ void Board::loadTextures() {
         {GUARD, "guard.png"},
         {DOOR, "door.png"},
         {EMPTY, "empty.png"},
-        {HEART,"heart.png"},
-         {CLOCK,"Clock.png"},
-         {ARROW, "arrow.png"}
+       
     };
 
     for (const auto& [index, filename] : textureFiles) {

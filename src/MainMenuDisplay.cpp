@@ -25,8 +25,9 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     if (!m_menuMusic.openFromFile("menuMusic.ogg")) {
         std::cerr << "Error loading menu music!" << std::endl;
     }
-    //m_menuMusic.setLoop(true); // Loop the music
-    //m_menuMusic.play();        // Start playing the music
+    m_menuMusic.setLoop(true); // Loop the music
+    m_menuMusic.setVolume(20);
+    m_menuMusic.play();        // Start playing the music
 
 
     // Load button sound

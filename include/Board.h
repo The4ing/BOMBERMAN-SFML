@@ -13,7 +13,7 @@
 #include "Robot.h"
 #include "Guard.h"
 #include "Rock.h"
-#include "Toolbar.h"
+#include "ToolbarGame.h"
 
 // Enum to define power-up choices
 enum powerUps {
@@ -85,7 +85,7 @@ private:
 
     std::vector<std::vector<Cell>> m_grid;
     int m_rows, m_cols;
-    Toolbar m_Toolbar;
+    ToolbarGame m_Toolbar;
     std::vector<sf::Texture> m_textures;
   //  sf::Texture wallTexture;
  //   sf::Texture emptyTexture;

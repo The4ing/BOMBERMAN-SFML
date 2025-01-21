@@ -23,10 +23,10 @@ public:
     void update(float deltaTime) override;
 
     // Handles keyboard input for movement
-    void handleInput(sf::Keyboard::Key key, bool isPressed);
+    void handleInput(sf::Keyboard::Key key, bool isPressed) override;
 
     // Draws the robot on the window
-    void draw(sf::RenderWindow& window) const;
+    void draw(sf::RenderWindow& window) const override;
 
     // Setters and getters for velocity and position
     void setVelocity(float vx, float vy);
@@ -34,7 +34,7 @@ public:
     void setPosition(float x, float y);
     void setTilePosition(const sf::Vector2f& tilePosition);
     sf::Vector2f getCurrentCell() const;
-    void setScale(float scaleX, float scaleY);
+    //void setScale(float scaleX, float scaleY);
 
 private:
     sf::Sprite m_sprite;             // Robot's sprite
