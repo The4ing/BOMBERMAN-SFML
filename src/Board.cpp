@@ -274,7 +274,7 @@ void Board::loadFromFile(const std::string& fileName) {
                 m_robotPosition = { static_cast<float>(j), static_cast<float>(i) };
                 break;
             case '!':
-                m_grid[i][j].content = new Guard();
+//                m_grid[i][j].content = new SmartGuard();
                 m_grid[i][j].isWalkable = false;
                 break;
             case '@':
