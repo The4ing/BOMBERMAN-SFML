@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "Utilities.h"
 
+
 // Sprite-related constants
 const float ROBOT_SPEED = 200.f;    // Speed of the robot in pixels per second
 const int SPRITE_WIDTH = 20;        // Width of each sprite frame in the spritesheet
@@ -31,6 +32,9 @@ public:
     void setVelocity(float vx, float vy);
     sf::Vector2f getPosition() const;
     void setPosition(float x, float y);
+    void setTilePosition(const sf::Vector2f& tilePosition);
+    sf::Vector2f getCurrentCell() const;
+    void setScale(float scaleX, float scaleY);
 
 private:
     sf::Sprite m_sprite;             // Robot's sprite
@@ -44,4 +48,6 @@ private:
     int m_animationFrame;            // Current animation frame index
     sf::Clock m_animationClock;      // Clock for animation timing
     sf::Time m_animationTimer;       // Time per animation frame
+    sf::Vector2f m_currentCell;
+
 };
