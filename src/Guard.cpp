@@ -1,9 +1,9 @@
-#include "Guard.h"
-
-//Guard::Guard()
-//{ //already defined in h file, TBC
+//#include "Guard.h"
+//
+////Guard::Guard()
+////{
+////}
+//char Guard::getSymbol() const
+//{
+//	return  '!';
 //}
-char Guard::getSymbol() const
-{
-	return  '!';
-}
