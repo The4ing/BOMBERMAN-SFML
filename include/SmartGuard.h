@@ -6,8 +6,8 @@
 class SmartGuard : public Guard {
 
 public:
-
+	char getSymbol() const override;
 
 private:
-   
+
 };
