@@ -1,15 +1,15 @@
-#pragma once
-
-#include "Gaurd.h"
-
-
-class StupidGuard : public Gaurd {
-
-public:
-
-
-private:
-
-
-
-};
+//#pragma once
+//
+//#include "Guard.h"
+//
+//
+//class StupidGuard : public Gaurd {
+//
+//public:
+//	StupidGuard();
+//
+//private:
+//
+//
+//
+//};
