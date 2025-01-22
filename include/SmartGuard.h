@@ -11,7 +11,7 @@ public:
     void update(float deltaTime) override;
     void draw(sf::RenderWindow& window) const override;
     void handleInput(sf::Keyboard::Key key, bool isPressed) override;
-    void setVelocity(float vx, float vy) override;
+  
      sf::Vector2f getPosition() const override;
    
 

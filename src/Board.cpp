@@ -1,89 +1,11 @@
 #include "Board.h"
 
 
-
 Board::Board()
     : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_lives(0) {
+    m_robot = std::make_unique<Robot>();
     loadTextures();
-
-    //Board::UploadSound();
 }
-
-
-
-
-void Board::PowerUp(const powerUps choice) {
-    switch (choice) {
-    case FreezeGuards:
-        FreezeAllGuards(true);  // Freeze all guards
-        std::cout << "All guards have been frozen!" << std::endl;
-        break;
-    case ExtraLife:
-        GrantExtraLife();  // Grant an extra life
-        std::cout << "An extra life has been granted!" << std::endl;
-        break;
-    case RemovedGuard:
-        //RemoveGuard();  // Remove a guard
-        std::cout << "A guard has been removed!" << std::endl;
-        break;
-    case TimeIncrease:
-        m_Toolbar.IncreaseTime(30);  // Increase time by 30 seconds
-        std::cout << "Time has been increased!" << std::endl;
-        break;
-    default:
-        std::cout << "Invalid power-up choice!" << std::endl;
-        break;
-    }
-}
-
-
-void Board::FreezeAllGuards(const bool status) {
-    m_FreezeGuardsStatus = status;
-    if (status) {
-        std::cout << "Guards are now frozen." << std::endl;
-        // Add logic to freeze all guards
-    }
-    else {
-        std::cout << "Guards are no longer frozen." << std::endl;
-        // Unfreeze all guards (resume movement)
-    }
-}
-
-void Board::GrantExtraLife() {
-    m_lives++;  // Grant an extra life
-}
-
-
-
-
-const sf::Texture& Board::GetTexture(const int chice) const
-{
-    return m_textures[chice];
-}
-
-void Board::callUpdateToolbar(const float deltatime) {
-
-    m_Toolbar.callUpdateToolbar(deltatime);
-}
-
-void Board::draw(sf::RenderWindow& window)
-{
-    m_Toolbar.draw(window);
-}
-
-
-
-const int Board::getHeartCount()
-{
-    return m_Toolbar.getHeartCount();
-}
-
-void Board::SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const {
-    picture.setOrigin(picture.getGlobalBounds().width / 2, picture.getGlobalBounds().height / 2);  // Set origin to center of the sprite
-    picture.setPosition(POSx, POSy);  // Positioning the clock hand (adjust position as needed)
-    picture.setScale(thicknes, thicknes);  // Uniform scaling for both axes (width and height)
-}
-
 
 void Board::loadFromFile(const std::string& fileName) {
     std::ifstream file(fileName);
@@ -101,37 +23,26 @@ void Board::loadFromFile(const std::string& fileName) {
 
     m_rows = lines.size();
     m_cols = lines.empty() ? 0 : lines[0].size();
-    //m_grid.resize(m_rows, std::vector<Cell>(m_cols));
 
-    bool smartGuard;
     for (int i = 0; i < m_rows; ++i) {
         for (int j = 0; j < m_cols; ++j) {
             char symbol = lines[i][j];
+            sf::Vector2f position(static_cast<float>(j), static_cast<float>(i));
             switch (symbol) {
             case '#':
-                
-                auto newWall = std::make_unique<Wall>();  // Create a unique_ptr to a Wall object
-                newWall->setPosition(i, j);               // Use '->' to call the method on the object
-                m_objects.push_back(std::move(newWall));  // Transfer ownership into the container
-
-                
+              //  m_objects.push_back(std::make_unique<Wall>(position));
                 break;
             case '/':
-                m_robotPosition = { static_cast<float>(j), static_cast<float>(i) };
+                   m_robot->setPosition(position.x, position.y);
                 break;
             case '!':
-                if (smartGuard) {
-                    //       m_movingObjects.push_back(std::make_unique<SmartGuard>());
-                }
-                else {
-                    //      m_objects.push_back(std::make_unique<StupidGuard>());
-                }
+              //  m_movingObjects.push_back(std::make_unique<Guard>(position));
                 break;
             case '@':
-                m_objects.push_back(std::make_unique<Rock>());
+               // m_objects.push_back(std::make_unique<Rock>(position));
                 break;
             case 'D':
-                m_objects.push_back(std::make_unique<Door>());
+                //m_objects.push_back(std::make_unique<Door>(position));
                 break;
             default:
                 break;
@@ -139,6 +50,66 @@ void Board::loadFromFile(const std::string& fileName) {
         }
     }
 }
+void Board::PowerUp(const powerUps choice) {
+    switch (choice) {
+    case FreezeGuards:
+       // FreezeAllGuards(true);
+        std::cout << "All guards have been frozen!" << std::endl;
+        break;
+    case ExtraLife:
+        GrantExtraLife();
+        std::cout << "An extra life has been granted!" << std::endl;
+        break;
+    case RemovedGuard:
+        // Implement logic to remove a guard
+        std::cout << "A guard has been removed!" << std::endl;
+        break;
+    case TimeIncrease:
+        m_Toolbar.IncreaseTime(30);
+        std::cout << "Time has been increased!" << std::endl;
+        break;
+    default:
+        std::cout << "Invalid power-up choice!" << std::endl;
+        break;
+    }
+}
+
+//void Board::FreezeAllGuards(const bool status) {
+//    m_FreezeGuardsStatus = status;
+//    for (const auto& obj : m_movingObjects) {
+//        if (auto guard = dynamic_cast<Guard*>(obj.get())) {
+//            guard->setFrozen(status);
+//        }
+//    }
+//}
+
+void Board::GrantExtraLife() {
+    m_lives++;
+}
+
+const sf::Texture& Board::GetTexture(const int choice) const {
+    return m_textures[choice];
+}
+
+void Board::callUpdateToolbar(const float deltatime) {
+    m_Toolbar.callUpdateToolbar(deltatime);
+}
+
+void Board::draw(sf::RenderWindow& window) {
+    m_Toolbar.draw(window);
+}
+
+const int Board::getHeartCount() {
+    return m_Toolbar.getHeartCount();
+}
+
+void Board::SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const {
+    picture.setOrigin(picture.getGlobalBounds().width / 2, picture.getGlobalBounds().height / 2);
+    picture.setPosition(POSx, POSy);
+    picture.setScale(thicknes, thicknes);
+}
+
+
 
 void Board::loadTextures() {
     m_textures.resize(TEXTURE_COUNT);
@@ -148,11 +119,9 @@ void Board::loadTextures() {
         {GUARD, "guard.png"},
         {DOOR, "door.png"},
         {EMPTY, "empty.png"},
-       
     };
 
     for (const auto& [index, filename] : textureFiles) {
-        std::cout << index << std::endl;
         if (!m_textures[index].loadFromFile(filename)) {
             std::cerr << "Error: Could not load texture file " << filename << std::endl;
         }
@@ -160,78 +129,59 @@ void Board::loadTextures() {
 }
 
 void Board::display(sf::RenderWindow& window) const {
-    if (m_rows == 0 || m_cols == 0) return;
-
-    float frameWidth = window.getSize().x * 0.8f;
-    float frameHeight = window.getSize().y * 0.8f;
-    float cellWidth = frameWidth / m_cols;
-    float cellHeight = frameHeight / m_rows;
-
-    float offsetX = (window.getSize().x - frameWidth) / 2.0f;
-    float offsetY = (window.getSize().y - frameHeight) / 2.0f;
-
-    sf::View view(sf::FloatRect(0, 0, frameWidth, frameHeight));
-    view.setViewport(sf::FloatRect(offsetX / window.getSize().x, offsetY / window.getSize().y, frameWidth / window.getSize().x, frameHeight / window.getSize().y));
-    window.setView(view);
-
     sf::Sprite sprite;
-    for (int i = 0; i < m_rows; ++i) {
-        for (int j = 0; j < m_cols; ++j) {
-            if (m_grid[i][j].content) {
-                const sf::Texture* texture = nullptr;
-                char symbol = m_grid[i][j].content->getSymbol();
-                switch (symbol) {
-                case '#': texture = &m_textures[WALL]; break;
-                case ' ': texture = &m_textures[EMPTY]; break;
-                case '/': texture = &m_textures[ROBOT]; break;
-                case '!': texture = &m_textures[GUARD]; break;
-                case 'D': texture = &m_textures[DOOR]; break;
-                case '@': texture = &m_textures[ROCK]; break;
-                default: continue;
-                }
 
-                if (texture) {
-                    sprite.setTexture(*texture);
-                    sprite.setScale(cellWidth / sprite.getTexture()->getSize().x, cellHeight / sprite.getTexture()->getSize().y);
-                    sprite.setPosition(j * cellWidth, i * cellHeight);
-                    window.draw(sprite);
-                }
-            }
-        }
+    for (const auto& obj : m_objects) {
+        sprite.setTexture(GetTexture(obj->getSymbol()));
+        sprite.setPosition(obj->getPosition());
+        sprite.setScale(m_cellSize.x / sprite.getTexture()->getSize().x,
+            m_cellSize.y / sprite.getTexture()->getSize().y);
+        window.draw(sprite);
     }
 
-    window.setView(window.getDefaultView());
+    for (const auto& obj : m_movingObjects) {
+        sprite.setTexture(GetTexture(obj->getSymbol()));
+        sprite.setPosition(obj->getPosition());
+        sprite.setScale(m_cellSize.x / sprite.getTexture()->getSize().x,
+            m_cellSize.y / sprite.getTexture()->getSize().y);
+        window.draw(sprite);
+    }
+
+    m_robot->draw(window); // Draw the robot
 }
 
-
 void Board::displayConsole() const {
-    for (const auto& row : m_grid) {
-        for (const auto& cell : row) {
-            if (cell.content) {
+    for (int i = 0; i < m_rows; ++i) {
+        for (int j = 0; j < m_cols; ++j) {
+            bool found = false;
 
-                std::cout << cell.content->getSymbol();
+            for (const auto& obj : m_objects) {
+                if (obj->getPosition().x == j && obj->getPosition().y == i) {
+                    std::cout << obj->getSymbol();
+                    found = true;
+                    break;
+                }
             }
-            else {
+
+            if (!found) {
+                for (const auto& obj : m_movingObjects) {
+                    if (obj->getPosition().x == j && obj->getPosition().y == i) {
+                        std::cout << obj->getSymbol();
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!found) {
                 std::cout << ' ';
             }
         }
         std::cout << '\n';
     }
 }
-sf::Vector2f Board::getRobotPosition() const {
-    return { m_robotPosition.x , m_robotPosition.y };  // Returns the robot's position
-}
-int Board::getCols() const {
-    return m_cols;
-}
 
-int Board::getRows() const {
-    return m_rows;
-}
-
-sf::Vector2f Board::getRobotScreenPosition(const sf::RenderWindow& window){
-    if (m_rows == 0 || m_cols == 0) return { 0.f, 0.f };
-
+sf::Vector2f Board::getRobotScreenPosition(const sf::RenderWindow& window)   {
     float frameWidth = window.getSize().x * 0.8f;
     float frameHeight = window.getSize().y * 0.8f;
     float cellWidth = frameWidth / m_cols;
@@ -239,21 +189,28 @@ sf::Vector2f Board::getRobotScreenPosition(const sf::RenderWindow& window){
 
     float offsetX = (window.getSize().x - frameWidth) / 2.0f;
     float offsetY = (window.getSize().y - frameHeight) / 2.0f;
-    m_cellSize = { cellWidth, cellHeight};
-    // Convert grid position to screen position
-    float screenX = m_robotPosition.x * cellWidth + offsetX;
-    float screenY = m_robotPosition.y * cellHeight + offsetY;
 
-    return { screenX, screenY };
+    m_cellSize = { cellWidth, cellHeight };
+
+    sf::Vector2f RobotPos = m_robot->getPosition();
+    float screenX = RobotPos.x * cellWidth + offsetX;
+    float screenY = RobotPos.y * cellHeight + offsetY;
+
+    return {screenX, screenY };
 }
 
-bool Board::isWalkable(int row, int col) const {
-    if (row < 0 || row >= m_rows || col < 0 || col >= m_cols) {
-        return false; // Out of bounds is non-walkable
-    }
-    return m_grid[row][col].isWalkable;
-}
 
 sf::Vector2f Board::getCellSize() const {
     return m_cellSize;
+}
+
+void Board::update(float deltaTime) {
+    for (auto& obj : m_movingObjects) {
+        obj->update(deltaTime); // Update guards and other moving objects
+    }
+    m_robot->update(deltaTime); // Update robot position and animation
+}
+
+void Board::handleInput(sf::Keyboard::Key key, bool isPressed) {
+    m_robot->handleInput(key, isPressed); // Handle input for robot
 }

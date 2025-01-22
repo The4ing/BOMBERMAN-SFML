@@ -16,7 +16,6 @@
 #include "Rock.h"
 #include "ToolbarGame.h"
 
-
 // Enum to define power-up choices
 enum powerUps {
     FreezeGuards,
@@ -30,57 +29,48 @@ public:
     Board();
 
     void PowerUp(const powerUps choice);
-    void FreezeAllGuards(const bool status);
+    //void FreezeAllGuards(const bool status);
     void GrantExtraLife();
-    //void RemoveGuard();
 
-   
-    int getCols() const;
-    int getRows() const;
-    bool isWalkable(int row, int col) const;
+   /* int getCols() const;
+    int getRows() const;*/
+    
 
-
-    //function for uplouding the sound
-    //void UploadSound();
-
-    //function for the pictures 
     const sf::Texture& GetTexture(const int choice) const;
     void SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const;
-    void callUpdateToolbar(const float deltatime);
+    void callUpdateToolbar(float deltatime);
     void draw(sf::RenderWindow& window);
     const int getHeartCount();
-
 
     // Other members and variables for game state
     void loadFromFile(const std::string& fileName);
     void loadTextures();
     void displayConsole() const;
     void display(sf::RenderWindow& window) const;
-    sf::Vector2f getRobotPosition() const;
-    sf::Vector2f getRobotScreenPosition(const sf::RenderWindow& window);
+
+    // New methods for robot position
+    //sf::Vector2i getRobotGridPosition() const;
+    sf::Vector2f getRobotScreenPosition(const sf::RenderWindow& window) ;
 
     sf::Vector2f getCellSize() const;
+
+
+    void update(float deltaTime);
+    void handleInput(sf::Keyboard::Key key, bool isPressed);
 
 private:
     bool m_FreezeGuardsStatus;    // Tracks whether the guards are frozen
     int m_lives;                  // Number of lives
 
-
-    //void UpdateTimer();
     sf::Vector2f m_cellSize;
 
-
-    // std::vector<std::vector<Cell>> m_grid;
-    std::vector<std::unique_ptr<GameObject>> m_objects;
-    std::vector<std::unique_ptr<MovingGameObject>> m_movingObjects;
+    std::vector<std::unique_ptr<GameObject>> m_objects;          // Static objects (e.g., walls, rocks)
+    std::vector<std::unique_ptr<MovingGameObject>> m_movingObjects; // Moving objects (e.g., robot, guards)
+    std::unique_ptr<Robot> m_robot; 
     int m_rows, m_cols;
 
     ToolbarGame m_Toolbar;
     std::vector<sf::Texture> m_textures;
- 
-
-
 
     sf::View m_view;
-    sf::Vector2f m_robotPosition;
 };

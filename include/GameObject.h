@@ -15,8 +15,8 @@ protected:
 
     sf::Sprite m_sprite;             // Robot's sprite
     sf::Texture m_texture;
-    sf::Vector2f m_velocity = { 0.0f, 0.0f }; // Correct initialization with braces
-    sf::Vector2f m_currentCell = { 0.0f, 0.0f };
+    //sf::Vector2f m_velocity = { 0.0f, 0.0f }; // Correct initialization with braces
+    //sf::Vector2f m_currentCell = { 0.0f, 0.0f };
 
    
 };

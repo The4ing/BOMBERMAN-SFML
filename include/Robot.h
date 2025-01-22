@@ -3,56 +3,35 @@
 #include <SFML/Graphics.hpp>
 #include "Utilities.h"
 
-
-// Sprite-related constants
-const float ROBOT_SPEED = 200.f;    // Speed of the robot in pixels per second
-const int SPRITE_WIDTH = 20;        // Width of each sprite frame in the spritesheet
-const int SPRITE_HEIGHT = 30;       // Height of each sprite frame in the spritesheet
-const int ANIMATION_FRAMES = 3;     // Number of frames per animation cycle (3 per direction)
-const float ROBOT_SCALE = 3.0f;     // Scale factor (3.0 means triple the size)
+// Constants
+const float ROBOT_SPEED = 200.f;    // Speed in pixels per second
+const int SPRITE_WIDTH = 20;        // Sprite width in pixels
+const int SPRITE_HEIGHT = 30;       // Sprite height in pixels
+const float ROBOT_SCALE = 3.0f;     // Scale factor
 
 class Robot : public MovingGameObject {
 public:
-    // Constructor
     Robot();
+  
 
-    // Overridden method to return the symbol of the Robot
+    // Overridden methods
     char getSymbol() const override { return '/'; }
-
-    // Updates the robot's position and animation
     void update(float deltaTime) override;
-
-    // Handles keyboard input for movement
     void handleInput(sf::Keyboard::Key key, bool isPressed) override;
-
-    // Draws the robot on the window
     void draw(sf::RenderWindow& window) const override;
-
-    // Setters and getters for velocity and position
-    void setVelocity(float vx, float vy) override;
-    sf::Vector2f getPosition() const override;
     void setPosition(float x, float y) override;
-    void setTilePosition(const sf::Vector2f& tilePosition);
-    sf::Vector2f getCurrentCell() const;
+    sf::Vector2f getPosition() const override;
 
-    //void setScale(float scaleX, float scaleY);
+    // Grid-related helper
+    sf::Vector2i getCurrentCell() const; // Return the grid cell dynamically
 
 private:
-    //sf::Sprite m_sprite;             // Robot's sprite
-    //sf::Texture m_texture;           // Texture for the robot's spritesheet
-    //sf::Vector2f m_velocity;         // Current velocity of the robot
-
-
     Direction m_direction;           // Current movement direction
-    bool m_arrowKeyPressed;          // Flag for active movement
+    bool m_arrowKeyPressed;          // Flag for movement animation
 
-     
+
     // Animation-related members
     int m_animationFrame;            // Current animation frame index
     sf::Clock m_animationClock;      // Clock for animation timing
     sf::Time m_animationTimer;       // Time per animation frame
-
-
-     // sf::Vector2f m_currentCell;
-
 };

@@ -8,7 +8,7 @@ SmartGuard::SmartGuard() {
 
 
 void SmartGuard::setPosition(float newX, float newY) {
-	m_sprite.setPosition(x, y);
+	m_sprite.setPosition(newX, newY);
 }
 
 void SmartGuard::update(float deltaTime) {
@@ -28,10 +28,7 @@ void SmartGuard::handleInput(sf::Keyboard::Key key, bool isPressed) {
 
 }
 
-void SmartGuard::setVelocity(float vx, float vy) {
 
-
-}
 
 
 
