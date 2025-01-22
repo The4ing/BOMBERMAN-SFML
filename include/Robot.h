@@ -31,7 +31,7 @@ public:
     // Setters and getters for velocity and position
     void setVelocity(float vx, float vy);
     sf::Vector2f getPosition() const;
-    void setPosition(float x, float y);
+    void setPosition(float x, float y) override;
     void setTilePosition(const sf::Vector2f& tilePosition);
     sf::Vector2f getCurrentCell() const;
     //void setScale(float scaleX, float scaleY);

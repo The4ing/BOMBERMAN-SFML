@@ -11,9 +11,11 @@
 #include "Empty.h"
 #include "Door.h"
 #include "Robot.h"
-#include "Guard.h"
+#include "SmartGuard.h"
+#include "StupidGuard.h"
 #include "Rock.h"
 #include "ToolbarGame.h"
+
 
 // Enum to define power-up choices
 enum powerUps {
@@ -32,16 +34,7 @@ public:
     void GrantExtraLife();
     //void RemoveGuard();
 
-    // Timer functions
-    //void setTimer(const float duration);
-    //void animateProgressBar(float deltaTime, sf::RectangleShape& progressBar) const;
-    //void updateTimerDisplay(sf::Text& timerText, sf::RectangleShape& progressBar, sf::Sprite& arrow, std::vector<sf::Sprite>& heart, const  float deltaTime);
-    //float getTimeLeft() const;           // Get the time left for the level
-    //float getLevelDuration() const;
-    //void CallUpdateTimer();
-    //void IncreaseTime(const int extraTime);
-    //std::string getTimeString() const;
-
+   
     int getCols() const;
     int getRows() const;
     bool isWalkable(int row, int col) const;
@@ -73,12 +66,6 @@ private:
     int m_lives;                  // Number of lives
 
 
-    //for timer
-    //float m_LevelDuration;        // Total duration of the level
-    //float m_TimeLeft;             // Time remaining for the level
-    //sf::Clock m_clock;  // SFML Clock for timing
-    //bool m_isTimerRunning;  // Timer running status
-    //void setLevelDuration(const float duration);
     //void UpdateTimer();
     sf::Vector2f m_cellSize;
 
@@ -87,8 +74,8 @@ private:
     int m_rows, m_cols;
     ToolbarGame m_Toolbar;
     std::vector<sf::Texture> m_textures;
-  //  sf::Texture wallTexture;
- //   sf::Texture emptyTexture;
+ 
+
     sf::View m_view;
     sf::Vector2f m_robotPosition;
 };

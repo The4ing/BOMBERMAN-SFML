@@ -51,9 +51,11 @@ void GameManager::startGame() {
 
    
     sf::Vector2f robotScreenPos = m_board.getRobotScreenPosition(m_window);
-  /*  std::cout << "Robot is at screen position: ("
+   /* std::cout << "Robot is at screen position: ("
         << robotScreenPos.x << ", " << robotScreenPos.y << ")\n";*/
 
+   /* int i = (((robot->getCurrentCell().x - offsetX + (m_cellSize.x / 2)) / m_cellSize.x));
+    int j = ((robot->getCurrentCell().y - offsetY + (m_cellSize.x / 2)) / (m_cellSize.y));*/
 
     while (m_window.isOpen()) {
        
@@ -62,20 +64,17 @@ void GameManager::startGame() {
         float deltaTimeInSeconds = deltaTime.asSeconds();
         processGameEvents();
 
-       // int i = (((m_robot.getCurrentCell().x - offsetX + (m_cellSize.x / 2)) / m_cellSize.x));
-       // int j = ((m_robot.getCurrentCell().y - offsetY + (m_cellSize.x / 2)) / (m_cellSize.y));
-
+      
         // Update all moving objects
         for (auto& object : m_movingObjects) {
 
             auto robot = dynamic_cast<Robot*>(m_movingObjects[0].get());
             if (robot) {
                 
-               /* if (m_board.isWalkable(m_board.getRobotScreenPosition(m_window).x,
-                    m_board.getRobotScreenPosition(m_window).y)) {
-                    std::cout << "pl1" << std::endl;*/
-                    object->update(deltaTime.asSeconds());
-                /*}*/
+
+
+              robot->update(deltaTime.asSeconds());
+                
                         
             }
            
@@ -136,6 +135,8 @@ void GameManager::processGameEvents() {
         }
     }
 }
+
+
 
 void GameManager::setRobotPosition() {
     auto robot = dynamic_cast<Robot*>(m_movingObjects[0].get());

@@ -11,10 +11,7 @@ protected:
 public:
     MovingGameObject() : x(0), y(0), vx(0), vy(0) {}
 
-    void setPosition(float newX, float newY) {
-        x = newX;
-        y = newY;
-    }
+    virtual  void setPosition(float newX, float newY) = 0;
 
     void setVelocity(float newVX, float newVY) {
         vx = newVX;

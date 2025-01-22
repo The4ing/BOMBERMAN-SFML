@@ -274,7 +274,15 @@ void Board::loadFromFile(const std::string& fileName) {
                 m_robotPosition = { static_cast<float>(j), static_cast<float>(i) };
                 break;
             case '!':
-//                m_grid[i][j].content = new SmartGuard();
+               /*  if () {
+                 m_grid[i][j].content = new SmartGuard();
+                }*/
+         
+
+                //else if(){
+                // m_grid[i][j].content = new StupidGuard();         
+                // }
+
                 m_grid[i][j].isWalkable = false;
                 break;
             case '@':
@@ -361,6 +369,7 @@ void Board::displayConsole() const {
     for (const auto& row : m_grid) {
         for (const auto& cell : row) {
             if (cell.content) {
+
                 std::cout << cell.content->getSymbol();
             }
             else {
