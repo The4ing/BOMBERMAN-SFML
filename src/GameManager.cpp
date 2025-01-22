@@ -70,9 +70,7 @@ void GameManager::startGame() {
 
             auto robot = dynamic_cast<Robot*>(m_movingObjects[0].get());
             if (robot) {
-                
-
-
+               
               robot->update(deltaTime.asSeconds());
                 
                         

@@ -5,7 +5,7 @@
 //const sf::Vector2f START_POSITION(100.f, 100.f);
 
 Robot::Robot()
-    : m_velocity(0.f, 0.f),
+    :
     m_direction(STAND),
     m_arrowKeyPressed(false),
     m_animationFrame(0),
@@ -24,6 +24,7 @@ Robot::Robot()
 
 void Robot::setPosition(float x, float y) {
     m_sprite.setPosition(x, y);
+    m_currentCell = sf::Vector2f(x, y);
 }
 
 sf::Vector2f Robot::getPosition() const {

@@ -1,6 +1,8 @@
-//#include "StupidGuard.h"
-//
-//
-//StupidGuard::StupidGuard() : {
-//
-//}
+#include "StupidGuard.h"
+
+StupidGuard::StupidGuard() {
+    // Constructor implementation
+}
+
+
+

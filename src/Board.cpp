@@ -9,12 +9,6 @@ Board::Board()
     //Board::UploadSound();
 }
 
-//void Board::UploadSound() {
-//    if (!m_BackgroundGameTexture.loadFromFile("helpBackground.png")) {
-//        std::cerr << "Error loading help menu background!" << std::endl;
-//    }
-//    m_BackgroundGameSprite.setTexture(m_BackgroundGameTexture);
-//}
 
 
 
@@ -42,6 +36,7 @@ void Board::PowerUp(const powerUps choice) {
     }
 }
 
+
 void Board::FreezeAllGuards(const bool status) {
     m_FreezeGuardsStatus = status;
     if (status) {
@@ -57,154 +52,6 @@ void Board::FreezeAllGuards(const bool status) {
 void Board::GrantExtraLife() {
     m_lives++;  // Grant an extra life
 }
-
-
-
-
-
-
-//void Board::IncreaseTime(const int extraTime) {
-//    m_TimeLeft += extraTime;  // Add extra time
-//    if (m_TimeLeft > m_LevelDuration) {
-//        m_TimeLeft = m_LevelDuration;  // Cap the time at the level duration
-//    }
-//    std::cout << "Time increased by " << extraTime << " seconds." << std::endl;
-//}
-//
-//
-//
-//
-////functions for timer
-//void Board::UpdateTimer() {
-//    if (m_isTimerRunning) {
-//        sf::Time elapsed = m_clock.getElapsedTime();  // Get elapsed time from clock
-//        m_TimeLeft = m_LevelDuration - elapsed.asSeconds();  // Calculate remaining time
-//
-//        if (m_TimeLeft <= 0) {
-//            m_TimeLeft = 0;
-//            m_isTimerRunning = false;  // Stop the timer if time runs out
-//            std::cout << "Time's up!" << std::endl;
-//        }
-//    }
-//}
-//
-//std::string Board::getTimeString() const {
-//    int minutes = static_cast<int>(m_TimeLeft) / 60;
-//    int seconds = static_cast<int>(m_TimeLeft) % 60;
-//    std::ostringstream oss;
-//    oss << minutes << ":" << (seconds < 10 ? "0" : "") << seconds;
-//    return oss.str();
-//}
-//
-//
-//
-//void Board::setLevelDuration(const float duration) {
-//    m_LevelDuration = duration;
-//    m_TimeLeft = duration;
-//    m_isTimerRunning = true;  // Ensure the timer is running
-//    m_clock.restart();  // Restart the clock
-//}
-//
-//// Get the time left for the level
-//float Board::getTimeLeft() const {
-//    return m_TimeLeft;
-//}
-//
-//// Get the total level duration
-//float Board::getLevelDuration() const {
-//    return m_LevelDuration;
-//}
-//void Board::CallUpdateTimer() {
-//    UpdateTimer();
-//}
-//void Board::setTimer(const float duration)  {
-//    setLevelDuration(duration);
-//}
-//
-//
-//
-//
-//
-//void Board::updateTimerDisplay(sf::Text& timerText, sf::RectangleShape& progressBar, sf::Sprite& arrow,std::vector<sf::Sprite>& heart, const float deltaTime) {
-//    // Update the timer first (call your UpdateTimer() method)
-//    CallUpdateTimer();
-//
-//
-//
-//    // Get the time left
-//    float timeLeft = getTimeLeft();
-//
-//
-//    
-//
-//    // Update the time left as a string
-//    std::string timeText = "Time Left: " + getTimeString();
-//    timerText.setString(timeText);
-//
-//    // Heartbeat effect on the timer text (pulsing)
-//    if (timeLeft <= 10) { // Apply heartbeat effect only when time is low
-//        float scaleFactor = 1.0f + 0.1f * sin(3.f * timeLeft);  // Sinusoidal pulse effect
-//        timerText.setScale(scaleFactor, scaleFactor);  // Scale the text
-//    }
-//    else {
-//        timerText.setScale(1.f, 1.f);  // Reset scale when time is not critical
-//    }
-//
-//    // Fading Text Effect & Change Progress Bar Color
-//    if (timeLeft > 30) {
-//        timerText.setFillColor(sf::Color(255, 255, 255, 255));  // Full opacity for fading effect
-//        progressBar.setFillColor(sf::Color::Green);  // Progress bar green
-//    }
-//    else if (timeLeft > 10) {
-//        timerText.setFillColor(sf::Color(255, 255, 255, 150));  // Slightly faded text
-//        progressBar.setFillColor(sf::Color::Yellow);  // Progress bar yellow
-//    }
-//    else {
-//        timerText.setFillColor(sf::Color(255, 0, 0, 255));  // Red text for urgency
-//        progressBar.setFillColor(sf::Color::Red);  // Progress bar red
-//    }
-//
-//    // Rotation Effect: Rotate the timer text as the time gets closer to 0
-//    float rotationSpeed = 30.f * (1.f - (timeLeft / m_LevelDuration));  // Increase speed as time runs out
-//    timerText.setRotation(rotationSpeed * deltaTime);
-//
-//    // Smoothly animate the progress bar based on time left
-//    animateProgressBar(deltaTime, progressBar);
-//
-//    // Update the rotation of the clock hand (robot texture)
-//    float clockRotation = (1.0f - (timeLeft / m_LevelDuration)) * 360.f;  // Rotate based on time remaining
-//    arrow.setRotation(clockRotation);  // Apply the calculated rotation to the clock hand
-//
-//    float heartscale =  0.3f * sin(3.f * timeLeft);;
-//    for (int pos = 0; pos < heart.size(); pos++) {
-//        heart[pos].setScale(heartscale, heartscale);  // Scale the text
-//    }
-//   
-//}
-//
-//
-//void Board::animateProgressBar(float deltaTime, sf::RectangleShape& progressBar) const {
-//    float timeLeft = getTimeLeft();
-//    float levelDuration = getLevelDuration();
-//
-//    // Calculate the target width based on remaining time
-//    float targetWidth = 200.f * (timeLeft / levelDuration);
-//    float currentWidth = progressBar.getSize().x;
-//
-//    // Smooth transition of width change
-//    float smoothTransition = currentWidth + (targetWidth - currentWidth) * deltaTime * 5.f;  // The factor "5.f" controls the smoothness
-//    progressBar.setSize(sf::Vector2f(smoothTransition, 10.f));
-//}
-//
-
-
-
-
-
-
-
-
-
 
 
 
@@ -254,47 +101,39 @@ void Board::loadFromFile(const std::string& fileName) {
 
     m_rows = lines.size();
     m_cols = lines.empty() ? 0 : lines[0].size();
-    m_grid.resize(m_rows, std::vector<Cell>(m_cols));
+    //m_grid.resize(m_rows, std::vector<Cell>(m_cols));
 
+    bool smartGuard;
     for (int i = 0; i < m_rows; ++i) {
         for (int j = 0; j < m_cols; ++j) {
             char symbol = lines[i][j];
             switch (symbol) {
             case '#':
-                m_grid[i][j].content = new Wall();
-                m_grid[i][j].isWalkable = false;
-                break;
-            case ' ':
-                m_grid[i][j].content = new Empty();
-                m_grid[i][j].isWalkable = true;
+                
+                auto newWall = std::make_unique<Wall>();  // Create a unique_ptr to a Wall object
+                newWall->setPosition(i, j);               // Use '->' to call the method on the object
+                m_objects.push_back(std::move(newWall));  // Transfer ownership into the container
+
+                
                 break;
             case '/':
-                m_grid[i][j].content = new Robot();
-                m_grid[i][j].isWalkable = true;
                 m_robotPosition = { static_cast<float>(j), static_cast<float>(i) };
                 break;
             case '!':
-               /*  if () {
-                 m_grid[i][j].content = new SmartGuard();
-                }*/
-         
-
-                //else if(){
-                // m_grid[i][j].content = new StupidGuard();         
-                // }
-
-                m_grid[i][j].isWalkable = false;
+                if (smartGuard) {
+                    //       m_movingObjects.push_back(std::make_unique<SmartGuard>());
+                }
+                else {
+                    //      m_objects.push_back(std::make_unique<StupidGuard>());
+                }
                 break;
             case '@':
-                m_grid[i][j].content = new Rock();
-                m_grid[i][j].isWalkable = false;
+                m_objects.push_back(std::make_unique<Rock>());
                 break;
             case 'D':
-                m_grid[i][j].content = new Door();
-                m_grid[i][j].isWalkable = false;
+                m_objects.push_back(std::make_unique<Door>());
                 break;
             default:
-                m_grid[i][j].content = nullptr;
                 break;
             }
         }

@@ -70,11 +70,16 @@ private:
     sf::Vector2f m_cellSize;
 
 
-    std::vector<std::vector<Cell>> m_grid;
+    // std::vector<std::vector<Cell>> m_grid;
+    std::vector<std::unique_ptr<GameObject>> m_objects;
+    std::vector<std::unique_ptr<MovingGameObject>> m_movingObjects;
     int m_rows, m_cols;
+
     ToolbarGame m_Toolbar;
     std::vector<sf::Texture> m_textures;
  
+
+
 
     sf::View m_view;
     sf::Vector2f m_robotPosition;

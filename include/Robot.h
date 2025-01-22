@@ -29,25 +29,30 @@ public:
     void draw(sf::RenderWindow& window) const override;
 
     // Setters and getters for velocity and position
-    void setVelocity(float vx, float vy);
-    sf::Vector2f getPosition() const;
+    void setVelocity(float vx, float vy) override;
+    sf::Vector2f getPosition() const override;
     void setPosition(float x, float y) override;
     void setTilePosition(const sf::Vector2f& tilePosition);
     sf::Vector2f getCurrentCell() const;
+
     //void setScale(float scaleX, float scaleY);
 
 private:
-    sf::Sprite m_sprite;             // Robot's sprite
-    sf::Texture m_texture;           // Texture for the robot's spritesheet
+    //sf::Sprite m_sprite;             // Robot's sprite
+    //sf::Texture m_texture;           // Texture for the robot's spritesheet
+    //sf::Vector2f m_velocity;         // Current velocity of the robot
 
-    sf::Vector2f m_velocity;         // Current velocity of the robot
+
     Direction m_direction;           // Current movement direction
     bool m_arrowKeyPressed;          // Flag for active movement
 
+     
     // Animation-related members
     int m_animationFrame;            // Current animation frame index
     sf::Clock m_animationClock;      // Clock for animation timing
     sf::Time m_animationTimer;       // Time per animation frame
-    sf::Vector2f m_currentCell;
+
+
+     // sf::Vector2f m_currentCell;
 
 };
