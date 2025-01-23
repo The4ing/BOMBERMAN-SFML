@@ -5,6 +5,7 @@ Board::Board()
     : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_lives(0) {
     m_robot = std::make_unique<Robot>();
     loadTextures();
+    srand(static_cast<unsigned int>(time(0)));
 }
 
 
@@ -51,13 +52,22 @@ void Board::loadFromFile(const std::string& fileName) {
                 m_robot->setPosition(position.x, position.y);
                 break;
             case '!': {
-                // Add guard (example: StupidGuard)
-                auto guard = std::make_unique<StupidGuard>();
+                std::unique_ptr<Guard> guard;
+
+                if (isGuardSmart(5)) {  
+                    guard = std::make_unique<SmartGuard>();  // Create a smart guard
+                }
+                else {
+                    guard = std::make_unique<StupidGuard>();  // Create a stupid guard
+                }
+
                 guard->setPosition(position.x, position.y);
                 m_movingObjects.push_back(std::move(guard));
                 guardCount++;
                 break;
             }
+
+
             case '@': {
                 auto rock = std::make_unique<Rock>(GetTexture(ROCK));
                 rock->setPosition(position.x, position.y);
@@ -80,6 +90,19 @@ void Board::loadFromFile(const std::string& fileName) {
 
 }
 
+// Set the probability based on the level
+// For example, level 1 = 10% chance, level 10 = 90% chance, and so on
+bool Board::setSmartGuard(int level) {
+    // Seed random number generator
+    srand(static_cast<unsigned int>(time(0)));
+    int probability = std::min(100, level * 10);  // Cap the probability at 100%
+
+    // Generate a random number between 1 and 100
+    int randomNumber = rand() % 100 + 1;
+
+    // Return true if the random number is less than or equal to the probability
+    return randomNumber <= probability;
+}
 
 
 void Board::PowerUp(const powerUps choice) {
@@ -248,6 +271,9 @@ void Board::update(float deltaTime) {
     float rightBound = m_cols * (m_cellSize.x + 1);
     float bottomBound = TOOLBAR_HEIGHT + m_rows * m_cellSize.y;
 
+    // Update robot position and animation
+    m_robot->update(deltaTime);
+
     m_Toolbar.CallUpdateTimer();
     m_Toolbar.callUpdateToolbar(deltaTime);
     // Update moving objects like guards
@@ -270,10 +296,11 @@ void Board::update(float deltaTime) {
 
         // Apply corrected position
         obj->setPosition(objectPos.x, objectPos.y);
+
+        checkIfSmartGuard(obj.get());
     }
 
-    // Update robot position and animation
-    m_robot->update(deltaTime);
+
 
     // Boundary checks for the robot
     sf::Vector2f robotPos = m_robot->getPosition();
@@ -303,13 +330,29 @@ void Board::handleInput(sf::Keyboard::Key key, bool isPressed) {
     }
 }
 
-bool Board::isGuardSmart(int level)
-{
-    srand(static_cast<unsigned int>(time(nullptr)));
-    int intelligence = rand() % (level + 5);
-    std::cout << intelligence << std::endl;
-    if (intelligence < 1) {
-        intelligence = 1;
+bool Board::isGuardSmart(int level) {
+    // Generate a random number between 0 and 99
+    int intelligence = rand() % 100;
+
+    // Scale the probability based on the level
+    int probability = std::min(100, level * 10);
+
+    // Return true if the intelligence value falls within the probability range
+    return intelligence < probability;
+}
+
+
+
+void Board::checkIfSmartGuard(MovingGameObject* obj) {
+    if (auto* smartGuard = dynamic_cast<SmartGuard*>(obj)) {
+        std::cout << "This is a SmartGuard.\n";
+        smartGuard->setPlayerPosition(m_robot->getPosition());
     }
-    return true;
+    else {
+        std::cout << "This is not a SmartGuard.\n";
+    }
+}
+
+void Board::handleMouseClick(sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition) {
+    m_Toolbar.handleMouseClick(window, mousePixelPosition);
 }
