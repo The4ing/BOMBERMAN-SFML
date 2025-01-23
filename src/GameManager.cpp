@@ -55,7 +55,7 @@ void GameManager::processGameEvents() {
             break;
 
         case sf::Event::KeyPressed:
-            m_board.handleInput(event.key.code, true); // Forward input to the Board
+            m_board.handleInput(event.key.code, true);
             if (event.key.code == sf::Keyboard::Escape) {
                 m_mainMenu.Run();
                 return;
@@ -63,7 +63,15 @@ void GameManager::processGameEvents() {
             break;
 
         case sf::Event::KeyReleased:
-            m_board.handleInput(event.key.code, false); // Forward input to the Board
+            m_board.handleInput(event.key.code, false);
+            break;
+
+        case sf::Event::MouseButtonPressed:
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                sf::Vector2i mousePixelPosition(event.mouseButton.x, event.mouseButton.y);
+              //  sf::Vector2f mousePosition(event.mouseButton.x, event.mouseButton.y);
+                m_board.handleMouseClick(m_window, mousePixelPosition);
+            }
             break;
 
         default:
