@@ -2,30 +2,38 @@
 
 
 
-
-ToolbarGame::ToolbarGame() : m_isTimerRunning(true), m_LevelDuration(0), m_TimeLeft(0) {
+ToolbarGame::ToolbarGame()
+    : m_isTimerRunning(true), m_LevelDuration(0), m_TimeLeft(0), m_isMuted(false) {
     m_clock.restart();
     setLevelDuration(40);
 
-    // Load font and initialize timer text
+    // Load font for timer text
     if (!m_font.loadFromFile("Arial.ttf")) {
         std::cerr << "Error: Failed to load font!" << std::endl;
         return;
     }
+
     m_timerText.setFont(m_font);
     m_timerText.setCharacterSize(40);
     m_timerText.setFillColor(sf::Color::Green);
     m_timerText.setPosition(10.f, 10.f);
-    m_timerText.setString("Time Left: " + getTimeString());
 
-    // Initialize progress bar
-    m_progressBar.setSize(sf::Vector2f(200.f, 10.f));
-    m_progressBar.setFillColor(sf::Color::Green);
-    m_progressBar.setPosition(10.f, 70.f);
-
+    // Load toolbar textures
     loadTextures();
     LoudSprite();
+
+    // Load mute and unmute button textures
+    if (!m_muteTexture.loadFromFile("mute.png") || !m_unmuteTexture.loadFromFile("unmute.png")) {
+        std::cerr << "Error: Could not load mute/unmute textures!" << std::endl;
+    }
+
+    // Initialize mute button
+    m_muteButton.setTexture(m_unmuteTexture);          // Default to unmuted
+    m_muteButton.setScale(0.1f, 0.1f);                 // Scale down for smaller size
+    m_muteButton.setPosition(1850.f, 10.f);            // Position at top-right of 1920x1080 screen
 }
+
+
 
 
 void ToolbarGame::LoudSprite() {
@@ -84,15 +92,15 @@ const int ToolbarGame::getHeartCount()
     return m_heart.size();
 }
 
-void ToolbarGame::draw(sf::RenderWindow& window)
-{
-    for (const auto a : m_heart) {
-        window.draw(a);
+void ToolbarGame::draw(sf::RenderWindow& window) {
+    for (const auto& heart : m_heart) {
+        window.draw(heart);
     }
     window.draw(m_clockHand);
     window.draw(m_arrow);
     window.draw(m_progressBar);
     window.draw(m_timerText);
+    window.draw(m_muteButton); // Draw the mute button
 }
 
 void ToolbarGame::SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const {
@@ -226,16 +234,16 @@ void ToolbarGame::updateTimerDisplay(const float deltaTime) {
     clockRotation = (1.0f - (timeLeft / m_LevelDuration)) * 22.f;  // Calculate rotation
 
     for (int pos = 0; pos < m_heart.size(); pos++) {
-        // Set the origin to the center of the sprite
-        m_heart[pos].setOrigin(
-            m_heart[pos].getGlobalBounds().width / 2,
-            m_heart[pos].getGlobalBounds().height / 2
-        );
+      // Set the origin to the center of the sprite
+      m_heart[pos].setOrigin(
+           m_heart[pos].getGlobalBounds().width / 2,
+           m_heart[pos].getGlobalBounds().height / 2
+       );
 
         // Set position and scale
         m_heart[pos].setScale(heartscale, heartscale);
 
-        // Apply rotation
+       // Apply rotation
         m_heart[pos].setRotation(clockRotation);
     }
 }
@@ -252,4 +260,29 @@ void ToolbarGame::animateProgressBar(const float deltaTime)  {
     // Smooth transition of width change
     float smoothTransition = currentWidth + (targetWidth - currentWidth) * deltaTime * 5.f;  // The factor "5.f" controls the smoothness
     m_progressBar.setSize(sf::Vector2f(smoothTransition, 10.f));
+}
+
+void ToolbarGame::handleMouseClick(const sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition) {
+    // Convert screen-space mouse position to world-space
+    sf::Vector2f mousePosition = window.mapPixelToCoords(mousePixelPosition);
+
+    // Check if the mouse click intersects with the mute button
+    if (m_muteButton.getGlobalBounds().contains(mousePosition)) {
+        toggleMute();
+    }
+}
+
+
+void ToolbarGame::toggleMute() {
+    m_isMuted = !m_isMuted; // Toggle mute state
+
+    // Update the button texture based on the current state
+    if (m_isMuted) {
+        m_muteButton.setTexture(m_muteTexture);
+        std::cout << "Muted!" << std::endl;
+    }
+    else {
+        m_muteButton.setTexture(m_unmuteTexture);
+        std::cout << "Unmuted!" << std::endl;
+    }
 }
