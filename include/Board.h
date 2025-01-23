@@ -15,6 +15,8 @@
 #include "StupidGuard.h"
 #include "Rock.h"
 #include "ToolbarGame.h"
+#include <cstdlib>
+#include <ctime>
 
 // Enum to define power-up choices
 enum powerUps {
@@ -53,13 +55,15 @@ public:
     sf::Vector2f getRobotScreenPosition(const sf::RenderWindow& window) ;
 
     sf::Vector2f getCellSize() const;
-
+    void handleMouseClick(sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition);
+    bool setSmartGuard(int level);
 
     void update(float deltaTime);
     void handleInput(sf::Keyboard::Key key, bool isPressed);
     bool isGuardSmart(int level);
 private:
 
+    void checkIfSmartGuard(MovingGameObject* obj);
     bool m_FreezeGuardsStatus;    // Tracks whether the guards are frozen
     int m_lives;                  // Number of lives
 
