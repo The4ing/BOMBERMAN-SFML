@@ -10,7 +10,7 @@ protected:
 
 public:
     Guard() : guardID(0), detectionRange(100.0f) {}
-    virtual void colision() = 0; // Pure virtual function
+  //  virtual void colision() = 0; // Pure virtual function
 
 };
 

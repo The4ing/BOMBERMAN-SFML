@@ -13,8 +13,8 @@ public:
 
 
     virtual void update(float deltaTime) = 0;                 // Pure virtual update
-    virtual void draw(sf::RenderWindow& window) const = 0;    // Pure virtual draw
-    virtual void handleInput(sf::Keyboard::Key key, bool isPressed) = 0; // Handle input
+   // virtual void draw(sf::RenderWindow& window) const = 0;    // Pure virtual draw
+   // virtual void handleInput(sf::Keyboard::Key key, bool isPressed) = 0; // Handle input
     
 
 };

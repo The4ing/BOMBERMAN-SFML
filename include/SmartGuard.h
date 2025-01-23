@@ -10,7 +10,7 @@ public:
     void setPosition(float newX, float newY) override;
     void update(float deltaTime) override;
     void draw(sf::RenderWindow& window) const override;
-    void handleInput(sf::Keyboard::Key key, bool isPressed) override;
+    void handleInput(sf::Keyboard::Key key, bool isPressed);
   
      sf::Vector2f getPosition() const override;
    

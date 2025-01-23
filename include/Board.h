@@ -46,7 +46,7 @@ public:
     void loadFromFile(const std::string& fileName);
     void loadTextures();
     void displayConsole() const;
-    void display(sf::RenderWindow& window) const;
+    void display(sf::RenderWindow& window);
 
     // New methods for robot position
     //sf::Vector2i getRobotGridPosition() const;
@@ -57,8 +57,9 @@ public:
 
     void update(float deltaTime);
     void handleInput(sf::Keyboard::Key key, bool isPressed);
-
+    bool isGuardSmart(int level);
 private:
+
     bool m_FreezeGuardsStatus;    // Tracks whether the guards are frozen
     int m_lives;                  // Number of lives
 

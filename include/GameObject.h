@@ -2,22 +2,16 @@
 #include <SFML/Graphics.hpp>
 #include "Utilities.h"
 
-
 class GameObject {
 public:
-    virtual char getSymbol() const = 0; // Abstract method for getting symbol representation
-    virtual ~GameObject() = default;    // Virtual destructor
-    virtual sf::Vector2f getPosition() const = 0;
-    virtual  void setPosition(float newX, float newY) = 0;
+    virtual ~GameObject() = default;                // Virtual destructor for polymorphism
+
+    virtual char getSymbol() const = 0;             // Abstract method to return the object's symbol
+    virtual sf::Vector2f getPosition() const = 0;   // Abstract method to get the object's position
+    virtual void setPosition(float newX, float newY) = 0; // Abstract method to set the object's position
+    virtual void draw(sf::RenderWindow& window) const = 0; // Pure virtual draw method
 
 protected:
-
-
-    sf::Sprite m_sprite;             // Robot's sprite
+    sf::Sprite m_sprite;  // Shared sprite for all game objects
     sf::Texture m_texture;
-    //sf::Vector2f m_velocity = { 0.0f, 0.0f }; // Correct initialization with braces
-    //sf::Vector2f m_currentCell = { 0.0f, 0.0f };
-
-   
 };
-

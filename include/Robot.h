@@ -2,6 +2,7 @@
 #include "MovingGameObject.h"
 #include <SFML/Graphics.hpp>
 #include "Utilities.h"
+#include <set>
 
 // Constants
 const float ROBOT_SPEED = 200.f;    // Speed in pixels per second
@@ -17,7 +18,7 @@ public:
     // Overridden methods
     char getSymbol() const override { return '/'; }
     void update(float deltaTime) override;
-    void handleInput(sf::Keyboard::Key key, bool isPressed) override;
+    void handleInput(sf::Keyboard::Key key, bool isPressed);
     void draw(sf::RenderWindow& window) const override;
     void setPosition(float x, float y) override;
     sf::Vector2f getPosition() const override;
@@ -28,7 +29,10 @@ public:
 private:
     Direction m_direction;           // Current movement direction
     bool m_arrowKeyPressed;          // Flag for movement animation
+    std::set<sf::Keyboard::Key> activeKeys; // Store currently pressed keys
 
+    sf::Vector2f m_velocity;
+    int lastDirection;
 
     // Animation-related members
     int m_animationFrame;            // Current animation frame index

@@ -19,7 +19,7 @@ public:
   //  bool loadLevel(const std::string& fileName);
     void processGameEvents();
    // void handleMoveKeys(sf::Keyboard::Key key, const bool isPressed);
-    void setRobotPosition();
+   // void setRobotPosition();
 
 private:
     sf::RenderWindow m_window;   // SFML render window

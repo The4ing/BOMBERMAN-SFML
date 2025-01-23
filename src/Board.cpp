@@ -7,7 +7,9 @@ Board::Board()
     loadTextures();
 }
 
+
 void Board::loadFromFile(const std::string& fileName) {
+    isGuardSmart(1);
     std::ifstream file(fileName);
     if (!file.is_open()) {
         std::cerr << "Error: Cannot open file " << fileName << std::endl;
@@ -24,32 +26,62 @@ void Board::loadFromFile(const std::string& fileName) {
     m_rows = lines.size();
     m_cols = lines.empty() ? 0 : lines[0].size();
 
+    // Calculate cell size considering the toolbar
+    float windowWidth = 1920.0f; // Example window width
+    float windowHeight = 1080.0f; // Example window height
+    float gridHeight = windowHeight - TOOLBAR_HEIGHT; // Remaining height after the toolbar
+
+    m_cellSize.x = windowWidth / static_cast<float>(m_cols);
+    m_cellSize.y = gridHeight / static_cast<float>(m_rows);
+
+    int guardCount = 0;
+
     for (int i = 0; i < m_rows; ++i) {
         for (int j = 0; j < m_cols; ++j) {
             char symbol = lines[i][j];
-            sf::Vector2f position(static_cast<float>(j), static_cast<float>(i));
+            sf::Vector2f position(j * m_cellSize.x, i * m_cellSize.y + TOOLBAR_HEIGHT); // Offset by toolbar height
             switch (symbol) {
-            case '#':
-              //  m_objects.push_back(std::make_unique<Wall>(position));
+            case '#': {
+                auto wall = std::make_unique<Wall>(GetTexture(WALL));
+                wall->setPosition(position.x, position.y);
+                m_objects.push_back(std::move(wall));
                 break;
+            }
             case '/':
-                   m_robot->setPosition(position.x, position.y);
+                m_robot->setPosition(position.x, position.y);
                 break;
-            case '!':
-              //  m_movingObjects.push_back(std::make_unique<Guard>(position));
+            case '!': {
+                // Add guard (example: StupidGuard)
+                auto guard = std::make_unique<StupidGuard>();
+                guard->setPosition(position.x, position.y);
+                m_movingObjects.push_back(std::move(guard));
+                guardCount++;
                 break;
-            case '@':
-               // m_objects.push_back(std::make_unique<Rock>(position));
+            }
+            case '@': {
+                auto rock = std::make_unique<Rock>(GetTexture(ROCK));
+                rock->setPosition(position.x, position.y);
+                m_objects.push_back(std::move(rock));
                 break;
-            case 'D':
-                //m_objects.push_back(std::make_unique<Door>(position));
+            }
+            case 'D': {
+                auto door = std::make_unique<Door>(GetTexture(DOOR));
+                door->setPosition(position.x, position.y);
+                m_objects.push_back(std::move(door));
                 break;
+            }
             default:
                 break;
             }
         }
     }
+
+    std::cout << "Number of guards created: " << guardCount << std::endl;
+
 }
+
+
+
 void Board::PowerUp(const powerUps choice) {
     switch (choice) {
     case FreezeGuards:
@@ -128,27 +160,32 @@ void Board::loadTextures() {
     }
 }
 
-void Board::display(sf::RenderWindow& window) const {
-    sf::Sprite sprite;
+void Board::display(sf::RenderWindow& window)  {
+    // Draw the toolbar
+    m_Toolbar.draw(window);
 
+    // Draw static objects
     for (const auto& obj : m_objects) {
-        sprite.setTexture(GetTexture(obj->getSymbol()));
-        sprite.setPosition(obj->getPosition());
-        sprite.setScale(m_cellSize.x / sprite.getTexture()->getSize().x,
-            m_cellSize.y / sprite.getTexture()->getSize().y);
-        window.draw(sprite);
+        obj->draw(window);
     }
 
+    // Draw moving objects
     for (const auto& obj : m_movingObjects) {
-        sprite.setTexture(GetTexture(obj->getSymbol()));
-        sprite.setPosition(obj->getPosition());
-        sprite.setScale(m_cellSize.x / sprite.getTexture()->getSize().x,
-            m_cellSize.y / sprite.getTexture()->getSize().y);
-        window.draw(sprite);
+        obj->draw(window);
     }
 
-    m_robot->draw(window); // Draw the robot
+    // Draw the robot separately
+    if (m_robot) {
+        m_robot->draw(window);
+    }
+    else {
+        std::cerr << "Error: Robot object is null." << std::endl;
+    }
 }
+
+
+
+
 
 void Board::displayConsole() const {
     for (int i = 0; i < m_rows; ++i) {
@@ -205,12 +242,74 @@ sf::Vector2f Board::getCellSize() const {
 }
 
 void Board::update(float deltaTime) {
+    // Calculate board boundaries
+    float leftBound = 0.f;
+    float topBound = TOOLBAR_HEIGHT; // Offset for toolbar
+    float rightBound = m_cols * (m_cellSize.x + 1);
+    float bottomBound = TOOLBAR_HEIGHT + m_rows * m_cellSize.y;
+
+    m_Toolbar.CallUpdateTimer();
+    m_Toolbar.callUpdateToolbar(deltaTime);
+    // Update moving objects like guards
     for (auto& obj : m_movingObjects) {
-        obj->update(deltaTime); // Update guards and other moving objects
+        obj->update(deltaTime);
+        sf::Vector2f objectPos = obj->getPosition();
+        if (objectPos.x < leftBound) {
+			objectPos.x = leftBound;
+        }
+        else if (objectPos.x + m_cellSize.x > rightBound) {
+            objectPos.x = rightBound - m_cellSize.x;
+        }
+
+        if (objectPos.y < topBound) {
+            objectPos.y = topBound;
+        }
+        else if (objectPos.y + m_cellSize.y > bottomBound) {
+            objectPos.y = bottomBound - m_cellSize.y;
+        }
+
+        // Apply corrected position
+        obj->setPosition(objectPos.x, objectPos.y);
     }
-    m_robot->update(deltaTime); // Update robot position and animation
+
+    // Update robot position and animation
+    m_robot->update(deltaTime);
+
+    // Boundary checks for the robot
+    sf::Vector2f robotPos = m_robot->getPosition();
+
+
+    // Ensure the robot stays within bounds
+    if (robotPos.x < leftBound) {
+        robotPos.x = leftBound;
+    } else if (robotPos.x + m_cellSize.x > rightBound) {
+        robotPos.x = rightBound - m_cellSize.x;
+    }
+
+    if (robotPos.y < topBound) {
+        robotPos.y = topBound;
+    } else if (robotPos.y + m_cellSize.y > bottomBound) {
+        robotPos.y = bottomBound - m_cellSize.y;
+    }
+
+    // Apply corrected position
+    m_robot->setPosition(robotPos.x, robotPos.y);
 }
 
+
 void Board::handleInput(sf::Keyboard::Key key, bool isPressed) {
-    m_robot->handleInput(key, isPressed); // Handle input for robot
+    if (m_robot) {
+        m_robot->handleInput(key, isPressed); // Forward input to the robot
+    }
+}
+
+bool Board::isGuardSmart(int level)
+{
+    srand(static_cast<unsigned int>(time(nullptr)));
+    int intelligence = rand() % (level + 5);
+    std::cout << intelligence << std::endl;
+    if (intelligence < 1) {
+        intelligence = 1;
+    }
+    return true;
 }
