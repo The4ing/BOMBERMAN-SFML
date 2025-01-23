@@ -146,6 +146,7 @@ int MainMenuDisplay::handleInput() {
 
         if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
             if (handleButtonClick(sf::Mouse::getPosition(*m_window)) == START_GAME) {
+                m_menuMusic.stop();
                 return START_GAME;
             }
         }
