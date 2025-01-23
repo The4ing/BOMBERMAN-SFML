@@ -62,22 +62,29 @@ void StupidGuard::update(float deltaTime) {
     int textureY = 0;
     if (m_direction == DOWN) {
         textureY = 0; // First row for moving down
+        m_sprite.setScale(GUARD_SCALE, GUARD_SCALE); // Reset scale
+        m_sprite.setOrigin(0.f, 0.f); // Reset origin
     }
     else if (m_direction == LEFT) {
         textureY = m_frameHeight; // Second row for moving left
+        m_sprite.setScale(GUARD_SCALE, GUARD_SCALE); // Reset scale
+        m_sprite.setOrigin(0.f, 0.f); // Reset origin
     }
     else if (m_direction == RIGHT) {
-        textureY = m_frameHeight; // Second row for moving right (inverted later)
+        textureY = m_frameHeight; // Second row for moving right
         m_sprite.setScale(-GUARD_SCALE, GUARD_SCALE); // Invert the sprite horizontally
+        m_sprite.setOrigin(m_frameWidth, 0.f); // Adjust origin to align correctly
     }
     else if (m_direction == UP) {
         textureY = m_frameHeight * 2; // Third row for moving up
+        m_sprite.setScale(GUARD_SCALE, GUARD_SCALE); // Reset scale
+        m_sprite.setOrigin(0.f, 0.f); // Reset origin
     }
 
     // Apply texture to sprite
     m_sprite.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
-
 }
+
 
 
 void StupidGuard::draw(sf::RenderWindow& window) const {
