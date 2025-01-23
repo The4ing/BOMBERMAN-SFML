@@ -40,6 +40,9 @@ public:
     void loadTextures();
     const sf::Texture& GetTexture(const int& choice) const;
 
+    //mute:
+    void toggleMute();
+    void handleMouseClick(const sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition);
 
     const int getHeartCount();
     void draw(sf::RenderWindow& m_window);
@@ -73,6 +76,12 @@ private:
     sf::Sprite m_arrow;
     std::vector<sf::Sprite> m_heart;
     sf::RectangleShape m_progressBar;
+
+    //for mute:
+    sf::Sprite m_muteButton;       // Sprite for the mute button
+    sf::Texture m_muteTexture;     // Mute icon texture
+    sf::Texture m_unmuteTexture;   // Unmute icon texture
+    bool m_isMuted = false;        // Mute state
 
     void animateProgressBar(const float deltaTime);
     void updateTimerDisplay(const  float deltaTime);
