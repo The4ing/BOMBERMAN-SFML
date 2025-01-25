@@ -18,6 +18,8 @@ Robot::Robot()
     m_sprite.setScale(ROBOT_SCALE, ROBOT_SCALE);
 }
 
+
+
 // Position handling
 void Robot::setPosition(float x, float y) {
     m_sprite.setPosition(x, y);
@@ -26,6 +28,8 @@ void Robot::setPosition(float x, float y) {
 sf::Vector2f Robot::getPosition() const {
     return m_sprite.getPosition();
 }
+
+
 
 sf::Vector2i Robot::getCurrentCell() const {
     sf::Vector2f pos = m_sprite.getPosition();
@@ -161,3 +165,38 @@ void Robot::handleInput(sf::Keyboard::Key key, bool isPressed) {
 void Robot::draw(sf::RenderWindow& window) const {
     window.draw(m_sprite);
 }
+
+
+
+
+void Robot::collideWith(GameObject* other) {
+    other->collideWith(this);  // Double dispatch
+}
+
+void Robot::collideWith(Rock* rock) {
+    std::cout << "Robot collided with a Rock!" << std::endl;
+    // Handle collision with rock
+}
+
+
+
+void Robot::collideWith(Wall* wall) {
+    std::cout << "Robot collided with a Wall!" << std::endl;
+    // Handle collision with wall
+}
+
+void Robot::collideWith(Robot* robot) {
+    std::cout << "Robot collided with a Robot!" << std::endl;
+    // Handle collision with robot (e.g., take damage, stop movement, etc.)
+}
+
+void Robot::collideWith(Door* Door)
+{
+    std::cout << "Robot collided with a DOOR!" << std::endl;
+}
+
+void Robot::collideWith(Guard* Guard)
+{
+    std::cout << "Robot collided with a Guard!" << std::endl;
+}
+

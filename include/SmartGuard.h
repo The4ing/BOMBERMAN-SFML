@@ -18,6 +18,14 @@ public:
     void handleInput(sf::Keyboard::Key key, bool isPressed);
     sf::Vector2f getPosition() const override;
     void setPlayerPosition(const sf::Vector2f& playerPos);
+    
+
+
+    ///collision
+
+    
+   
+    
 
 private:
     sf::Vector2f m_playerPosition;

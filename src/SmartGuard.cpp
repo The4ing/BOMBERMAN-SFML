@@ -35,7 +35,12 @@ void SmartGuard::setPlayerPosition(const sf::Vector2f& playerPos) {
     m_playerPosition = playerPos;
 }
 
-void SmartGuard::update(float deltaTime) {
+
+
+
+
+void SmartGuard::update(float deltaTime ) {
+    deltaTime = deltaTime * 0.5;
     // Continuously calculate velocity toward the player
     calculateVelocity();
 
@@ -118,3 +123,12 @@ void SmartGuard::updateAnimation() {
     // Update the sprite's texture rectangle
     m_sprite.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
 }
+
+
+
+
+
+
+
+
+

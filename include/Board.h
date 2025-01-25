@@ -59,6 +59,9 @@ public:
     bool setSmartGuard(int level);
 
     void update(float deltaTime);
+    
+   
+  
     void handleInput(sf::Keyboard::Key key, bool isPressed);
     bool isGuardSmart(int level);
 private:

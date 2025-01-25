@@ -13,7 +13,7 @@ const float ROBOT_SCALE = 3.0f;     // Scale factor
 class Robot : public MovingGameObject {
 public:
     Robot();
-  
+   
 
     // Overridden methods
     char getSymbol() const override { return '/'; }
@@ -22,9 +22,24 @@ public:
     void draw(sf::RenderWindow& window) const override;
     void setPosition(float x, float y) override;
     sf::Vector2f getPosition() const override;
+    
+
+
+    void collideWith(GameObject* other) override;
+    void collideWith(Rock* rock) override;
+    void collideWith(Wall* wall) override;
+    void collideWith(Robot* robot) override;
+    void collideWith(Door* door) override;
+    void collideWith(Guard* Guard) override;
+    
+
+
 
     // Grid-related helper
     sf::Vector2i getCurrentCell() const; // Return the grid cell dynamically
+
+
+
 
 private:
     Direction m_direction;           // Current movement direction

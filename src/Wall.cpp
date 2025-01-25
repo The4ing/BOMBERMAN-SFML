@@ -30,3 +30,31 @@ void Wall::draw(sf::RenderWindow& window) const {
     ); // Scale to fit cell size
     window.draw(sprite);
 }
+
+
+
+
+
+void Wall::collideWith(GameObject* other)
+{
+    other->collideWith(this);  // Double dispatch
+}
+
+
+
+
+
+void Wall::collideWith(Robot* robot)
+{
+    std::cout << "Wall collided with a robot!" << std::endl;
+}
+
+
+
+void Wall::collideWith(Guard* Guard)
+{
+    std::cout << "Wall collided with a Guard!" << std::endl;
+}
+
+
+

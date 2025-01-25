@@ -30,3 +30,27 @@ void Rock::draw(sf::RenderWindow& window) const {
     ); // Scale to fit cell size
     window.draw(sprite);
 }
+
+
+
+
+
+
+
+void Rock::collideWith(GameObject* other)
+{
+    other->collideWith(this);
+}
+
+void Rock::collideWith(Guard* Guard)
+{
+    std::cout << "Rock collided with a Guard!" << std::endl;
+}
+
+void Rock::collideWith(Robot* robot)
+{
+    std::cout << "Rock collided with a robot!" << std::endl;
+}
+
+
+

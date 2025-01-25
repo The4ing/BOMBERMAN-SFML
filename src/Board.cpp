@@ -37,6 +37,9 @@ void Board::loadFromFile(const std::string& fileName) {
 
     int guardCount = 0;
 
+    // Set scale factors for uniform scaling (adjust these values as needed)
+   
+
     for (int i = 0; i < m_rows; ++i) {
         for (int j = 0; j < m_cols; ++j) {
             char symbol = lines[i][j];
@@ -45,16 +48,18 @@ void Board::loadFromFile(const std::string& fileName) {
             case '#': {
                 auto wall = std::make_unique<Wall>(GetTexture(WALL));
                 wall->setPosition(position.x, position.y);
+              
                 m_objects.push_back(std::move(wall));
                 break;
             }
             case '/':
                 m_robot->setPosition(position.x, position.y);
+               
                 break;
             case '!': {
                 std::unique_ptr<Guard> guard;
 
-                if (isGuardSmart(5)) {  
+                if (isGuardSmart(5)) {
                     guard = std::make_unique<SmartGuard>();  // Create a smart guard
                 }
                 else {
@@ -62,21 +67,22 @@ void Board::loadFromFile(const std::string& fileName) {
                 }
 
                 guard->setPosition(position.x, position.y);
+                
                 m_movingObjects.push_back(std::move(guard));
                 guardCount++;
                 break;
             }
-
-
             case '@': {
                 auto rock = std::make_unique<Rock>(GetTexture(ROCK));
                 rock->setPosition(position.x, position.y);
+              
                 m_objects.push_back(std::move(rock));
                 break;
             }
             case 'D': {
                 auto door = std::make_unique<Door>(GetTexture(DOOR));
                 door->setPosition(position.x, position.y);
+                
                 m_objects.push_back(std::move(door));
                 break;
             }
@@ -87,8 +93,8 @@ void Board::loadFromFile(const std::string& fileName) {
     }
 
     std::cout << "Number of guards created: " << guardCount << std::endl;
-
 }
+
 
 // Set the probability based on the level
 // For example, level 1 = 10% chance, level 10 = 90% chance, and so on
@@ -265,63 +271,56 @@ sf::Vector2f Board::getCellSize() const {
 }
 
 void Board::update(float deltaTime) {
-    // Calculate board boundaries
-    float leftBound = 0.f;
-    float topBound = TOOLBAR_HEIGHT; // Offset for toolbar
-    float rightBound = m_cols * (m_cellSize.x + 1);
-    float bottomBound = TOOLBAR_HEIGHT + m_rows * m_cellSize.y;
-
-    // Update robot position and animation
+    // Update the robot's state
     m_robot->update(deltaTime);
 
+    // Update the toolbar
     m_Toolbar.CallUpdateTimer();
     m_Toolbar.callUpdateToolbar(deltaTime);
-    // Update moving objects like guards
+
+    // Update moving objects like guards and check collisions
     for (auto& obj : m_movingObjects) {
         obj->update(deltaTime);
-        sf::Vector2f objectPos = obj->getPosition();
-        if (objectPos.x < leftBound) {
-			objectPos.x = leftBound;
-        }
-        else if (objectPos.x + m_cellSize.x > rightBound) {
-            objectPos.x = rightBound - m_cellSize.x;
-        }
 
-        if (objectPos.y < topBound) {
-            objectPos.y = topBound;
+       
+        // Check for collisions with static objects (rock, wall, etc.)
+        for (const auto& staticObj : m_objects) {
+            //need to add function for checking collision between  m_movingObjects and  m_objects
+                
+            // Handle collision between moving object and static object
+               // obj->collideWith(staticObj.get());  // Use the collideWith function for the static object
+            
         }
-        else if (objectPos.y + m_cellSize.y > bottomBound) {
-            objectPos.y = bottomBound - m_cellSize.y;
-        }
+        
 
-        // Apply corrected position
-        obj->setPosition(objectPos.x, objectPos.y);
+           //need to add function for checking colision between robot and  m_movingObjects 
+           
+           // obj->collideWith(m_robot.get());  // Handle collision between guard and robot
+        
 
+       
+        // Additional logic for smart guards if needed
         checkIfSmartGuard(obj.get());
     }
 
+   
 
+     //Check for collisions between the robot and static objects
+    for (const auto& staticObj : m_objects) {
+        //need to add function for checking colision
 
-    // Boundary checks for the robot
-    sf::Vector2f robotPos = m_robot->getPosition();
-
-
-    // Ensure the robot stays within bounds
-    if (robotPos.x < leftBound) {
-        robotPos.x = leftBound;
-    } else if (robotPos.x + m_cellSize.x > rightBound) {
-        robotPos.x = rightBound - m_cellSize.x;
+            std::cout << "Collision detected between robot and static object" << std::endl;
+           // m_robot->collideWith(staticObj.get());  // Handle collision between robot and static object
+  
     }
-
-    if (robotPos.y < topBound) {
-        robotPos.y = topBound;
-    } else if (robotPos.y + m_cellSize.y > bottomBound) {
-        robotPos.y = bottomBound - m_cellSize.y;
-    }
-
-    // Apply corrected position
-    m_robot->setPosition(robotPos.x, robotPos.y);
 }
+
+
+
+
+
+
+
 
 
 void Board::handleInput(sf::Keyboard::Key key, bool isPressed) {
@@ -345,11 +344,11 @@ bool Board::isGuardSmart(int level) {
 
 void Board::checkIfSmartGuard(MovingGameObject* obj) {
     if (auto* smartGuard = dynamic_cast<SmartGuard*>(obj)) {
-        std::cout << "This is a SmartGuard.\n";
+        //std::cout << "This is a SmartGuard.\n";
         smartGuard->setPlayerPosition(m_robot->getPosition());
     }
     else {
-        std::cout << "This is not a SmartGuard.\n";
+        //std::cout << "This is not a SmartGuard.\n";
     }
 }
 

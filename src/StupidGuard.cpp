@@ -12,6 +12,7 @@ const float GUARD_CHANGE_INTERVAL = 2.f;  // Increase the interval
 StupidGuard::StupidGuard()
     : m_randomChangeInterval(sf::seconds(GUARD_CHANGE_INTERVAL)) , m_animationFrame(0){
     // Load sprite sheet
+
     if (!m_texture.loadFromFile("scary_guard_spritesheet.png")) {
         std::cerr << "Failed to load guard spritesheet" << std::endl;
     }
@@ -25,7 +26,7 @@ StupidGuard::StupidGuard()
 
     // Set the initial texture rectangle (first frame of the first row)
     m_sprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
-
+    m_sprite.setScale(1.f, 1.f); // Scale as needed
     // Initialize random direction
     changeDirection();
 }
@@ -39,8 +40,12 @@ sf::Vector2f StupidGuard::getPosition() const {
 }
 
 void StupidGuard::update(float deltaTime) {
+
+
     // Increase the time since the last direction change
     m_timeSinceLastChange += sf::seconds(deltaTime);
+
+    deltaTime = deltaTime * 0.7;
     // Move the guard
     m_sprite.move(m_velocity * deltaTime);
     // Only change direction if the cooldown period has passed
@@ -91,6 +96,8 @@ void StupidGuard::draw(sf::RenderWindow& window) const {
     window.draw(m_sprite);
 }
 
+
+
 void StupidGuard::changeDirection() {
     // Random direction generator
     static std::default_random_engine generator;
@@ -117,3 +124,11 @@ void StupidGuard::changeDirection() {
         break;
     }
 }
+
+
+
+
+
+
+
+

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Guard.h"
-#include <SFML/Graphics.hpp>
 #include <random>
+
 
 class StupidGuard : public Guard {
 public:
@@ -14,14 +14,17 @@ public:
     sf::Vector2f getPosition() const override;
     void update(float deltaTime) override;
     void draw(sf::RenderWindow& window) const override;
+   
 
 private:
     // Helper Methods
     void changeDirection();
 
     // Animation-related members
-    sf::Texture m_texture;          // Texture for the guard's sprite
-    sf::Sprite m_sprite;            // Sprite for the guard
+    //sf::Texture m_texture;          // Texture for the guard's sprite
+    //sf::Sprite m_sprite;            // Sprite for the guard
+
+
     int m_frameWidth;               // Width of a single frame
     int m_frameHeight;              // Height of a single frame
     int m_animationFrame;           // frame of the animation
