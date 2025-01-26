@@ -22,3 +22,6 @@ configure_file ("scary_guard_spritesheet.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("smartGuardSprite.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("mute.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("unmute.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("bomb.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("bombXPLD.png" ${CMAKE_BINARY_DIR} COPYONLY)
+ 

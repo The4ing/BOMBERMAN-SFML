@@ -52,5 +52,14 @@ void Rock::collideWith(Robot* robot)
     std::cout << "Rock collided with a robot!" << std::endl;
 }
 
+void Rock::collideWith(Bomb* bomb)
+{
+    std::cout << "Rock collided with a robot!" << std::endl;
+}
+
+
+
+
+
 
 

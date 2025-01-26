@@ -60,6 +60,9 @@ void GameManager::processGameEvents() {
                 m_mainMenu.Run();
                 return;
             }
+            else if (event.key.code == sf::Keyboard::B) {
+                m_board.GenerateBomb();
+            }
             break;
 
         case sf::Event::KeyReleased:

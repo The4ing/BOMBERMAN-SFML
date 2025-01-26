@@ -12,9 +12,12 @@ public:
     char getSymbol() const override { return '!'; }
     void setPosition(float x, float y) override;
     sf::Vector2f getPosition() const override;
-    void update(float deltaTime) override;
+    void update(const float deltaTime) override;
     void draw(sf::RenderWindow& window) const override;
+
+  
    
+
 
 private:
     // Helper Methods

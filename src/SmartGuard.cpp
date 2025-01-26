@@ -39,13 +39,17 @@ void SmartGuard::setPlayerPosition(const sf::Vector2f& playerPos) {
 
 
 
-void SmartGuard::update(float deltaTime ) {
-    deltaTime = deltaTime * 0.5;
+
+
+void SmartGuard::update(const float deltaTime ) {
+
+    const float SpeedMove = deltaTime * 0.5;
+    
     // Continuously calculate velocity toward the player
     calculateVelocity();
 
     // Move the guard
-    m_sprite.move(m_velocity * deltaTime);
+    m_sprite.move(m_velocity * SpeedMove);
 
     // Check if it's time to randomize behavior
     if (m_directionChangeClock.getElapsedTime() >= m_randomChangeInterval) {

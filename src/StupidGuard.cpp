@@ -39,15 +39,15 @@ sf::Vector2f StupidGuard::getPosition() const {
     return m_sprite.getPosition();
 }
 
-void StupidGuard::update(float deltaTime) {
+void StupidGuard::update(const float deltaTime) {
 
-
+    const float SpeedMove = deltaTime * 0.7;
     // Increase the time since the last direction change
-    m_timeSinceLastChange += sf::seconds(deltaTime);
+    m_timeSinceLastChange += sf::seconds(SpeedMove);
 
-    deltaTime = deltaTime * 0.7;
+     
     // Move the guard
-    m_sprite.move(m_velocity * deltaTime);
+    m_sprite.move(m_velocity * SpeedMove);
     // Only change direction if the cooldown period has passed
     if (m_timeSinceLastChange >= m_randomChangeInterval) {
         changeDirection();
@@ -55,7 +55,7 @@ void StupidGuard::update(float deltaTime) {
     }
 
     // Animation frame update with a cooldown to prevent flickering
-    m_animationTimeSinceLastChange += sf::seconds(deltaTime);
+    m_animationTimeSinceLastChange += sf::seconds(SpeedMove);
     if (m_animationTimeSinceLastChange >= sf::milliseconds(100)) {
         m_animationFrame = (m_animationFrame + 1) % 4;
         m_animationTimeSinceLastChange = sf::Time::Zero;  // Reset the timer
@@ -95,6 +95,8 @@ void StupidGuard::update(float deltaTime) {
 void StupidGuard::draw(sf::RenderWindow& window) const {
     window.draw(m_sprite);
 }
+
+
 
 
 

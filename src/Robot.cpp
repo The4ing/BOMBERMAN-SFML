@@ -1,13 +1,15 @@
 #include "Robot.h"
 #include <iostream>
 #include <set>
+#include "Bomb.h"
 
 // Constructor
 Robot::Robot()
     : m_direction(STAND),
     m_arrowKeyPressed(false),
     m_animationFrame(0),
-    m_animationTimer(sf::milliseconds(100))
+    m_animationTimer(sf::milliseconds(100)),
+    m_hitByBomb(false)
 {
     if (!m_texture.loadFromFile("robot_spritesheet.png")) {
         std::cerr << "Failed to load robot spritesheet" << std::endl;
@@ -29,6 +31,16 @@ sf::Vector2f Robot::getPosition() const {
     return m_sprite.getPosition();
 }
 
+const bool Robot::CheckHitByBOMB() const
+{
+    return m_hitByBomb;
+}
+
+void Robot::SetIfHitByBomb(const bool status)
+{
+    m_hitByBomb = status;
+}
+ 
 
 
 sf::Vector2i Robot::getCurrentCell() const {
@@ -39,7 +51,7 @@ sf::Vector2i Robot::getCurrentCell() const {
     );
 }
 
-void Robot::update(float deltaTime) {
+void Robot::update(const float deltaTime) {
     // Update the position based on velocity and deltaTime
     m_sprite.move(m_velocity * deltaTime);
 
@@ -199,4 +211,22 @@ void Robot::collideWith(Guard* Guard)
 {
     std::cout << "Robot collided with a Guard!" << std::endl;
 }
+
+void Robot::collideWith(Bomb* bomb)
+{ 
+    // Check if the bomb has exploded
+    if (bomb->CheckBombExplode()) {
+        // Mark the robot as hit by the bomb
+        SetIfHitByBomb(true);
+
+        // Optional: Handle any additional logic if needed, like reducing health or triggering animations
+        std::cout << "Robot hit by an exploded bomb!" << std::endl;
+    }
+    else {
+        // If the bomb hasn't exploded yet, no action is needed
+        std::cout << "Robot collided with an unexploded bomb!" << std::endl;
+    }
+}
+
+
 

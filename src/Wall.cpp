@@ -56,5 +56,12 @@ void Wall::collideWith(Guard* Guard)
     std::cout << "Wall collided with a Guard!" << std::endl;
 }
 
+void Wall::collideWith(Bomb* bomb)
+{
+    std::cout << "Wall collided with a bomb!" << std::endl;
+}
+
+
+
 
 

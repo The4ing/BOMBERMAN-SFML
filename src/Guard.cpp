@@ -34,3 +34,9 @@ void Guard::collideWith(Robot* robot) {
     std::cout << "Guard collided with a Robot!" << std::endl;
     // Handle collision with robot (e.g., take damage, stop movement, etc.)
 }
+
+void Guard::collideWith(Bomb* bomb)
+{
+    std::cout << "Guard collided with a Bomb!" << std::endl;
+}
+

@@ -11,12 +11,14 @@
 class SmartGuard : public Guard {
 public:
     SmartGuard();
+
     char getSymbol() const override { return '!'; }
     void setPosition(float newX, float newY) override;
-    void update(float deltaTime) override;
+    void update(const float deltaTime) override;
     void draw(sf::RenderWindow& window) const override;
-    void handleInput(sf::Keyboard::Key key, bool isPressed);
     sf::Vector2f getPosition() const override;
+
+    void handleInput(sf::Keyboard::Key key, bool isPressed);
     void setPlayerPosition(const sf::Vector2f& playerPos);
     
 

@@ -46,6 +46,10 @@ void Door::collideWith(Robot* robot)
     std::cout << "Door collided with a robot!" << std::endl;
 }
 
+void Door::collideWith(Bomb* bomb)
+{
+    std::cout << "Door collided with a bomb!" << std::endl;
+}
 
 
 void Door::collideWith(Guard* Guard)

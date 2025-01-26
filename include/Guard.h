@@ -20,6 +20,7 @@ public:
     void collideWith(Door* door) override;
     void collideWith(Guard* Guard) override;
     void collideWith(Robot* robot) override;
+    void collideWith(Bomb* bomb) override;
 
 };
 
