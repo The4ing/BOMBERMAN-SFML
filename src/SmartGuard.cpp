@@ -1,6 +1,6 @@
 #include "SmartGuard.h"
-#include <cmath> // For sqrt and pow
-#include <iostream> // For logging
+#include <cmath>
+#include <iostream>
 
 SmartGuard::SmartGuard()
     : m_speed(200.f),
@@ -17,7 +17,7 @@ SmartGuard::SmartGuard()
     // Setup the sprite
     m_sprite.setTexture(m_texture);
     m_sprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
-    m_sprite.setScale(1.f, 1.f); // Scale as needed
+   // m_sprite.setScale(1.f, 1.f); // Scale as needed
 
     // Randomize initial behavior
     randomizeBehavior();
@@ -35,30 +35,27 @@ void SmartGuard::setPlayerPosition(const sf::Vector2f& playerPos) {
     m_playerPosition = playerPos;
 }
 
+void SmartGuard::draw(sf::RenderWindow& window) const {
+    window.draw(m_sprite);
+    sf::CircleShape collisionShape = getCollisionShape();
+    collisionShape.setFillColor(sf::Color::Transparent);
+    collisionShape.setOutlineColor(sf::Color::Red);
+    collisionShape.setOutlineThickness(1.f);
+    window.draw(collisionShape);
+}
 
 
+void SmartGuard::randomizeBehavior() {
+    static std::default_random_engine generator;
+    static std::uniform_real_distribution<float> intervalDist(2.f, 5.f);
 
+    // Randomize next direction change interval
+    m_randomChangeInterval = sf::seconds(intervalDist(generator));
 
-
-
-void SmartGuard::update(const float deltaTime ) {
-
-    const float SpeedMove = deltaTime * 0.5;
-    
-    // Continuously calculate velocity toward the player
-    calculateVelocity();
-
-    // Move the guard
-    m_sprite.move(m_velocity * SpeedMove);
-
-    // Check if it's time to randomize behavior
-    if (m_directionChangeClock.getElapsedTime() >= m_randomChangeInterval) {
-        randomizeBehavior();
-        m_directionChangeClock.restart();
-    }
-
-    // Update animation
-    updateAnimation();
+    // Optional: Add slight random offset to velocity for unpredictable movement
+    static std::uniform_real_distribution<float> offsetDist(-50.f, 50.f);
+    m_velocity.x += offsetDist(generator);
+    m_velocity.y += offsetDist(generator);
 }
 
 void SmartGuard::calculateVelocity() {
@@ -75,25 +72,18 @@ void SmartGuard::calculateVelocity() {
     m_velocity = direction * m_speed;
 }
 
-void SmartGuard::draw(sf::RenderWindow& window) const {
-    window.draw(m_sprite);
-}
+void SmartGuard::update(float deltaTime) {
+    m_previousPosition = m_sprite.getPosition();
 
-void SmartGuard::handleInput(sf::Keyboard::Key key, bool isPressed) {
-    // For future use, e.g., player influencing guard behavior
-}
+    calculateVelocity();
+    m_sprite.move(m_velocity * deltaTime);
 
-void SmartGuard::randomizeBehavior() {
-    static std::default_random_engine generator;
-    static std::uniform_real_distribution<float> intervalDist(2.f, 5.f);
+    updateAnimation();
 
-    // Randomize next direction change interval
-    m_randomChangeInterval = sf::seconds(intervalDist(generator));
-
-    // Optional: Add slight random offset to velocity for unpredictable movement
-    static std::uniform_real_distribution<float> offsetDist(-50.f, 50.f);
-    m_velocity.x += offsetDist(generator);
-    m_velocity.y += offsetDist(generator);
+    if (m_directionChangeClock.getElapsedTime() >= m_randomChangeInterval) {
+        randomizeBehavior();
+        m_directionChangeClock.restart();
+    }
 }
 
 void SmartGuard::updateAnimation() {
@@ -109,30 +99,84 @@ void SmartGuard::updateAnimation() {
 
     if (m_velocity.y > 0) { // Moving down
         textureY = 0; // First row
-        m_sprite.setScale(1.f, 1.f);
+      //  m_sprite.setScale(1.f, 1.f);
     }
     else if (m_velocity.y < 0) { // Moving up
         textureY = m_frameHeight * 2; // Third row
-        m_sprite.setScale(1.f, 1.f);
+      //  m_sprite.setScale(1.f, 1.f);
     }
     else if (m_velocity.x > 0) { // Moving right
         textureY = m_frameHeight; // Second row
-        m_sprite.setScale(1.f, 1.f);
+       // m_sprite.setScale(1.f, 1.f);
     }
     else if (m_velocity.x < 0) { // Moving left
         textureY = m_frameHeight; // Second row
-        m_sprite.setScale(-1.f, 1.f); // Flip sprite horizontally
+     //   m_sprite.setScale(-1.f, 1.f); // Flip sprite horizontally
     }
 
     // Update the sprite's texture rectangle
     m_sprite.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
 }
 
+void SmartGuard::handleCollision(GameObject& other) {
+    other.handleCollisionWith(*this);
+}
 
+void SmartGuard::handleCollisionWith(Robot& robot) {
+    std::cout << "SmartGuard collided with Robot: Initiate chase logic!\n";
+}
 
+void SmartGuard::handleCollisionWith(Wall& wall) {
+    revertPosition();
+}
 
+void SmartGuard::handleCollisionWith(Rock&) {
+    revertPosition();
+}
 
+void SmartGuard::handleCollisionWith(Door&) {
+    revertPosition();
+}
 
+void SmartGuard::handleCollisionWith(Bomb&, bool isExploding) {
+    std::cout << "SmartGuard collided with Bomb: Reverting position and avoiding bomb.\n";
 
+    // Revert position
+    revertPosition();
 
+    // Adjust velocity to move away from the bomb
+    m_velocity = -m_velocity; // Reverse direction
+    randomizeBehavior();      // Optionally randomize behavior to avoid getting stuck
+}
 
+void SmartGuard::handleCollisionWith(Guard&) {
+    std::cout << "SmartGuard collided with another Guard.\n";
+    m_velocity = sf::Vector2f(0.f, 0.f);
+}
+
+sf::FloatRect SmartGuard::getBoundingBox() const {
+    return m_sprite.getGlobalBounds();
+}
+
+void SmartGuard::setScale(float scaleX, float scaleY) {
+    m_sprite.setScale(scaleX, scaleY);
+}
+
+void SmartGuard::revertPosition() {
+    m_sprite.setPosition(m_previousPosition);
+}
+
+sf::CircleShape SmartGuard::getCollisionShape() const {
+    sf::CircleShape collisionShape;
+    float radius = m_frameWidth / 4;  // Adjust the radius
+    collisionShape.setRadius(radius);
+    collisionShape.setOrigin(radius, radius);  // Center the circle
+
+    // Position the circle
+    collisionShape.setPosition(
+        m_sprite.getPosition().x + m_frameWidth / 2 - CIRCLRE_OFFSET,
+        m_sprite.getPosition().y + m_frameHeight / 2 - CIRCLRE_OFFSET
+    );
+
+    return collisionShape;
+}
