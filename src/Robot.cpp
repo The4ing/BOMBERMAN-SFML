@@ -1,15 +1,13 @@
 #include "Robot.h"
 #include <iostream>
 #include <set>
-#include "Bomb.h"
 
 // Constructor
 Robot::Robot()
     : m_direction(STAND),
     m_arrowKeyPressed(false),
     m_animationFrame(0),
-    m_animationTimer(sf::milliseconds(100)),
-    m_hitByBomb(false)
+    m_animationTimer(sf::milliseconds(100))
 {
     if (!m_texture.loadFromFile("robot_spritesheet.png")) {
         std::cerr << "Failed to load robot spritesheet" << std::endl;
@@ -20,8 +18,6 @@ Robot::Robot()
     m_sprite.setScale(ROBOT_SCALE, ROBOT_SCALE);
 }
 
-
-
 // Position handling
 void Robot::setPosition(float x, float y) {
     m_sprite.setPosition(x, y);
@@ -31,18 +27,6 @@ sf::Vector2f Robot::getPosition() const {
     return m_sprite.getPosition();
 }
 
-const bool Robot::CheckHitByBOMB() const
-{
-    return m_hitByBomb;
-}
-
-void Robot::SetIfHitByBomb(const bool status)
-{
-    m_hitByBomb = status;
-}
- 
-
-
 sf::Vector2i Robot::getCurrentCell() const {
     sf::Vector2f pos = m_sprite.getPosition();
     return sf::Vector2i(
@@ -51,8 +35,9 @@ sf::Vector2i Robot::getCurrentCell() const {
     );
 }
 
-void Robot::update(const float deltaTime) {
+void Robot::update(float deltaTime) {
     // Update the position based on velocity and deltaTime
+    m_previousPosition = m_sprite.getPosition();
     m_sprite.move(m_velocity * deltaTime);
 
     // Calculate and store the current cell position
@@ -62,7 +47,7 @@ void Robot::update(const float deltaTime) {
     if (/* condition for death */ false) { // Replace false with your actual death condition
         // Handle dead animation (second row in the sprite sheet)
         int deadFrame = (m_animationClock.getElapsedTime().asMilliseconds() / 100) % 7; // Assume 7 frames for "dead"
-        m_sprite.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, SPRITE_HEIGHT * 4, SPRITE_WIDTH, SPRITE_HEIGHT));
+        m_sprite.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
         return; // Skip normal animation if dead
     }
 
@@ -101,6 +86,7 @@ void Robot::update(const float deltaTime) {
     }
 }
 void Robot::handleInput(sf::Keyboard::Key key, bool isPressed) {
+    if (!validKeys(key)) return;
     static std::set<sf::Keyboard::Key> activeKeys;
 
     if (isPressed) {
@@ -173,60 +159,89 @@ void Robot::handleInput(sf::Keyboard::Key key, bool isPressed) {
     m_arrowKeyPressed = !activeKeys.empty();
 }
 
+bool Robot::validKeys(sf::Keyboard::Key key) {
+    if (key != sf::Keyboard::Up && key != sf::Keyboard::Down &&
+        key != sf::Keyboard::Left && key != sf::Keyboard::Right)
+        return false; // Ignore non-arrow keys for movement
+    return true;
+}
+
 // Draw method
 void Robot::draw(sf::RenderWindow& window) const {
     window.draw(m_sprite);
+    sf::CircleShape collisionShape = getCollisionShape();
+    collisionShape.setFillColor(sf::Color::Transparent);
+    collisionShape.setOutlineColor(sf::Color::Red);
+    collisionShape.setOutlineThickness(1.f);
+    window.draw(collisionShape);
+
 }
 
-
-
-
-void Robot::collideWith(GameObject* other) {
-    other->collideWith(this);  // Double dispatch
+sf::FloatRect Robot::getBoundingBox() const {
+    return m_sprite.getGlobalBounds();
+    sf::FloatRect bounds = m_sprite.getGlobalBounds();
 }
 
-void Robot::collideWith(Rock* rock) {
-    std::cout << "Robot collided with a Rock!" << std::endl;
-    // Handle collision with rock
+void Robot::handleCollision(GameObject& other) {
+    other.handleCollisionWith(*this); // Delegate collision handling to the other object
 }
 
-
-
-void Robot::collideWith(Wall* wall) {
-    std::cout << "Robot collided with a Wall!" << std::endl;
-    // Handle collision with wall
+void Robot::handleCollisionWith(Wall& wall) {
+    resolveCollision(wall);
 }
 
-void Robot::collideWith(Robot* robot) {
-    std::cout << "Robot collided with a Robot!" << std::endl;
-    // Handle collision with robot (e.g., take damage, stop movement, etc.)
+void Robot::handleCollisionWith(Rock& rock) {
+    resolveCollision(rock);
 }
 
-void Robot::collideWith(Door* Door)
-{
-    std::cout << "Robot collided with a DOOR!" << std::endl;
+void Robot::handleCollisionWith(Door& door) {
+    resolveCollision(door);
+}  
+
+void Robot::handleCollisionWith(Guard& guard) {
+    int deadFrame = (m_animationClock.getElapsedTime().asMilliseconds() / 100) % 7; // Assume 7 frames for "dead"
+    m_sprite.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
 }
 
-void Robot::collideWith(Guard* Guard)
-{
-    std::cout << "Robot collided with a Guard!" << std::endl;
+void Robot::handleCollisionWith(Robot& robot) {
+  //  stop(); // Stop movement when hitting another robot
+}
+void Robot::handleCollisionWith(Bomb&, bool isExploding) {
+    // No-op: Rocks don't react to Guards
 }
 
-void Robot::collideWith(Bomb* bomb)
-{ 
-    // Check if the bomb has exploded
-    if (bomb->CheckBombExplode()) {
-        // Mark the robot as hit by the bomb
-        SetIfHitByBomb(true);
+void Robot::resolveCollision(const GameObject& object) {
+    // Get bounding boxes
+    sf::FloatRect robotBounds = getBoundingBox();
+    sf::FloatRect objectBounds = object.getBoundingBox();
 
-        // Optional: Handle any additional logic if needed, like reducing health or triggering animations
-        std::cout << "Robot hit by an exploded bomb!" << std::endl;
+    // Calculate overlap on all sides
+    float overlapLeft = robotBounds.left + robotBounds.width - objectBounds.left;
+    float overlapRight = objectBounds.left + objectBounds.width - robotBounds.left;
+    float overlapTop = robotBounds.top + robotBounds.height - objectBounds.top;
+    float overlapBottom = objectBounds.top + objectBounds.height - robotBounds.top;
+
+    // Check if there's a collision
+    if (overlapLeft > 0 && overlapRight > 0 && overlapTop > 0 && overlapBottom > 0) {
+        // Restore the robot's previous position
+        m_sprite.setPosition(m_previousPosition);
+
+        // Stop the robot's velocity to prevent further movement into the object
+        m_velocity = { 0.f, 0.f };
     }
-    else {
-        // If the bomb hasn't exploded yet, no action is needed
-        std::cout << "Robot collided with an unexploded bomb!" << std::endl;
-    }
 }
 
 
 
+sf::CircleShape Robot::getCollisionShape() const {
+    sf::CircleShape collisionCircle;
+    collisionCircle.setRadius(SPRITE_HEIGHT);
+    // Scale it horizontally to form an ellipse
+    float horizontalScale = 0.9f;  // Adjust this value for width
+    float verticalScale = 1.2f;    // Keep this 1.0 to maintain original height
+    collisionCircle.setScale(horizontalScale, verticalScale);
+
+    collisionCircle.setPosition(m_sprite.getPosition().x + SPRITE_WIDTH / 2 - 5,
+        m_sprite.getPosition().y + SPRITE_HEIGHT / 2 - 5);
+    return collisionCircle;
+}
