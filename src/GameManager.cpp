@@ -84,7 +84,6 @@ void GameManager::processGameEvents() {
 }
 
 
-
 //void GameManager::setRobotPosition() {
 //    robot->setPosition(m_board.getRobotScreenPosition(m_window).x,
 //        m_board.getRobotScreenPosition(m_window).y);
