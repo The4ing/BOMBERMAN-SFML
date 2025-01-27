@@ -1,67 +1,62 @@
 #include "Wall.h"
+#include <iostream>
 
 Wall::Wall(const sf::Texture& texture) {
-    m_sprite.setTexture(texture); // Assign the texture to the sprite
+    m_sprite.setTexture(texture);
 }
 
 char Wall::getSymbol() const {
-    return '#'; // Represents the wall in the game
+    return '#';
 }
 
 sf::Vector2f Wall::getPosition() const {
-    return m_sprite.getPosition(); // Returns the sprite's current position
+    return m_sprite.getPosition();
 }
 
 void Wall::setPosition(float x, float y) {
-    m_sprite.setPosition(x, y); // Sets the sprite's position
+    m_sprite.setPosition(x, y);
 }
 
 void Wall::draw(sf::RenderWindow& window) const {
     sf::Sprite sprite = m_sprite;
-
-    float windowWidth = 1920.0f; // Example window width
-    float windowHeight = 1080.0f; // Example window height
-    float m_cellSizex = windowWidth / static_cast<float>(17);
-    float m_cellSizey = windowHeight / static_cast<float>(9);
-
-    sprite.setScale(
-        m_cellSizex / sprite.getTexture()->getSize().x,
-        m_cellSizey / sprite.getTexture()->getSize().y
-    ); // Scale to fit cell size
     window.draw(sprite);
 }
 
-
-
-
-
-void Wall::collideWith(GameObject* other)
-{
-    other->collideWith(this);  // Double dispatch
+void Wall::handleCollision(GameObject& other) {
+    other.handleCollisionWith(*this);
 }
 
-
-
-
-
-void Wall::collideWith(Robot* robot)
-{
-    std::cout << "Wall collided with a robot!" << std::endl;
+void Wall::handleCollisionWith(Robot& robot) {
+    std::cout << "Wall collided with Robot\n";
+    // No additional behavior, but logic can be extended if needed.
 }
 
-
-
-void Wall::collideWith(Guard* Guard)
-{
-    std::cout << "Wall collided with a Guard!" << std::endl;
+void Wall::handleCollisionWith(Wall& wall) {
+    std::cout << "Wall collided with another Wall\n";
+    // Walls generally don't react to other walls.
 }
 
-void Wall::collideWith(Bomb* bomb)
-{
-    std::cout << "Wall collided with a bomb!" << std::endl;
+void Wall::handleCollisionWith(Rock& rock) {
+    std::cout << "Wall collided with Rock\n";
+    // No behavior defined for Wall-Rock collision.
 }
 
+void Wall::handleCollisionWith(Door& door) {
+    std::cout << "Wall collided with Door\n";
+    // No behavior defined for Wall-Door collision.
+}
 
+void Wall::handleCollisionWith(Guard& guard) {
+    std::cout << "Wall collided with Guard\n";
+    // No behavior defined for Wall-Guard collision.
+}
+void Wall::handleCollisionWith(Bomb&, bool isExploding) {
+    // No-op: Rocks don't react to Guards
+}
+sf::FloatRect Wall::getBoundingBox() const {
+    return m_sprite.getGlobalBounds();
+}
 
-
-
+void Wall::setScale(float scaleX, float scaleY) {
+    m_sprite.setScale(scaleX, scaleY);
+}
