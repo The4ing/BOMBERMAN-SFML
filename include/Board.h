@@ -1,5 +1,4 @@
 #pragma once
-#include <algorithm> // For std::erase_if
 #include <vector>
 #include <string>
 #include <fstream>
@@ -15,10 +14,10 @@
 #include "SmartGuard.h"
 #include "StupidGuard.h"
 #include "Rock.h"
+#include "Bomb.h"
 #include "ToolbarGame.h"
 #include <cstdlib>
 #include <ctime>
-#include "Bomb.h"
 
 // Enum to define power-up choices
 enum powerUps {
@@ -41,7 +40,7 @@ public:
     
 
     const sf::Texture& GetTexture(const int choice) const;
-    //void SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const;
+    void SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const;
     void callUpdateToolbar(float deltatime);
     void draw(sf::RenderWindow& window);
     const int getHeartCount();
@@ -49,23 +48,26 @@ public:
     // Other members and variables for game state
     void loadFromFile(const std::string& fileName);
     void loadTextures();
-    void displayConsole() const;
+   // void displayConsole() const;
     void display(sf::RenderWindow& window);
 
     // New methods for robot position
     //sf::Vector2i getRobotGridPosition() const;
-    //sf::Vector2f getRobotScreenPosition(const sf::RenderWindow& window) ;
-    void GenerateBomb();
-
+   //
+   // 
+   // sf::Vector2f getRobotScreenPosition(const sf::RenderWindow& window) ;
 
     sf::Vector2f getCellSize() const;
-   void handleMouseClick(sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition);
-   void handleInput(sf::Keyboard::Key key, bool isPressed);
-
+    void handleMouseClick(sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition);
     bool setSmartGuard(int level);
-    void update(const float deltaTime);
+
+    void update(float deltaTime);
+    void handleInput(sf::Keyboard::Key key, bool isPressed);
     bool isGuardSmart(int level);
 
+    void handleCollisions();
+
+    void GenerateBomb();
 private:
 
     void checkIfSmartGuard(MovingGameObject* obj);
