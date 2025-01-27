@@ -6,13 +6,11 @@ const float GUARD_SPEED = 500.f;   // Speed in pixels per second
 const int SPRITE_COLUMNS = 3;      // Number of frames per row
 const int SPRITE_ROWS = 4;         // Number of directional rows
 const float GUARD_SCALE = 1.f;    // Scale factor
-const float GUARD_CHANGE_INTERVAL = 2.f;  // Increase the interval
-
+const float GUARD_CHANGE_INTERVAL = 2.f;  // Interval to change direction
 
 StupidGuard::StupidGuard()
-    : m_randomChangeInterval(sf::seconds(GUARD_CHANGE_INTERVAL)) , m_animationFrame(0){
+    : m_randomChangeInterval(sf::seconds(GUARD_CHANGE_INTERVAL)), m_animationFrame(0), m_previousPosition(0.f, 0.f) {
     // Load sprite sheet
-
     if (!m_texture.loadFromFile("scary_guard_spritesheet.png")) {
         std::cerr << "Failed to load guard spritesheet" << std::endl;
     }
@@ -26,7 +24,8 @@ StupidGuard::StupidGuard()
 
     // Set the initial texture rectangle (first frame of the first row)
     m_sprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
-    m_sprite.setScale(1.f, 1.f); // Scale as needed
+   // m_sprite.setOrigin(m_frameWidth / 2, m_frameHeight / 2);
+
     // Initialize random direction
     changeDirection();
 }
@@ -38,67 +37,6 @@ void StupidGuard::setPosition(float x, float y) {
 sf::Vector2f StupidGuard::getPosition() const {
     return m_sprite.getPosition();
 }
-
-void StupidGuard::update(const float deltaTime) {
-
-    const float SpeedMove = deltaTime * 0.7;
-    // Increase the time since the last direction change
-    m_timeSinceLastChange += sf::seconds(SpeedMove);
-
-     
-    // Move the guard
-    m_sprite.move(m_velocity * SpeedMove);
-    // Only change direction if the cooldown period has passed
-    if (m_timeSinceLastChange >= m_randomChangeInterval) {
-        changeDirection();
-        m_timeSinceLastChange = sf::Time::Zero;  // Reset the timer
-    }
-
-    // Animation frame update with a cooldown to prevent flickering
-    m_animationTimeSinceLastChange += sf::seconds(SpeedMove);
-    if (m_animationTimeSinceLastChange >= sf::milliseconds(100)) {
-        m_animationFrame = (m_animationFrame + 1) % 4;
-        m_animationTimeSinceLastChange = sf::Time::Zero;  // Reset the timer
-    }
-
-    int textureX = m_animationFrame * m_frameWidth; // Horizontal frame index
-
-    // Determine textureY based on the guard's direction
-    int textureY = 0;
-    if (m_direction == DOWN) {
-        textureY = 0; // First row for moving down
-        m_sprite.setScale(GUARD_SCALE, GUARD_SCALE); // Reset scale
-        m_sprite.setOrigin(0.f, 0.f); // Reset origin
-    }
-    else if (m_direction == LEFT) {
-        textureY = m_frameHeight; // Second row for moving left
-        m_sprite.setScale(GUARD_SCALE, GUARD_SCALE); // Reset scale
-        m_sprite.setOrigin(0.f, 0.f); // Reset origin
-    }
-    else if (m_direction == RIGHT) {
-        textureY = m_frameHeight; // Second row for moving right
-        m_sprite.setScale(-GUARD_SCALE, GUARD_SCALE); // Invert the sprite horizontally
-        m_sprite.setOrigin(m_frameWidth, 0.f); // Adjust origin to align correctly
-    }
-    else if (m_direction == UP) {
-        textureY = m_frameHeight * 2; // Third row for moving up
-        m_sprite.setScale(GUARD_SCALE, GUARD_SCALE); // Reset scale
-        m_sprite.setOrigin(0.f, 0.f); // Reset origin
-    }
-
-    // Apply texture to sprite
-    m_sprite.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
-}
-
-
-
-void StupidGuard::draw(sf::RenderWindow& window) const {
-    window.draw(m_sprite);
-}
-
-
-
-
 
 void StupidGuard::changeDirection() {
     // Random direction generator
@@ -127,10 +65,118 @@ void StupidGuard::changeDirection() {
     }
 }
 
+void StupidGuard::update(float deltaTime) {
+    // Save the current position before moving
+    m_previousPosition = m_sprite.getPosition();
+
+    // Increase the time since the last direction change
+    m_timeSinceLastChange += sf::seconds(deltaTime);
+
+    // Move the guard
+    m_sprite.move(m_velocity * deltaTime);
+
+    // Change direction if the cooldown period has passed
+    if (m_timeSinceLastChange >= m_randomChangeInterval) {
+        changeDirection();
+        m_timeSinceLastChange = sf::Time::Zero;  // Reset the timer
+    }
+
+    // Animation frame update with a cooldown to prevent flickering
+    m_animationTimeSinceLastChange += sf::seconds(deltaTime);
+    if (m_animationTimeSinceLastChange >= sf::milliseconds(100)) {
+        m_animationFrame = (m_animationFrame + 1) % 4;
+        m_animationTimeSinceLastChange = sf::Time::Zero;  // Reset the timer
+    }
+
+    // Determine the current animation frame and texture rectangle
+    int textureX = m_animationFrame * m_frameWidth;
+    int textureY = 0;
+
+    if (m_direction == DOWN) {
+        textureY = 0;
+        //m_sprite.setOrigin(0.f, 0.f);
+    }
+    else if (m_direction == LEFT) {
+        textureY = m_frameHeight;
+      //  m_sprite.setOrigin(0.f, 0.f);
+    }
+    else if (m_direction == RIGHT) {
+        textureY = m_frameHeight;
+       // m_sprite.setOrigin(m_frameWidth, 0.f);
+    }
+    else if (m_direction == UP) {
+        textureY = m_frameHeight * 2;
+       // m_sprite.setOrigin(0.f, 0.f);
+    }
+
+    m_sprite.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
+}
 
 
 
 
+void StupidGuard::draw(sf::RenderWindow& window) const {
+    window.draw(m_sprite);
+    sf::CircleShape collisionShape = getCollisionShape();
+    collisionShape.setFillColor(sf::Color::Transparent);
+    collisionShape.setOutlineColor(sf::Color::Red);
+    collisionShape.setOutlineThickness(1.f);
+    window.draw(collisionShape);
+}
 
 
+void StupidGuard::handleCollision(GameObject& other) {
+    other.handleCollisionWith(*this);
+}
 
+sf::FloatRect StupidGuard::getBoundingBox() const {
+    return m_sprite.getGlobalBounds();
+}
+
+void StupidGuard::handleCollisionWith(Wall& wall) {
+
+        revertPosition();
+}
+
+void StupidGuard::handleCollisionWith(Rock& rock) {
+
+        revertPosition();
+}
+
+void StupidGuard::handleCollisionWith(Door&) {
+    std::cout << "StupidGuard collided with Door.\n";
+}
+void StupidGuard::handleCollisionWith(Robot&) {
+    std::cout << "StupidGuard collided with Door.\n";
+}
+
+
+void StupidGuard::handleCollisionWith(Guard&) {
+    std::cout << "StupidGuard collided with another Guard.\n";
+}
+void StupidGuard::handleCollisionWith(Bomb&, bool isExploding) {
+      revertPosition();
+}
+
+void StupidGuard::revertPosition() {
+    m_sprite.setPosition(m_previousPosition);
+}
+
+void StupidGuard::setScale(float scaleX, float scaleY) {
+    m_sprite.setScale(scaleX, scaleY);
+}
+
+sf::CircleShape StupidGuard::getCollisionShape() const {
+    sf::CircleShape collisionCircle;
+    float radius = m_frameWidth / 4 + CIRCLRE_OFFSET;  // Adjust the radius based on sprite size
+    collisionCircle.setRadius(radius);
+    collisionCircle.setOrigin(radius, radius);  // Set origin to the center of the circle
+
+    // Position the circle at the robot's center
+    collisionCircle.setPosition(
+        m_sprite.getPosition().x + m_frameWidth / 2 - CIRCLRE_OFFSET,
+        m_sprite.getPosition().y + m_frameHeight / 2 - (2*CIRCLRE_OFFSET)
+    );
+
+    return collisionCircle;
+}
