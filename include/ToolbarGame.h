@@ -26,8 +26,8 @@ enum objects {
     ROBOT,
     GUARD,
     DOOR,
-    EMPTY,
     BOMB,
+    EMPTY,
     TEXTURE_COUNT,
    
 
