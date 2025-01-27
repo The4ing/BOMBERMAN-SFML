@@ -1,4 +1,5 @@
 #include "Rock.h"
+#include <iostream>
 
 Rock::Rock(const sf::Texture& texture) {
     m_sprite.setTexture(texture); // Assign the texture to the sprite
@@ -19,47 +20,49 @@ void Rock::setPosition(float x, float y) {
 void Rock::draw(sf::RenderWindow& window) const {
     sf::Sprite sprite = m_sprite;
 
-    float windowWidth = 1920.0f; // Example window width
-    float windowHeight = 1080.0f; // Example window height
-    float m_cellSizex = windowWidth / static_cast<float>(17);
-    float m_cellSizey = windowHeight / static_cast<float>(9);
+    //float windowWidth = 1920.0f; // Example window width
+    //float windowHeight = 1080.0f; // Example window height
+    //float m_cellSizex = windowWidth / static_cast<float>(17);
+    //float m_cellSizey = windowHeight / static_cast<float>(9);
 
-    sprite.setScale(
-        m_cellSizex / sprite.getTexture()->getSize().x,
-        m_cellSizey / sprite.getTexture()->getSize().y
-    ); // Scale to fit cell size
+    //sprite.setScale(
+    //    m_cellSizex / sprite.getTexture()->getSize().x,
+    //    m_cellSizey / sprite.getTexture()->getSize().y
+    //); // Scale to fit cell size
     window.draw(sprite);
 }
 
-
-
-
-
-
-
-void Rock::collideWith(GameObject* other)
-{
-    other->collideWith(this);
+void Rock::handleCollision(GameObject& other) {
+    other.handleCollisionWith(*this); // Delegate collision handling to the other object
 }
 
-void Rock::collideWith(Guard* Guard)
-{
-    std::cout << "Rock collided with a Guard!" << std::endl;
+void Rock::handleCollisionWith(Robot& robot) {
+    std::cout << "Robot collided with Rock: Interaction triggered.\n";
+    // Implement Rock-specific interaction with Robot here
 }
 
-void Rock::collideWith(Robot* robot)
-{
-    std::cout << "Rock collided with a robot!" << std::endl;
+void Rock::handleCollisionWith(Wall&) {
+    // No-op: Rocks don't react to Walls
 }
 
-void Rock::collideWith(Bomb* bomb)
-{
-    std::cout << "Rock collided with a robot!" << std::endl;
+void Rock::handleCollisionWith(Rock&) {
+    // No-op: Rocks don't interact with other Rocks
 }
 
+void Rock::handleCollisionWith(Door&) {
+    // No-op: Rocks don't react to Doors
+}
 
+void Rock::handleCollisionWith(Guard&) {
+    // No-op: Rocks don't react to Guards
+}
+void Rock::handleCollisionWith(Bomb&, bool isExploding) {
+    // No-op: Rocks don't react to Guards
+}
+sf::FloatRect Rock::getBoundingBox() const {
+    return m_sprite.getGlobalBounds(); // Returns the bounding box of the Rock
+}
 
-
-
-
-
+void Rock::setScale(float scaleX, float scaleY) {
+    m_sprite.setScale(scaleX, scaleY);
+}
