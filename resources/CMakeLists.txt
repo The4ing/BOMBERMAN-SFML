@@ -24,4 +24,5 @@ configure_file ("mute.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("unmute.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("bomb.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("bombXPLD.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("explosion.png" ${CMAKE_BINARY_DIR} COPYONLY)
  
