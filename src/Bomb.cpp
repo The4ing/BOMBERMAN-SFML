@@ -7,7 +7,6 @@ Bomb::Bomb(const sf::Texture& texture)
     m_sprite.setTexture(texture);
 }
 
-// Draw function
 void Bomb::draw(sf::RenderWindow& window) const {
     sf::Sprite sprite = m_sprite;
 
@@ -19,23 +18,51 @@ void Bomb::draw(sf::RenderWindow& window) const {
     if (m_exploded) {
         static sf::Texture explodedTexture;
         if (explodedTexture.getSize().x == 0) { // Load explosion texture only once
-            if (!explodedTexture.loadFromFile("bombXPLD.png")) {
+            if (!explodedTexture.loadFromFile("explosion.png")) {
                 std::cerr << "Failed to load explosion texture!" << std::endl;
                 return;
             }
         }
-        sprite.setTexture(explodedTexture); // Use explosion texture
+        sprite.setTexture(explodedTexture);
+
+        float explosionScaleX = m_cellSizex * 2.5f;
+        float explosionScaleY = m_cellSizey * 2.5f;
+        sprite.setScale(
+            explosionScaleX / sprite.getTexture()->getSize().x,
+            explosionScaleY / sprite.getTexture()->getSize().y
+        );
+        sprite.setPosition(m_sprite.getPosition().x - 110, m_sprite.getPosition().y - 90);
+        window.draw(sprite);
+
+        // Draw explosion plus shape bounds for debugging
+        std::vector<sf::FloatRect> explosionBounds = getExplosionPlusShapeBounds();
+        for (const auto& rect : explosionBounds) {
+            sf::RectangleShape shape(sf::Vector2f(rect.width, rect.height));
+            shape.setPosition(rect.left, rect.top);
+            shape.setFillColor(sf::Color::Transparent);
+            shape.setOutlineColor(sf::Color::Green);
+            shape.setOutlineThickness(1.f);
+            window.draw(shape);
+        }
+    }
+    else {
+        // Normal bomb rendering
+        sprite.setScale(
+            m_cellSizex / sprite.getTexture()->getSize().x,
+            m_cellSizey / sprite.getTexture()->getSize().y
+        );
+        sprite.setPosition(m_sprite.getPosition().x - 20, m_sprite.getPosition().y - 10);
+        window.draw(sprite);
     }
 
-    // Scale the sprite to fit the cell size
-    sprite.setScale(
-        m_cellSizex / sprite.getTexture()->getSize().x,
-        m_cellSizey / sprite.getTexture()->getSize().y
-    );
-
-    // Draw the sprite
-    window.draw(sprite);
+    sf::CircleShape collisionShape = getCollisionShape();
+    collisionShape.setFillColor(sf::Color::Transparent);
+    collisionShape.setOutlineColor(sf::Color::Red);
+    collisionShape.setOutlineThickness(1.f);
+    window.draw(collisionShape);
 }
+
+
 
 // Get bomb position
 sf::Vector2f Bomb::getPosition() const {
@@ -95,32 +122,83 @@ sf::FloatRect Bomb::getExplosionArea() const {
     );
 }
 
-// Collision methods
-void Bomb::collideWith(GameObject* other) {
-    other->collideWith(this);  // Double dispatch
+void Bomb::handleCollision(GameObject& other) {
+    other.handleCollisionWith(*this, m_exploded); // Delegate collision handling to the other object
 }
 
-void Bomb::collideWith(Rock* rock) {
-    std::cout << "Bomb collided with a Rock!" << std::endl;
+
+void Bomb::handleCollisionWith(Robot&) {
+    std::cout << "Robot collided with Rock: Interaction triggered.\n";
+    // Implement Rock-specific interaction with Robot here
 }
 
-void Bomb::collideWith(Wall* wall) {
-    std::cout << "Bomb collided with a Wall!" << std::endl;
+void Bomb::handleCollisionWith(Wall&) {
+    // No-op: Rocks don't react to Walls
 }
 
-void Bomb::collideWith(Robot* robot) {
-    std::cout << "Bomb collided with a Robot!" << std::endl;
+void Bomb::handleCollisionWith(Rock&) {
+    // No-op: Rocks don't interact with other Rocks
 }
 
-void Bomb::collideWith(Door* door) {
-    std::cout << "Bomb collided with a Door!" << std::endl;
+void Bomb::handleCollisionWith(Door&) {
+    // No-op: Rocks don't react to Doors
 }
 
-void Bomb::collideWith(Guard* guard) {
-    std::cout << "Bomb collided with a Guard!" << std::endl;
+void Bomb::handleCollisionWith(Guard&) {
+    // No-op: Rocks don't react to Guards
+}
+void Bomb::handleCollisionWith(Bomb&, bool isExploding) {
+    // No-op: Rocks don't react to Guards
 }
 
-void Bomb::collideWith(Bomb* bomb)
-{
-    std::cout << "Bomb collided with a bomb!" << std::endl;
+sf::CircleShape Bomb::getCollisionShape() const {
+    sf::CircleShape collisionCircle;
+    collisionCircle.setRadius(30.f);
+    // Scale it horizontally to form an ellipse
+    float horizontalScale = 0.9f;  // Adjust this value for width
+    float verticalScale = 1.2f;    // Keep this 1.0 to maintain original height
+    collisionCircle.setScale(horizontalScale, verticalScale);
+
+
+    collisionCircle.setPosition(m_sprite.getPosition().x + 20 / 2 - 5,
+        m_sprite.getPosition().y + 30 / 2 - 5);
+
+    return collisionCircle;
+}
+
+std::vector<sf::FloatRect> Bomb::getExplosionPlusShapeBounds() const {
+    std::vector<sf::FloatRect> explosionBounds;
+
+    if (!m_exploded) {
+        return explosionBounds; // Return empty vector if not exploded
+    }
+
+    // Example explosion size values; adjust as needed
+    float horizontalLength = 220.f; // Length of horizontal part of the "+"
+    float verticalLength = 240.f;   // Length of vertical part of the "+"
+    float thickness = 50.f;         // Width of each rectangle (arm thickness)
+
+    // Position of the bomb (center of the "+")
+    sf::Vector2f center = m_sprite.getPosition();
+
+    // Horizontal rectangle (centered at the bomb)
+    sf::FloatRect horizontalRect(
+        center.x - horizontalLength / 2 + 30,  // Left
+        center.y - thickness / 2 + 50,        // Top
+        horizontalLength,                // Width
+        thickness                        // Height
+    );
+
+    // Vertical rectangle (centered at the bomb)
+    sf::FloatRect verticalRect(
+        center.x - thickness / 2 + 30,        // Left
+        center.y - verticalLength / 2 + 55,  // Top
+        thickness,                       // Width
+        verticalLength                   // Height
+    );
+
+    explosionBounds.push_back(horizontalRect);
+    explosionBounds.push_back(verticalRect);
+
+    return explosionBounds;
 }
