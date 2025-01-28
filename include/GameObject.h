@@ -27,5 +27,5 @@ public:
     virtual void handleCollisionWith(Rock&) = 0;
     virtual void handleCollisionWith(Door&) = 0;
     virtual void handleCollisionWith(Guard&) = 0;
-    virtual void handleCollisionWith(Bomb&, bool isExploding) = 0; 
+    virtual void handleCollisionWith(Bomb&, bool isExploding) = 0; // Add this!
 };
