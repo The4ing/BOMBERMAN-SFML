@@ -347,7 +347,7 @@ void Board::handleCollisions() {
 
             // Mark static objects (like rocks) for removal, excluding walls and doors
             for (const auto& obj : m_objects) {
-                if (!dynamic_cast<Wall*>(obj.get()) && !dynamic_cast<Door*>(obj.get())) {
+                if (dynamic_cast<Rock*>(obj.get())) {
                     for (const auto& rect : explosionBounds) {
                         if (rect.intersects(obj->getBoundingBox())) {
                             bomb->handleCollision(*obj);
