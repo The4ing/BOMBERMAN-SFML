@@ -34,6 +34,7 @@ public:
     sf::FloatRect getExplosionArea() const;
     const bool CheckBombExplode() const;
     const bool CanBeRemoved() const; // Check if the bomb should be removed from the game
+    void markForRemoval();
 
 private:
     sf::Texture m_explodedTexture;
