@@ -46,7 +46,7 @@ public:
     const int getHeartCount();
 
     // Other members and variables for game state
-    void loadFromFile(const std::string& fileName);
+    bool loadFromFile(const std::string& fileName);
     void loadTextures();
    // void displayConsole() const;
     void display(sf::RenderWindow& window);
@@ -61,18 +61,26 @@ public:
     void handleMouseClick(sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition);
     bool setSmartGuard(int level);
 
-    void update(float deltaTime);
+    int update(float deltaTime);
+    void removeAllBombs();
     void handleInput(sf::Keyboard::Key key, bool isPressed);
     bool isGuardSmart(int level);
 
     void handleCollisions();
-
+    void setPause();
+    void startTimer();
     void GenerateBomb();
+    bool isLevelComplete();
 private:
 
     void checkIfSmartGuard(MovingGameObject* obj);
     bool m_FreezeGuardsStatus;    // Tracks whether the guards are frozen
     int m_lives;                  // Number of lives
+
+    bool m_pause;            // Game is paused
+    sf::Clock m_pauseClock;  // Timer for pause duration
+    float m_pauseDuration;   // Pause duration (2 seconds)
+    bool m_pausedByHit;      // Track if pause was triggered by robot hit
 
     sf::Vector2f m_cellSize;
 
@@ -80,9 +88,13 @@ private:
     std::vector<std::unique_ptr<MovingGameObject>> m_movingObjects; // Moving objects (e.g., robot, guards)
     std::unique_ptr<Robot> m_robot; 
     int m_rows, m_cols;
+//    bool m_pause = false;  // ? New flag to freeze game
+    bool m_levelComplete;
 
     ToolbarGame m_Toolbar;
     std::vector<sf::Texture> m_textures;
-
+  //  std::vector<sf::Vector2f> m_guardsStartingPositions;
+    sf::Vector2f m_robotStartingPosition;
+    void resetObjectsLocation();
     sf::View m_view;
 };
