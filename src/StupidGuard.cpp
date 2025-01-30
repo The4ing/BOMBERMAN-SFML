@@ -167,19 +167,25 @@ void StupidGuard::setScale(float scaleX, float scaleY) {
 }
 
 sf::CircleShape StupidGuard::getCollisionShape() const {
-    sf::CircleShape collisionCircle;
-    float radius = m_frameWidth / 4 + CIRCLRE_OFFSET;  // Adjust the radius based on sprite size
-    collisionCircle.setRadius(radius);
-    collisionCircle.setOrigin(radius, radius);  // Set origin to the center of the circle
+    sf::CircleShape collisionEllipse;
+    float radiusX = m_frameWidth / 4;  // Horizontal radius (adjust as needed)
+    float radiusY = m_frameHeight / 6; // Vertical radius (adjust as needed)
 
-    // Position the circle at the robot's center
-    collisionCircle.setPosition(
-        m_sprite.getPosition().x + m_frameWidth / 2 - CIRCLRE_OFFSET,
-        m_sprite.getPosition().y + m_frameHeight / 2 - (2*CIRCLRE_OFFSET)
+    collisionEllipse.setRadius(radiusX);  // Base radius (use the larger dimension)
+    // Scale it horizontally to form an ellipse
+    float horizontalScale = 0.7f;  // Adjust this value for width
+    float verticalScale = 1.f;    // Keep this 1.0 to maintain original height
+    collisionEllipse.setScale(horizontalScale, verticalScale);
+
+  //  collisionEllipse.setOrigin(radiusX, radiusX);  // Origin remains at center
+    collisionEllipse.setPosition(
+        m_sprite.getPosition().x + m_frameWidth / 2 - (5 * CIRCLRE_OFFSET),
+        m_sprite.getPosition().y + m_frameHeight / 2 - (6 * CIRCLRE_OFFSET)
     );
 
-    return collisionCircle;
+    return collisionEllipse;
 }
+
 
 void StupidGuard::setStartingPosition(float newX, float newY) {
     m_startingPosition = sf::Vector2f(newX, newY);
