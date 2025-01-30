@@ -26,6 +26,12 @@ SmartGuard::SmartGuard()
 void SmartGuard::setPosition(float newX, float newY) {
     m_sprite.setPosition(newX, newY);
 }
+void SmartGuard::setStartingPosition(float newX, float newY) {
+    m_startingPosition = sf::Vector2f(newX, newY);
+}
+sf::Vector2f SmartGuard::getStartingPosition() {
+    return m_startingPosition;
+}
 
 sf::Vector2f SmartGuard::getPosition() const {
     return m_sprite.getPosition();
@@ -59,64 +65,53 @@ void SmartGuard::randomizeBehavior() {
 }
 
 void SmartGuard::calculateVelocity() {
-    // Calculate direction vector toward the player
     sf::Vector2f direction = m_playerPosition - m_sprite.getPosition();
+    float distanceX = std::abs(direction.x);
+    float distanceY = std::abs(direction.y);
 
-    // Normalize the vector
-    float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-    if (magnitude != 0) {
-        direction /= magnitude; // Normalize
+    // Store preferred movement
+    if (distanceX > distanceY) {
+        preferredDirection = (direction.x > 0) ? RIGHT : LEFT;
+        alternateDirection = (direction.y > 0) ? DOWN : UP;
+    }
+    else {
+        preferredDirection = (direction.y > 0) ? DOWN : UP;
+        alternateDirection = (direction.x > 0) ? RIGHT : LEFT;
     }
 
-    // Scale by speed
-    m_velocity = direction * m_speed;
+    // Apply velocity based on preferred direction
+    setVelocity(preferredDirection);
 }
 
-void SmartGuard::update(float deltaTime) {
-    m_previousPosition = m_sprite.getPosition();
 
-    calculateVelocity();
-    m_sprite.move(m_velocity * deltaTime);
-
-    updateAnimation();
-
-    if (m_directionChangeClock.getElapsedTime() >= m_randomChangeInterval) {
-        randomizeBehavior();
-        m_directionChangeClock.restart();
-    }
-}
 
 void SmartGuard::updateAnimation() {
     // Advance the animation frame every 100ms
     if (m_animationClock.getElapsedTime() >= sf::milliseconds(100)) {
-        m_animationFrame = (m_animationFrame + 1) % 4; // Assuming 4 frames per direction
+        m_animationFrame = (m_animationFrame + 1) % 4;
         m_animationClock.restart();
     }
 
-    // Determine texture rect based on direction and animation frame
+    // Determine texture row based on movement direction
     int textureX = m_animationFrame * m_frameWidth;
     int textureY = 0;
 
-    if (m_velocity.y > 0) { // Moving down
-        textureY = 0; // First row
-      //  m_sprite.setScale(1.f, 1.f);
+    if (m_velocity.y > 0) {
+        textureY = 0;  // Moving down
     }
-    else if (m_velocity.y < 0) { // Moving up
-        textureY = m_frameHeight * 2; // Third row
-      //  m_sprite.setScale(1.f, 1.f);
+    else if (m_velocity.y < 0) {
+        textureY = m_frameHeight * 2;  // Moving up
     }
-    else if (m_velocity.x > 0) { // Moving right
-        textureY = m_frameHeight; // Second row
-       // m_sprite.setScale(1.f, 1.f);
+    else if (m_velocity.x > 0) {
+        textureY = m_frameHeight;  // Moving right
     }
-    else if (m_velocity.x < 0) { // Moving left
-        textureY = m_frameHeight; // Second row
-     //   m_sprite.setScale(-1.f, 1.f); // Flip sprite horizontally
+    else if (m_velocity.x < 0) {
+        textureY = m_frameHeight;  // Moving left
     }
 
-    // Update the sprite's texture rectangle
     m_sprite.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
 }
+
 
 void SmartGuard::handleCollision(GameObject& other) {
     other.handleCollisionWith(*this);
@@ -126,9 +121,19 @@ void SmartGuard::handleCollisionWith(Robot& robot) {
     std::cout << "SmartGuard collided with Robot: Initiate chase logic!\n";
 }
 
-void SmartGuard::handleCollisionWith(Wall& wall) {
-    revertPosition();
+void SmartGuard::handleCollisionWith(Wall&) {
+    std::cout << "SmartGuard hit a wall! Changing direction.\n";
+
+    if (m_velocity.x != 0 || m_velocity.y != 0) {
+        // First, switch to alternate direction
+        setVelocity(alternateDirection);
+    }
+    else {
+        // If alternate direction is also blocked, try random direction
+        moveInAnyAvailableDirection();
+    }
 }
+
 
 void SmartGuard::handleCollisionWith(Rock&) {
     revertPosition();
@@ -179,4 +184,37 @@ sf::CircleShape SmartGuard::getCollisionShape() const {
     );
 
     return collisionShape;
+}
+
+void SmartGuard::setVelocity(Direction dir) {
+    switch (dir) {
+    case UP:    m_velocity = { 0.f, -m_speed }; break;
+    case DOWN:  m_velocity = { 0.f, m_speed }; break;
+    case LEFT:  m_velocity = { -m_speed, 0.f }; break;
+    case RIGHT: m_velocity = { m_speed, 0.f }; break;
+    }
+}
+
+void SmartGuard::update(float deltaTime) {
+    m_previousPosition = m_sprite.getPosition();
+
+    calculateVelocity();
+    m_sprite.move(m_velocity * deltaTime);
+
+    updateAnimation();
+
+    if (m_directionChangeClock.getElapsedTime() >= m_randomChangeInterval) {
+        randomizeBehavior();
+        m_directionChangeClock.restart();
+    }
+}
+
+void SmartGuard::moveInAnyAvailableDirection() {
+    std::vector<Direction> possibleDirections = { UP, DOWN, LEFT, RIGHT };
+    std::shuffle(possibleDirections.begin(), possibleDirections.end(), std::mt19937(std::random_device()()));
+
+    for (Direction dir : possibleDirections) {
+        setVelocity(dir);
+        break;
+    }
 }
