@@ -11,6 +11,7 @@ Board::Board()
 
 
 bool Board::loadFromFile(const std::string& fileName) {
+    m_levelComplete = false;
     isGuardSmart(5);
     std::ifstream file(fileName);
     if (!file.is_open()) {
@@ -250,7 +251,9 @@ int Board::update(float deltaTime) {
         // Check if 'B' key is pressed to generate a bomb
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::B)) {
         GenerateBomb();
-        m_levelComplete = true;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::N)) {
+        m_levelComplete = true; // Generate a bomb when 'B' is pressed
     }
     m_robot->update(deltaTime);
     m_Toolbar.callUpdateToolbar(deltaTime);
@@ -288,6 +291,7 @@ void Board::handleInput(sf::Keyboard::Key key, bool isPressed) {
     if (key == sf::Keyboard::B) {
         GenerateBomb(); // Generate a bomb when 'B' is pressed
     }
+
 }
 
 bool Board::isGuardSmart(int level) {
@@ -487,5 +491,51 @@ void Board::startTimer() {
 }
 
 bool Board::isLevelComplete() {
-	return m_levelComplete;
+    if (m_levelComplete) {
+        // Clear all game objects
+        m_objects.clear();
+        m_movingObjects.clear();
+
+        // Reset robot to its starting position
+     //   m_robot->setPosition(m_robotStartingPosition);
+
+        // Clear the window (ensuring a fresh start)
+        sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Next Level");
+        window.clear(sf::Color::Black);
+        window.display();
+
+        return true;
+    }
+    return false;
+}
+
+void Board::showTransitionScreen(sf::RenderWindow& window, const std::string& message, sf::Color backgroundColor) {
+    // Create overlay
+    sf::RectangleShape overlay(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
+    overlay.setFillColor(backgroundColor);
+
+    // Load font (ensure you have a font file)
+    static sf::Font font;
+    if (!font.loadFromFile("arial.ttf")) {
+        std::cerr << "Error loading font!" << std::endl;
+        return;
+    }
+
+    // Create text
+    sf::Text text;
+    text.setFont(font);
+    text.setString(message);
+    text.setCharacterSize(50);
+    text.setFillColor(sf::Color::White);
+    text.setStyle(sf::Text::Bold);
+    text.setPosition(WINDOW_WIDTH / 2 - 150, WINDOW_HEIGHT / 2 - 50); // Centered
+
+    // Display transition screen for 2 seconds
+    sf::Clock clock;
+    while (clock.getElapsedTime().asSeconds() < 2) {
+        window.clear();
+        window.draw(overlay);
+        window.draw(text);
+        window.display();
+    }
 }
