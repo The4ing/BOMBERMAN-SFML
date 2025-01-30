@@ -65,7 +65,7 @@ public:
     void removeAllBombs();
     void handleInput(sf::Keyboard::Key key, bool isPressed);
     bool isGuardSmart(int level);
-
+    void showTransitionScreen(sf::RenderWindow& window, const std::string& message, sf::Color backgroundColor);
     void handleCollisions();
     void setPause();
     void startTimer();
