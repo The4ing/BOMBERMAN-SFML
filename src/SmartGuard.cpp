@@ -173,14 +173,14 @@ void SmartGuard::revertPosition() {
 
 sf::CircleShape SmartGuard::getCollisionShape() const {
     sf::CircleShape collisionShape;
-    float radius = m_frameWidth / 4;  // Adjust the radius
+    float radius = m_frameWidth / 6;  // Adjust the radius
     collisionShape.setRadius(radius);
     collisionShape.setOrigin(radius, radius);  // Center the circle
 
     // Position the circle
     collisionShape.setPosition(
-        m_sprite.getPosition().x + m_frameWidth / 2 - CIRCLRE_OFFSET,
-        m_sprite.getPosition().y + m_frameHeight / 2 - CIRCLRE_OFFSET
+        m_sprite.getPosition().x + m_frameWidth / 2 - (3*CIRCLRE_OFFSET),
+        m_sprite.getPosition().y + m_frameHeight / 2 - (3*CIRCLRE_OFFSET)
     );
 
     return collisionShape;
