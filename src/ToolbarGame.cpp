@@ -3,7 +3,8 @@
 
 
 ToolbarGame::ToolbarGame()
-    : m_isTimerRunning(true), m_LevelDuration(0), m_TimeLeft(0), m_isMuted(false) {
+    : m_isTimerRunning(false), m_LevelDuration(0), m_TimeLeft(0), m_isMuted(false){
+
     m_clock.restart();
     setLevelDuration(40);
 
@@ -111,11 +112,12 @@ void ToolbarGame::SetSprite(sf::Sprite& picture, const float POSx, const float P
 
 
 void ToolbarGame::IncreaseTime(const int extraTime) {
-    m_TimeLeft += extraTime;  // Add extra time
-    if (m_TimeLeft > m_LevelDuration) {
-        m_TimeLeft = m_LevelDuration;  // Cap the time at the level duration
-    }
+    m_LevelDuration += extraTime;  // Add extra time
+    //if (m_TimeLeft > m_LevelDuration) {
+    //     m_LevelDuration = m_TimeLeft;  // Cap the time at the level duration
+    //}
     std::cout << "Time increased by " << extraTime << " seconds." << std::endl;
+   // while (1);
 }
 
 
@@ -126,7 +128,6 @@ void ToolbarGame::UpdateTimer() {
     if (m_isTimerRunning) {
         sf::Time elapsed = m_clock.getElapsedTime();  // Get elapsed time from clock
         m_TimeLeft = m_LevelDuration - elapsed.asSeconds();  // Calculate remaining time
-
         if (m_TimeLeft <= 0) {
             m_TimeLeft = 0;
             m_isTimerRunning = false;  // Stop the timer if time runs out
@@ -285,4 +286,9 @@ void ToolbarGame::toggleMute() {
         m_muteButton.setTexture(m_unmuteTexture);
         std::cout << "Unmuted!" << std::endl;
     }
+}
+
+void ToolbarGame::startTimer() {
+    m_isTimerRunning = true;  // Start the timer
+    m_clock.restart();        // Reset clock
 }
