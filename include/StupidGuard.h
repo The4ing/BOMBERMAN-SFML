@@ -26,6 +26,8 @@ public:
     void handleCollisionWith(Bomb&, bool isExploding) override;        // No-op for Bomb
     void setScale(float scaleX, float scaleY) override;
     sf::CircleShape getCollisionShape() const override;
+    void setStartingPosition(float newX, float newY) override;
+    sf::Vector2f getStartingPosition() override;
 private:
     // Helper Methods
     void changeDirection();
@@ -41,7 +43,7 @@ private:
     sf::Time m_randomChangeInterval; // Interval to change direction
     sf::Time m_timeSinceLastChange;
     sf::Time m_animationTimeSinceLastChange;
-
+    sf::Vector2f m_startingPosition;
     sf::CircleShape m_collisionShape;
 
     // Movement-related members
