@@ -247,11 +247,11 @@ sf::CircleShape Robot::getCollisionShape() const {
     sf::CircleShape collisionCircle;
     collisionCircle.setRadius(SPRITE_HEIGHT);
     // Scale it horizontally to form an ellipse
-    float horizontalScale = 0.9f;  // Adjust this value for width
-    float verticalScale = 1.2f;    // Keep this 1.0 to maintain original height
+    float horizontalScale = 0.7f;  // Adjust this value for width
+    float verticalScale = 1.f;    // Keep this 1.0 to maintain original height
     collisionCircle.setScale(horizontalScale, verticalScale);
 
-    collisionCircle.setPosition(m_sprite.getPosition().x + SPRITE_WIDTH / 2 - 5,
+    collisionCircle.setPosition(m_sprite.getPosition().x + SPRITE_WIDTH / 2 - 10,
         m_sprite.getPosition().y + SPRITE_HEIGHT / 2 - 5);
     return collisionCircle;
 }
@@ -263,24 +263,3 @@ bool Robot::isRobotHit() {
 void Robot::setHitStatus(bool status) {
     m_robotHit = status;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
