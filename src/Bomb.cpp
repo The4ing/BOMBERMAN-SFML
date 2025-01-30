@@ -13,8 +13,8 @@ void Bomb::draw(sf::RenderWindow& window) const {
 
     float windowWidth = 1920.0f;
     float windowHeight = 1080.0f;
-    float m_cellSizex = windowWidth / static_cast<float>(17);
-    float m_cellSizey = windowHeight / static_cast<float>(9);
+    float m_cellSizex = windowWidth / static_cast<float>(28);
+    float m_cellSizey = windowHeight / static_cast<float>(12);
 
     if (m_exploded) {
         static sf::Texture explodedTexture;
@@ -25,31 +25,42 @@ void Bomb::draw(sf::RenderWindow& window) const {
             }
         }
         sprite.setTexture(explodedTexture);
-
-        float explosionScaleX = m_cellSizex * 2.5f;
-        float explosionScaleY = m_cellSizey * 2.5f;
         sprite.setScale(
-            explosionScaleX / sprite.getTexture()->getSize().x,
-            explosionScaleY / sprite.getTexture()->getSize().y
+            (m_cellSizex * 2.f) / sprite.getTexture()->getSize().x,
+            (m_cellSizey * 2.f) / sprite.getTexture()->getSize().y
         );
-        sprite.setPosition(m_sprite.getPosition().x - 110, m_sprite.getPosition().y - 90);
-        window.draw(sprite);
+        sprite.setPosition(m_sprite.getPosition().x - 45, m_sprite.getPosition().y - 45);
     }
     else {
         sprite.setScale(
             m_cellSizex / sprite.getTexture()->getSize().x,
             m_cellSizey / sprite.getTexture()->getSize().y
         );
-        sprite.setPosition(m_sprite.getPosition().x - 20, m_sprite.getPosition().y - 10);
-        window.draw(sprite);
+        sprite.setPosition(m_sprite.getPosition().x - 15, m_sprite.getPosition().y);
     }
 
+    window.draw(sprite);
+
+    // ?? Draw the explosion area as a red rectangle for debugging
+    if (m_exploded) {
+        for (const sf::FloatRect& rect : getExplosionPlusShapeBounds()) {
+            sf::RectangleShape explosionShape(sf::Vector2f(rect.width, rect.height));
+            explosionShape.setPosition(rect.left, rect.top);
+            explosionShape.setFillColor(sf::Color(255, 0, 0, 100)); // Semi-transparent red
+            explosionShape.setOutlineColor(sf::Color::Red);
+            explosionShape.setOutlineThickness(2.f);
+            window.draw(explosionShape);
+        }
+    }
+
+    // Draw collision shape
     sf::CircleShape collisionShape = getCollisionShape();
     collisionShape.setFillColor(sf::Color::Transparent);
     collisionShape.setOutlineColor(sf::Color::Red);
-    collisionShape.setOutlineThickness(1.f);
+    collisionShape.setOutlineThickness(3.f);
     window.draw(collisionShape);
 }
+
 
 // Get bomb position
 sf::Vector2f Bomb::getPosition() const {
@@ -141,10 +152,10 @@ void Bomb::handleCollisionWith(Bomb&, bool isExploding) {}
 sf::CircleShape Bomb::getCollisionShape() const {
     sf::CircleShape collisionCircle;
     collisionCircle.setRadius(30.f);
-    float horizontalScale = 0.9f;
-    float verticalScale = 1.2f;
+    float horizontalScale = 0.7f;
+    float verticalScale = 1.0f;
     collisionCircle.setScale(horizontalScale, verticalScale);
-    collisionCircle.setPosition(m_sprite.getPosition().x + 20 / 2 - 5,
+    collisionCircle.setPosition(m_sprite.getPosition().x + 20 / 2 - 10,
         m_sprite.getPosition().y + 30 / 2 - 5);
     return collisionCircle;
 }
@@ -157,21 +168,21 @@ std::vector<sf::FloatRect> Bomb::getExplosionPlusShapeBounds() const {
         return explosionBounds;
     }
 
-    float horizontalLength = 220.f;
-    float verticalLength = 240.f;
-    float thickness = 50.f;
+    float horizontalLength = 100.f;
+    float verticalLength = 140.f;
+    float thickness = 25.f;
     sf::Vector2f center = m_sprite.getPosition();
 
     sf::FloatRect horizontalRect(
-        center.x - horizontalLength / 2 + 30,
-        center.y - thickness / 2 + 50,
+        center.x - horizontalLength / 2 + 20,
+        center.y - thickness / 2 + 40,
         horizontalLength,
         thickness
     );
 
     sf::FloatRect verticalRect(
-        center.x - thickness / 2 + 30,
-        center.y - verticalLength / 2 + 55,
+        center.x - thickness / 2 + 25,
+        center.y - verticalLength / 2 + 45,
         thickness,
         verticalLength
     );
