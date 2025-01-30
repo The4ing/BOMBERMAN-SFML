@@ -7,9 +7,15 @@ protected:
     // Shared attributes and behavior for all guards
     int guardID;
     float detectionRange;
+    sf::Vector2f m_startingPosition;
 
 public:
     Guard() : guardID(0), detectionRange(100.0f) {}
+    virtual void setStartingPosition(float newX, float newY) {
+		m_startingPosition.x = newX;
+		m_startingPosition.y = newY;
+	}
+    virtual sf::Vector2f getStartingPosition() = 0;
   //  virtual void colision() = 0; // Pure virtual function
     virtual void setScale(float scaleX, float scaleY) = 0;
   //  virtual void reverseDirection() = 0; 
