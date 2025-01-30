@@ -12,7 +12,7 @@
 const float ROBOT_SPEED = 200.f;    // Speed in pixels per second
 const int SPRITE_WIDTH = 20;        // Sprite width in pixels
 const int SPRITE_HEIGHT = 30;       // Sprite height in pixels
-const float ROBOT_SCALE = 3.0f;     // Scale factor
+const float ROBOT_SCALE = 2.0f;     // Scale factor
 
 class Robot : public MovingGameObject {
 public:
