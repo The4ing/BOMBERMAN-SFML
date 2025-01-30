@@ -25,8 +25,13 @@ public:
     void setScale(float scaleX, float scaleY) override;
     void setPlayerPosition(const sf::Vector2f& playerPos);
     void revertPosition();
+    void setStartingPosition(float newX, float newY) override;
+    sf::Vector2f getStartingPosition() override;
 
     sf::CircleShape getCollisionShape() const override;
+   // bool isBlocked(float newX, float newY);
+    void setVelocity(Direction dir);
+    void moveInAnyAvailableDirection();
 
 private:
     sf::Vector2f m_playerPosition; // Target player position
@@ -36,7 +41,8 @@ private:
     sf::Clock m_animationClock;
     sf::Vector2f m_previousPosition;        // Guard's current velocity
 
-
+    Direction preferredDirection;
+    Direction alternateDirection;
     sf::CircleShape m_collisionShape;
 
 
@@ -48,7 +54,7 @@ private:
 
     sf::Texture m_texture;
     sf::Sprite m_sprite;
-
+    sf::Vector2f m_startingPosition;
     void calculateVelocity();  // Move toward player
     void randomizeBehavior();  // Randomize movement
     void updateAnimation();    // Update animation frame
