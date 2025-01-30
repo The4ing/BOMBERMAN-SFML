@@ -7,6 +7,7 @@ Robot::Robot()
     : m_direction(STAND),
     m_arrowKeyPressed(false),
     m_animationFrame(0),
+    m_robotHit(false),
     m_animationTimer(sf::milliseconds(100))
 {
     if (!m_texture.loadFromFile("robot_spritesheet.png")) {
@@ -36,55 +37,57 @@ sf::Vector2i Robot::getCurrentCell() const {
 }
 
 void Robot::update(float deltaTime) {
-    // Update the position based on velocity and deltaTime
+
+    if (m_robotHit) { // Robot is in death state
+        int deadFrame = (m_animationClock.getElapsedTime().asMilliseconds() / 100);
+
+        if (deadFrame < 7) {
+            m_sprite.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
+        }
+        else {
+            m_sprite.setTextureRect(sf::IntRect(6 * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT)); // Stay on last frame
+        }
+        m_robotHit = false;
+        return; // Skip movement when dead
+    }
+
+
+    m_velocity = { 0.f, 0.f }; // Reset velocity before checking input
+
+    // Prioritize one direction at a time
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+        m_velocity.y = -ROBOT_SPEED;
+        m_direction = UP;
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+        m_velocity.y = ROBOT_SPEED;
+        m_direction = DOWN;
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+        m_velocity.x = -ROBOT_SPEED;
+        m_direction = LEFT;
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+        m_velocity.x = ROBOT_SPEED;
+        m_direction = RIGHT;
+    }
+
+    // Move based on updated velocity
     m_previousPosition = m_sprite.getPosition();
     m_sprite.move(m_velocity * deltaTime);
 
-    // Calculate and store the current cell position
-    sf::Vector2f spritePosition = m_sprite.getPosition();
-
-    // Check if the robot is supposed to be "dead"
-    if (/* condition for death */ false) { // Replace false with your actual death condition
-        // Handle dead animation (second row in the sprite sheet)
-        int deadFrame = (m_animationClock.getElapsedTime().asMilliseconds() / 100) % 7; // Assume 7 frames for "dead"
-        m_sprite.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
-        return; // Skip normal animation if dead
-    }
-
     // Handle animation updates for movement
-    if (m_arrowKeyPressed) {
+    if (m_velocity.x != 0 || m_velocity.y != 0) {
         if (m_animationClock.getElapsedTime() > m_animationTimer) {
-            // Advance to the next frame
-            m_animationFrame = (m_animationFrame + 1) % 3; // 3 frames per direction
-
-            // Determine the sprite sheet coordinates for the animation
-            int textureX = (m_animationFrame + ((m_direction - 1) * 3)) * SPRITE_WIDTH;              // Horizontal frame index
-            int textureY = 0;                                           // Always use the first row for all directions
-            m_sprite.setTextureRect(sf::IntRect(textureX, textureY, SPRITE_WIDTH, SPRITE_HEIGHT));
-
-            m_animationClock.restart(); // Reset the animation timer
-        }
-    }
-    else {
-        // If the robot is not moving, reset to the first frame of the standing animation
-        switch (lastDirection) {
-        case UP:
-            m_sprite.setTextureRect(sf::IntRect(7 * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
-            break;
-        case DOWN:
-            m_sprite.setTextureRect(sf::IntRect(4 * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
-            break;
-        case LEFT:
-            m_sprite.setTextureRect(sf::IntRect(1 * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
-            break;
-        case RIGHT:
-            m_sprite.setTextureRect(sf::IntRect(10 * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
-            break;
-        default:
-            break;
+            m_animationFrame = (m_animationFrame + 1) % 3;
+            int textureX = (m_animationFrame + ((m_direction - 1) * 3)) * SPRITE_WIDTH;
+            m_sprite.setTextureRect(sf::IntRect(textureX, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
+            m_animationClock.restart();
         }
     }
 }
+
+
 void Robot::handleInput(sf::Keyboard::Key key, bool isPressed) {
     if (!validKeys(key)) return;
     static std::set<sf::Keyboard::Key> activeKeys;
@@ -199,15 +202,22 @@ void Robot::handleCollisionWith(Door& door) {
 }  
 
 void Robot::handleCollisionWith(Guard& guard) {
-    int deadFrame = (m_animationClock.getElapsedTime().asMilliseconds() / 100) % 7; // Assume 7 frames for "dead"
-    m_sprite.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
+    if (!m_robotHit) {  // Only trigger death animation once
+        m_robotHit = true;
+        m_animationClock.restart(); // Restart clock to start the animation sequence
+    }
 }
+
 
 void Robot::handleCollisionWith(Robot& robot) {
   //  stop(); // Stop movement when hitting another robot
 }
 void Robot::handleCollisionWith(Bomb&, bool isExploding) {
-    // No-op: Rocks don't react to Guards
+    if (isExploding) {
+		m_robotHit = true;
+        while (1);
+    }
+
 }
 
 void Robot::resolveCollision(const GameObject& object) {
@@ -245,3 +255,32 @@ sf::CircleShape Robot::getCollisionShape() const {
         m_sprite.getPosition().y + SPRITE_HEIGHT / 2 - 5);
     return collisionCircle;
 }
+
+bool Robot::isRobotHit() {
+	return m_robotHit;
+}
+
+void Robot::setHitStatus(bool status) {
+    m_robotHit = status;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
