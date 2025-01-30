@@ -1,20 +1,21 @@
+
 #include "Board.h"
 
 
 Board::Board()
-    : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_lives(0) {
+    : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false),m_pause(false), m_pausedByHit(false), m_levelComplete (false), m_lives(0), m_pauseDuration(2) {
     m_robot = std::make_unique<Robot>();
     loadTextures();
     srand(static_cast<unsigned int>(time(0)));
 }
 
 
-void Board::loadFromFile(const std::string& fileName) {
+bool Board::loadFromFile(const std::string& fileName) {
     isGuardSmart(5);
     std::ifstream file(fileName);
     if (!file.is_open()) {
         std::cerr << "Error: Cannot open file " << fileName << std::endl;
-        return;
+        return false;
     }
 
     std::vector<std::string> lines;
@@ -50,12 +51,13 @@ void Board::loadFromFile(const std::string& fileName) {
             case '/':
                 m_robot->setPosition(position.x, position.y);
                 std::cout << "Robot initial position: (" << position.x << ", " << position.y << ")\n";
+                m_robotStartingPosition = sf::Vector2f(position.x, position.y);
                 break;
 
             case '!': {
                 std::unique_ptr<Guard> guard;
 
-                if (isGuardSmart(5)) {  
+                if (isGuardSmart(5)) {
                     guard = std::make_unique<SmartGuard>();  // Create a smart guard
                 }
                 else {
@@ -63,11 +65,14 @@ void Board::loadFromFile(const std::string& fileName) {
                 }
 
                 guard->setPosition(position.x, position.y);
+                guard->setStartingPosition(position.x, position.y);
                 // Scale guards based on individual frame dimensions
                 float guardScaleX = m_cellSize.x / 127.5f;  // 127.5 = guard frame width
                 float guardScaleY = m_cellSize.y / 163.33f; // 163.33 = guard frame height
                 guard->setScale(guardScaleX, guardScaleY);
                 m_movingObjects.push_back(std::move(guard));
+                //  m_guardsStartingPositions.push_back(sf::Vector2f(position.x, position.y));
+
                 guardCount++;
                 break;
             }
@@ -92,6 +97,7 @@ void Board::loadFromFile(const std::string& fileName) {
             }
         }
     }
+    return true;
 
 }
 
@@ -113,7 +119,7 @@ bool Board::setSmartGuard(int level) {
 void Board::PowerUp(const powerUps choice) {
     switch (choice) {
     case FreezeGuards:
-       // FreezeAllGuards(true);
+        // FreezeAllGuards(true);
         std::cout << "All guards have been frozen!" << std::endl;
         break;
     case ExtraLife:
@@ -189,7 +195,7 @@ void Board::loadTextures() {
     }
 }
 
-void Board::display(sf::RenderWindow& window)  {
+void Board::display(sf::RenderWindow& window) {
     // Draw the toolbar
     m_Toolbar.draw(window);
 
@@ -204,88 +210,83 @@ void Board::display(sf::RenderWindow& window)  {
     }
 
     // Draw the robot separately
-        m_robot->draw(window);
-    
+    m_robot->draw(window);
+
 }
 
 sf::Vector2f Board::getCellSize() const {
     return m_cellSize;
 }
 
-void Board::update(float deltaTime) {
-    // Calculate board boundaries
-    float leftBound = 0.f;
-    float topBound = TOOLBAR_HEIGHT; // Offset for toolbar
-    float rightBound = m_cols * (m_cellSize.x + 1);
-    float bottomBound = TOOLBAR_HEIGHT + m_rows * m_cellSize.y;
+int Board::update(float deltaTime) {
 
-    // Update robot position and animation
-    m_robot->update(deltaTime);
-    //  handleCollisions();
-
-    m_Toolbar.CallUpdateTimer();
-    m_Toolbar.callUpdateToolbar(deltaTime);
-       //*Update moving objects like guards/*
-        for (auto& obj : m_movingObjects) {
-            obj->update(deltaTime);
-            sf::Vector2f objectPos = obj->getPosition();
-            if (objectPos.x < leftBound) {
-                //objectPos.x = leftBound;
-            }
-            else if (objectPos.x + m_cellSize.x > rightBound) {
-                objectPos.x = rightBound - m_cellSize.x;
-            }
-
-            if (objectPos.y < topBound) {
-                objectPos.y = topBound;
-            }
-            else if (objectPos.y + m_cellSize.y > bottomBound) {
-                objectPos.y = bottomBound - m_cellSize.y;
-            }
-
-            // Apply corrected position
-            obj->setPosition(objectPos.x, objectPos.y);
-
-            checkIfSmartGuard(obj.get());
+    if (m_pausedByHit) {
+        // Wait for 2 seconds before resuming
+        if (m_pauseClock.getElapsedTime().asSeconds() >= m_pauseDuration) {
+            m_pausedByHit = false;
+            m_pause = false;  // Resume game
+            m_Toolbar.IncreaseTime(2);
         }
-        // Remove bombs that are ready for removal
-        m_movingObjects.erase(
-            std::remove_if(m_movingObjects.begin(), m_movingObjects.end(),
-                [](const std::unique_ptr<MovingGameObject>& obj) {
-                    auto* bomb = dynamic_cast<Bomb*>(obj.get());
-                    return bomb && bomb->CanBeRemoved(); // Remove exploded bombs
-                }),
-            m_movingObjects.end()
-        );
-
-    // Boundary checks for the robot
-    sf::Vector2f robotPos = m_robot->getPosition();
-
-
-    // Ensure the robot stays within bounds
-    if (robotPos.x < leftBound) {
-        robotPos.x = leftBound;
-    }
-    else if (robotPos.x + m_cellSize.x > rightBound) {
-        robotPos.x = rightBound - m_cellSize.x;
+        else {
+            return 0;  // Skip updates while paused
+        }
     }
 
-    if (robotPos.y < topBound) {
-        robotPos.y = topBound;
-    }
-    else if (robotPos.y + m_cellSize.y > bottomBound) {
-        robotPos.y = bottomBound - m_cellSize.y;
+    if (m_robot->isRobotHit()) {
+        resetObjectsLocation();  // Reset robot & guards
+        removeAllBombs();        // Remove bombs
+        m_pauseClock.restart();  // Start pause timer
+        m_pausedByHit = true;
+        m_pause = true;
+        // Ensure the robot's hit state resets after handling
+        m_robot->update(deltaTime);
+
+        return 1;
     }
 
-    // Apply corrected position
-    m_robot->setPosition(robotPos.x, robotPos.y);
+    if (m_pause) return 0;  // Stop updates if paused
+
+    // Normal game update logic
+        // Check if 'B' key is pressed to generate a bomb
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::B)) {
+        GenerateBomb();
+        m_levelComplete = true;
+    }
+    m_robot->update(deltaTime);
+    m_Toolbar.callUpdateToolbar(deltaTime);
+    // Use an iterator-based loop for safe removal
+    for (auto it = m_movingObjects.begin(); it != m_movingObjects.end(); ) {
+        auto* bomb = dynamic_cast<Bomb*>((*it).get());
+
+        if (bomb && bomb->CanBeRemoved()) {
+            std::cout << "Bomb removed!\n";
+            it = m_movingObjects.erase(it); // Erase bomb & update iterator
+        }
+        else {
+            (*it)->update(deltaTime);
+            checkIfSmartGuard((*it).get());
+            ++it; // Only increment if not erased
+        }
+    }
     handleCollisions();
+
+
+    return 0;
 }
 
 
+
+
+
 void Board::handleInput(sf::Keyboard::Key key, bool isPressed) {
+    if (!isPressed) return; // Only process key press, not release
+
     if (m_robot) {
         m_robot->handleInput(key, isPressed); // Forward input to the robot
+    }
+
+    if (key == sf::Keyboard::B) {
+        GenerateBomb(); // Generate a bomb when 'B' is pressed
     }
 }
 
@@ -341,9 +342,20 @@ void Board::handleCollisions() {
         }
 
         // Handle bomb explosions
+       // Handle bomb explosions
         auto* bomb = dynamic_cast<Bomb*>(movingObject.get());
         if (bomb && bomb->CheckBombExplode()) {
             std::vector<sf::FloatRect> explosionBounds = bomb->getExplosionPlusShapeBounds();
+
+            // Check if the robot is hit by the explosion
+            sf::FloatRect robotBounds = m_robot->getCollisionShape().getGlobalBounds();
+            for (const auto& rect : explosionBounds) {
+                if (rect.intersects(robotBounds)) {
+                    std::cout << "Robot was hit by an explosion!" << std::endl;
+                    m_robot->setHitStatus(true);
+                    break;
+                }
+            }
 
             // Mark static objects (like rocks) for removal, excluding walls and doors
             for (const auto& obj : m_objects) {
@@ -358,7 +370,7 @@ void Board::handleCollisions() {
                 }
             }
 
-            // Mark moving objects (like guards) for removal, excluding bombs
+            // Mark moving objects (like guards) for removal
             for (const auto& obj : m_movingObjects) {
                 if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
                     const sf::Shape& objShape = obj->getCollisionShape();
@@ -372,6 +384,7 @@ void Board::handleCollisions() {
                 }
             }
         }
+
 
         // Check collisions between moving objects and static objects
         for (const auto& staticObject : m_objects) {
@@ -417,8 +430,6 @@ void Board::handleCollisions() {
 
 
 
-
-
 void Board::GenerateBomb() {
     auto bomb = std::make_unique<Bomb>(GetTexture(BOMB));
     sf::Vector2f robotPos = m_robot->getPosition();
@@ -444,4 +455,37 @@ void Board::GenerateBomb() {
     // Add the bomb to the moving objects if no overlap
     m_movingObjects.push_back(std::move(bomb));
     std::cout << "Bomb placed successfully at: (" << robotPos.x << ", " << robotPos.y << ").\n";
+}
+
+void Board::resetObjectsLocation() {
+    // Reset robot's position
+    m_robot->setPosition(m_robotStartingPosition.x, m_robotStartingPosition.y);
+
+    // Reset guards' positions
+    for (const auto& obj : m_movingObjects) {
+        if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
+            guard->setPosition(guard->getStartingPosition().x, guard->getStartingPosition().y);
+        }
+    }
+}
+
+void Board::setPause() {
+    m_pause = false;
+}
+
+void Board::removeAllBombs() {
+    m_movingObjects.erase(
+        std::remove_if(m_movingObjects.begin(), m_movingObjects.end(),
+            [](const std::unique_ptr<MovingGameObject>& obj) {
+                return dynamic_cast<Bomb*>(obj.get()) != nullptr;
+            }),
+        m_movingObjects.end()
+    );
+}
+void Board::startTimer() {
+    m_Toolbar.startTimer();
+}
+
+bool Board::isLevelComplete() {
+	return m_levelComplete;
 }
