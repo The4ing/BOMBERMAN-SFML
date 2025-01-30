@@ -68,6 +68,8 @@ void GameManager::startGame() {
         m_window.display();
         if (m_board.isLevelComplete()) {  // Check if the player completed the level
             loadNextLevel();  // Load the next level
+            //
+            m_mainMenu.Run();
         }
 
     }
@@ -127,40 +129,42 @@ void GameManager::processGameEvents() {
 //}
 
 char GameManager::getSingleKeyPress() {
-    while (true) {
-        for (int key = sf::Keyboard::A; key <= sf::Keyboard::Z; ++key) {
-            if (sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(key))) {
-                return static_cast<char>('A' + (key - sf::Keyboard::A)); // Convert to uppercase letter
-            }
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) return '\x1B'; // ESC key
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) return ' '; // Space key
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) return '\n'; // Enter key
-    }
+    //while (true) {
+    //    for (int key = sf::Keyboard::A; key <= sf::Keyboard::Z; ++key) {
+    //        if (sf::Keyboard::
+    //            (static_cast<sf::Keyboard::Key>(key))) {
+    //            return static_cast<char>('A' + (key - sf::Keyboard::A)); // Convert to uppercase letter
+    //        }
+    //    }
+    //    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) return '\x1B'; // ESC key
+    //    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) return ' '; // Space key
+    //    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) return '\n'; // Enter key
+    //}
+    return 'c';
 }
 
 void GameManager::loadNextLevel() {
     m_window.clear();
-    //m_currentLevel++;  // Move to the next level
+    m_currentLevel++;  // Move to the next level
 
-    //// Generate the filename based on level number
-    //std::string levelFile = "level" + std::to_string(m_currentLevel) + ".txt";
+    // Generate the filename based on level number
+    std::string levelFile = "level" + std::to_string(m_currentLevel) + ".txt";
 
-    //// Try loading the new level file
-    //if (!m_board.loadFromFile(levelFile)) {
-    //    std::cerr << "Error: Could not load " << levelFile << ". Restarting at Level 1." << std::endl;
-    //    m_currentLevel = 1; // Reset to first level if not found
-    //    levelFile = "level1.txt";
-    //    m_board.loadFromFile(levelFile);
-    //}
+    // Try loading the new level file
+    if (!m_board.loadFromFile(levelFile)) {
+        std::cerr << "Error: Could not load " << levelFile << ". Restarting at Level 1." << std::endl;
+        m_currentLevel = 1; // Reset to first level if not found
+        levelFile = "level1.txt";
+        m_board.loadFromFile(levelFile);
+    }
 
-    //std::cout << "Loaded " << levelFile << std::endl;
+    std::cout << "Loaded " << levelFile << std::endl;
     ////while (1);
 
     //// Reset game state
-    //m_robotLives = 3;
-    //m_pause = false;
+    m_robotLives = 3;
+    m_pause = false;
 
     //// Restart game with the new level
-    //startGame();
+    startGame();
 }
