@@ -180,3 +180,10 @@ sf::CircleShape StupidGuard::getCollisionShape() const {
 
     return collisionCircle;
 }
+
+void StupidGuard::setStartingPosition(float newX, float newY) {
+    m_startingPosition = sf::Vector2f(newX, newY);
+}
+sf::Vector2f StupidGuard::getStartingPosition() {
+    return m_startingPosition;
+}
