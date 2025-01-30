@@ -57,7 +57,7 @@ public:
     void CallUpdateTimer();
     void IncreaseTime(const int extraTime);
     std::string getTimeString() const;
-
+    void startTimer();
 
 
     
