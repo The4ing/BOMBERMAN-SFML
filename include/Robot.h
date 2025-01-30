@@ -37,6 +37,8 @@ public:
     void handleCollisionWith(Guard& guard) override;
     void handleCollisionWith(Bomb&, bool isExploding) override;        // No-op for Bomb
     void resolveCollision(const GameObject& object);
+    bool isRobotHit();
+    void setHitStatus(bool status);
 
     virtual sf::FloatRect getBoundingBox() const override;
     // Grid-related helper
@@ -59,4 +61,5 @@ private:
     sf::Clock m_animationClock;      // Clock for animation timing
     sf::Time m_animationTimer;       // Time per animation frame
     sf::CircleShape m_collisionShape;
+    bool m_robotHit;
 };
