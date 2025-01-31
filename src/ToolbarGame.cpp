@@ -8,19 +8,10 @@ ToolbarGame::ToolbarGame()
 
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
-    // Load required assets
-    if (!resourceManager.loadFont("digit.ttf")) {
-        std::cerr << "Error: Failed to load font!" << std::endl;
-    }
-
-    if (!resourceManager.loadTexture("mute.png") || !resourceManager.loadTexture("unmute.png") ||
-        !resourceManager.loadTexture("heart.png") || !resourceManager.loadTexture("timer.png")) {
-        std::cerr << "Error: Could not load one or more textures!" << std::endl;
-    }
 
     // Set up timer text
     sf::Text timerText;
-    timerText.setFont(resourceManager.getFont());
+    timerText.setFont(resourceManager.getFont("digit.ttf"));
     timerText.setCharacterSize(30);
     timerText.setOutlineThickness(4);
     timerText.setStyle(sf::Text::Bold);
@@ -36,6 +27,7 @@ ToolbarGame::ToolbarGame()
     timerSprite.setPosition(100.f, 50.f);
     timerSprite.setScale(0.2f, 0.2f);
     resourceManager.addSprite("timer", timerSprite);
+
 
     // Set up mute button
     sf::Sprite muteButton;
@@ -281,13 +273,6 @@ std::string ToolbarGame::getTimeString() const {
     oss << minutes << ":" << (seconds < 10 ? "0" : "") << seconds;
     return oss.str();
 }
-
-
-
-
-
-
-
 
 
 
