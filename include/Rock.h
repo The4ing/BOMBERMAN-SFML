@@ -10,7 +10,7 @@ class Guard;
 
 class Rock : public GameObject {
 public:
-    explicit Rock(const sf::Texture& texture); // Constructor to initialize the Rock with a texture
+    explicit Rock(); // Constructor to initialize the Rock with a texture
 
     char getSymbol() const override;  // Returns '#' to represent a Rock
     sf::Vector2f getPosition() const override; // Gets the Rock's position
@@ -24,6 +24,7 @@ public:
     void handleCollisionWith(Rock&) override;        // No-op for another Rock
     void handleCollisionWith(Door&) override;        // No-op for Door
     void handleCollisionWith(Guard&) override;       // No-op for Guard
+    void handleCollisionWith(Present& Present) override;
     void handleCollisionWith(Bomb&, bool isExploding) override;       // No-op for Bomb
     void setScale(float scaleX, float scaleY);
 
