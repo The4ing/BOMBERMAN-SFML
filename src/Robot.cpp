@@ -10,11 +10,13 @@ Robot::Robot()
     m_robotHit(false),
     m_animationTimer(sf::milliseconds(100))
 {
-    if (!m_texture.loadFromFile("robot_spritesheet.png")) {
+    /*if (!m_texture.loadFromFile("robot_spritesheet.png")) {
         std::cerr << "Failed to load robot spritesheet" << std::endl;
-    }
+    }*/
 
-    m_sprite.setTexture(m_texture);
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+
+    m_sprite.setTexture(resourceManager.getTexture("robot_spritesheet.png"));
     m_sprite.setTextureRect(sf::IntRect(4 * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
     m_sprite.setScale(ROBOT_SCALE, ROBOT_SCALE);
 }
@@ -27,6 +29,7 @@ void Robot::setPosition(float x, float y) {
 sf::Vector2f Robot::getPosition() const {
     return m_sprite.getPosition();
 }
+
 
 sf::Vector2i Robot::getCurrentCell() const {
     sf::Vector2f pos = m_sprite.getPosition();
@@ -162,6 +165,8 @@ void Robot::handleInput(sf::Keyboard::Key key, bool isPressed) {
     m_arrowKeyPressed = !activeKeys.empty();
 }
 
+
+
 bool Robot::validKeys(sf::Keyboard::Key key) {
     if (key != sf::Keyboard::Up && key != sf::Keyboard::Down &&
         key != sf::Keyboard::Left && key != sf::Keyboard::Right)
@@ -199,7 +204,7 @@ void Robot::handleCollisionWith(Rock& rock) {
 
 void Robot::handleCollisionWith(Door& door) {
     resolveCollision(door);
-}  
+}
 
 void Robot::handleCollisionWith(Guard& guard) {
     if (!m_robotHit) {  // Only trigger death animation once
@@ -208,13 +213,17 @@ void Robot::handleCollisionWith(Guard& guard) {
     }
 }
 
+void Robot::handleCollisionWith(Present& Present)
+{
+    //  activate the present
+}
 
 void Robot::handleCollisionWith(Robot& robot) {
-  //  stop(); // Stop movement when hitting another robot
+    //  stop(); // Stop movement when hitting another robot
 }
 void Robot::handleCollisionWith(Bomb&, bool isExploding) {
     if (isExploding) {
-		m_robotHit = true;
+        m_robotHit = true;
         while (1);
     }
 
@@ -243,6 +252,7 @@ void Robot::resolveCollision(const GameObject& object) {
 
 
 
+
 sf::CircleShape Robot::getCollisionShape() const {
     sf::CircleShape collisionCircle;
     collisionCircle.setRadius(SPRITE_HEIGHT);
@@ -256,8 +266,8 @@ sf::CircleShape Robot::getCollisionShape() const {
     return collisionCircle;
 }
 
-bool Robot::isRobotHit() {
-	return m_robotHit;
+const bool Robot::isRobotHit() const  {  
+    return m_robotHit;
 }
 
 void Robot::setHitStatus(bool status) {
