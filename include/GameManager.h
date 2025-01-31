@@ -7,7 +7,8 @@
 #include "GameDisplay.h"
 #include "SettingsDisplay.h"
 #include "Board.h"
-#include "Utilities.h"
+//#include "Utilities.h"
+//#include "ResourceManager.h"
 #include "Robot.h"
 #include "MovingGameObject.h"
 
@@ -18,7 +19,7 @@ public:
     void startGame();
   //  bool loadLevel(const std::string& fileName);
     void processGameEvents();
-    void pauseGame(float pauseDuration);
+   // void pauseGame(float pauseDuration);
    // void handleMoveKeys(sf::Keyboard::Key key, const bool isPressed);
    // void setRobotPosition();
     char getSingleKeyPress();
