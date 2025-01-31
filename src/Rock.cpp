@@ -1,8 +1,9 @@
 #include "Rock.h"
 #include <iostream>
 
-Rock::Rock(const sf::Texture& texture) {
-    m_sprite.setTexture(texture); // Assign the texture to the sprite
+Rock::Rock() {
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+    m_sprite.setTexture(resourceManager.getTexture("Rock.png")); // Assign the texture to the sprite
 }
 
 char Rock::getSymbol() const {
@@ -55,6 +56,10 @@ void Rock::handleCollisionWith(Door&) {
 
 void Rock::handleCollisionWith(Guard&) {
     // No-op: Rocks don't react to Guards
+}
+void Rock::handleCollisionWith(Present& Present)
+{
+    //do nothing 
 }
 void Rock::handleCollisionWith(Bomb&, bool isExploding) {
     // No-op: Rocks don't react to Guards
