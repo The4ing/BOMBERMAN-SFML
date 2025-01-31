@@ -1,25 +1,29 @@
 #include "MainMenuDisplay.h"
-#include <iostream>
+
 
 // Constructor
 MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     : m_window(window), m_game(game), m_state(MAIN_MENU) {
     // Load main menu background
-    if (!m_mainBackgroundTexture.loadFromFile("menu.png")) {
+  /*  if (!m_mainBackgroundTexture.loadFromFile("menu.png")) {
         std::cerr << "Error loading main menu background!" << std::endl;
-    }
-    m_mainBackgroundSprite.setTexture(m_mainBackgroundTexture);
+    }*/
+
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+
+    m_mainBackgroundSprite.setTexture(resourceManager.getTexture("menu.png"));
 
     // Load help menu background
-    if (!m_helpBackgroundTexture.loadFromFile("helpBackground.png")) {
+   /* if (!m_helpBackgroundTexture.loadFromFile("helpBackground.png")) {
         std::cerr << "Error loading help menu background!" << std::endl;
-    }
-    m_helpBackgroundSprite.setTexture(m_helpBackgroundTexture);
+    }*/
+
+    m_helpBackgroundSprite.setTexture(resourceManager.getTexture("helpBackground.png"));
 
     // Load font
-    if (!m_font.loadFromFile("PixelFontBlack.otf")) {
+    /*if (!m_font.loadFromFile("PixelFontBlack.otf")) {
         std::cerr << "Error loading font!" << std::endl;
-    }
+    }*/
 
     // Load and play background music
     if (!m_menuMusic.openFromFile("menuMusic.ogg")) {
@@ -44,12 +48,12 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     configureButton(m_exitButton, "Exit", sf::Color::Black, 100);
 
     // Configure hover text
-    m_hoverExplanationText.setFont(m_font);
+    m_hoverExplanationText.setFont(resourceManager.getFont("PixelFontBlack.otf"));
     m_hoverExplanationText.setCharacterSize(24);
     m_hoverExplanationText.setFillColor(sf::Color::Red);
 
     // Configure instruction text
-    m_instructionText.setFont(m_font);
+    m_instructionText.setFont(resourceManager.getFont("PixelFontBlack.otf"));
     m_instructionText.setString("Hover over the pictures to see explanations.");
     m_instructionText.setCharacterSize(24);
     m_instructionText.setFillColor(sf::Color::White);
@@ -77,7 +81,8 @@ void MainMenuDisplay::configureButton(sf::Text& button, const std::string& label
     float windowWidth = m_window->getSize().x;
     float windowHeight = m_window->getSize().y;
 
-    button.setFont(m_font);
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+    button.setFont(resourceManager.getFont("PixelFontBlack.otf"));
     button.setString(label);
     button.setCharacterSize(40);
     button.setFillColor(color);
