@@ -18,26 +18,32 @@
 #include "ToolbarGame.h"
 #include <cstdlib>
 #include <ctime>
+#include <Present.h>
+#include "RemoveGuard.h"
+#include "ExtraLife.h"
+#include "FreezeGuard.h"
+#include "increaseTime.h"
+
 
 // Enum to define power-up choices
-enum powerUps {
-    FreezeGuards,
-    ExtraLife,
-    RemovedGuard,
-    TimeIncrease
-};
+//enum powerUps {
+//    FreezeGuards,
+//    ExtraLife,
+//    RemovedGuard,
+//    TimeIncrease
+//};
 
 class Board {
 public:
     Board();
 
-    void PowerUp(const powerUps choice);
+    void PowerUp(const char choice);
     //void FreezeAllGuards(const bool status);
-    void GrantExtraLife();
+    //void GrantExtraLife();
 
-   /* int getCols() const;
-    int getRows() const;*/
-    
+    /* int getCols() const;
+     int getRows() const;*/
+
 
     const sf::Texture& GetTexture(const int choice) const;
     void SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const;
@@ -48,7 +54,7 @@ public:
     // Other members and variables for game state
     bool loadFromFile(const std::string& fileName);
     void loadTextures();
-   // void displayConsole() const;
+    // void displayConsole() const;
     void display(sf::RenderWindow& window);
 
     // New methods for robot position
@@ -86,14 +92,14 @@ private:
 
     std::vector<std::unique_ptr<GameObject>> m_objects;          // Static objects (e.g., walls, rocks)
     std::vector<std::unique_ptr<MovingGameObject>> m_movingObjects; // Moving objects (e.g., robot, guards)
-    std::unique_ptr<Robot> m_robot; 
+    std::unique_ptr<Robot> m_robot;
     int m_rows, m_cols;
-//    bool m_pause = false;  // ? New flag to freeze game
+    //    bool m_pause = false;  // ? New flag to freeze game
     bool m_levelComplete;
 
     ToolbarGame m_Toolbar;
     std::vector<sf::Texture> m_textures;
-  //  std::vector<sf::Vector2f> m_guardsStartingPositions;
+    //  std::vector<sf::Vector2f> m_guardsStartingPositions;
     sf::Vector2f m_robotStartingPosition;
     void resetObjectsLocation();
     sf::View m_view;
