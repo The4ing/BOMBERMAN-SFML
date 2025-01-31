@@ -10,7 +10,7 @@ class Guard;
 
 class Wall : public GameObject {
 public:
-    Wall(const sf::Texture& texture);
+    Wall();
 
     char getSymbol() const override;
     sf::Vector2f getPosition() const override;
@@ -26,6 +26,7 @@ public:
     void handleCollisionWith(Rock& rock) override;
     void handleCollisionWith(Door& door) override;
     void handleCollisionWith(Guard& guard) override;
+    void handleCollisionWith(Present& Present) override;
     void handleCollisionWith(Bomb& Bomb, bool isExploding) override;       // No-op for Bomb
 
     void setScale(float scaleX, float scaleY);
