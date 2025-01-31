@@ -21,19 +21,25 @@ public:
     void handleCollisionWith(Rock& rock) override;
     void handleCollisionWith(Door& door) override;
     void handleCollisionWith(Guard& guard) override;
+    void handleCollisionWith(Present& Present) override;
     void handleCollisionWith(Bomb&, bool isExploding) override;        // No-op for Bomb
+
     void setScale(float scaleX, float scaleY) override;
     void setPlayerPosition(const sf::Vector2f& playerPos);
-    void revertPosition();
+    
     void setStartingPosition(float newX, float newY) override;
     sf::Vector2f getStartingPosition() override;
 
     sf::CircleShape getCollisionShape() const override;
-   // bool isBlocked(float newX, float newY);
+    // bool isBlocked(float newX, float newY);
     void setVelocity(Direction dir);
     void moveInAnyAvailableDirection();
 
+
 private:
+
+    void revertPosition();
+
     sf::Vector2f m_playerPosition; // Target player position
     sf::Vector2f m_velocity;
     sf::Clock m_directionChangeClock;
@@ -52,7 +58,7 @@ private:
     float m_frameHeight;
     bool m_collisionDetected;
 
-    sf::Texture m_texture;
+   // sf::Texture m_texture;
     sf::Sprite m_sprite;
     sf::Vector2f m_startingPosition;
     void calculateVelocity();  // Move toward player
