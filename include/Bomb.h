@@ -1,7 +1,7 @@
 #pragma once
 #include "MovingGameObject.h"
 #include <SFML/Graphics.hpp>
-#include "Utilities.h" 
+//#include "Utilities.h" 
 #include <chrono>
 #include <optional> // To handle the optional explosion time
 
@@ -11,22 +11,23 @@ class Bomb : public MovingGameObject {
 public:
 
 
-    Bomb(const sf::Texture& texture);
+    Bomb();
     sf::FloatRect getBoundingBox() const override { return m_sprite.getGlobalBounds(); }
     char getSymbol() const override { return 'B'; }
-  //  sf::Vector2f getPosition() const override { return m_sprite.getPosition(); }
+    //  sf::Vector2f getPosition() const override { return m_sprite.getPosition(); }
     void setPosition(float newX, float newY) override;
     void update(const float deltaTime) override;
     void draw(sf::RenderWindow& window) const override;
     sf::Vector2f getPosition() const override;
 
     void handleCollision(GameObject& other) override; // Double dispatch entry point
-    void handleCollisionWith(Robot& robot) override; // Handle collision with a Robot
-    void handleCollisionWith(Wall&) override;        // No-op for Wall
-    void handleCollisionWith(Rock&) override;        // No-op for another Rock
-    void handleCollisionWith(Door&) override;        // No-op for Door
-    void handleCollisionWith(Guard&) override;       // No-op for Guard
-    void handleCollisionWith(Bomb&, bool isExploding) override;        // No-op for Bomb
+    void handleCollisionWith(Robot& robot) override {} // Handle collision with a Robot
+    void handleCollisionWith(Wall&) override {}        // No-op for Wall
+    void handleCollisionWith(Rock&) override {}        // No-op for another Rock
+    void handleCollisionWith(Door&) override {}       // No-op for Door
+    void handleCollisionWith(Guard&) override {}       // No-op for Guard
+    void handleCollisionWith(Present&) override {}
+    void handleCollisionWith(Bomb&, bool isExploding) override {}       // No-op for Bomb
 
     std::vector<sf::FloatRect> getExplosionPlusShapeBounds() const;
 
@@ -37,7 +38,7 @@ public:
     void markForRemoval();
 
 private:
-    sf::Texture m_explodedTexture;
+   // sf::Texture m_explodedTexture;
     sf::Sprite m_sprite;
     void SetXplode();
     bool m_exploded;
