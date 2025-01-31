@@ -9,26 +9,31 @@ SmartGuard::SmartGuard()
     m_frameWidth(127.5f), // Frame width based on your sprite sheet
     m_frameHeight(163.3f) // Frame height based on your sprite sheet
 {
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+
+
     // Load the sprite sheet
-    if (!m_texture.loadFromFile("smartGuardSprite.png")) {
+   /* if (!m_texture.loadFromFile("smartGuardSprite.png")) {
         std::cerr << "Failed to load guard sprite sheet" << std::endl;
-    }
+    }*/
 
     // Setup the sprite
-    m_sprite.setTexture(m_texture);
+    m_sprite.setTexture(resourceManager.getTexture("smartGuardSprite.png"));
     m_sprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
-   // m_sprite.setScale(1.f, 1.f); // Scale as needed
+    // m_sprite.setScale(1.f, 1.f); // Scale as needed
 
-    // Randomize initial behavior
+     // Randomize initial behavior
     randomizeBehavior();
 }
 
 void SmartGuard::setPosition(float newX, float newY) {
     m_sprite.setPosition(newX, newY);
 }
+
 void SmartGuard::setStartingPosition(float newX, float newY) {
     m_startingPosition = sf::Vector2f(newX, newY);
 }
+
 sf::Vector2f SmartGuard::getStartingPosition() {
     return m_startingPosition;
 }
@@ -83,8 +88,6 @@ void SmartGuard::calculateVelocity() {
     setVelocity(preferredDirection);
 }
 
-
-
 void SmartGuard::updateAnimation() {
     // Advance the animation frame every 100ms
     if (m_animationClock.getElapsedTime() >= sf::milliseconds(100)) {
@@ -113,16 +116,32 @@ void SmartGuard::updateAnimation() {
 }
 
 
+void SmartGuard::update(float deltaTime) {
+    m_previousPosition = m_sprite.getPosition();
+
+    calculateVelocity();
+    m_sprite.move(m_velocity * deltaTime);
+
+    updateAnimation();
+
+    if (m_directionChangeClock.getElapsedTime() >= m_randomChangeInterval) {
+        randomizeBehavior();
+        m_directionChangeClock.restart();
+    }
+}
+
+
+
 void SmartGuard::handleCollision(GameObject& other) {
     other.handleCollisionWith(*this);
 }
 
 void SmartGuard::handleCollisionWith(Robot& robot) {
-    std::cout << "SmartGuard collided with Robot: Initiate chase logic!\n";
+    //  std::cout << "SmartGuard collided with Robot: Initiate chase logic!\n";
 }
 
 void SmartGuard::handleCollisionWith(Wall&) {
-    std::cout << "SmartGuard hit a wall! Changing direction.\n";
+  //  std::cout << "SmartGuard hit a wall! Changing direction.\n";
 
     if (m_velocity.x != 0 || m_velocity.y != 0) {
         // First, switch to alternate direction
@@ -144,9 +163,9 @@ void SmartGuard::handleCollisionWith(Door&) {
 }
 
 void SmartGuard::handleCollisionWith(Bomb&, bool isExploding) {
-    std::cout << "SmartGuard collided with Bomb: Reverting position and avoiding bomb.\n";
+    // std::cout << "SmartGuard collided with Bomb: Reverting position and avoiding bomb.\n";
 
-    // Revert position
+     // Revert position
     revertPosition();
 
     // Adjust velocity to move away from the bomb
@@ -155,8 +174,13 @@ void SmartGuard::handleCollisionWith(Bomb&, bool isExploding) {
 }
 
 void SmartGuard::handleCollisionWith(Guard&) {
-    std::cout << "SmartGuard collided with another Guard.\n";
+  //  std::cout << "SmartGuard collided with another Guard.\n";
     m_velocity = sf::Vector2f(0.f, 0.f);
+}
+
+void SmartGuard::handleCollisionWith(Present& Present)
+{
+    //  activate the present
 }
 
 sf::FloatRect SmartGuard::getBoundingBox() const {
@@ -173,14 +197,14 @@ void SmartGuard::revertPosition() {
 
 sf::CircleShape SmartGuard::getCollisionShape() const {
     sf::CircleShape collisionShape;
-    float radius = m_frameWidth / 6;  // Adjust the radius
+    float radius = m_frameWidth / 4;  // Adjust the radius
     collisionShape.setRadius(radius);
     collisionShape.setOrigin(radius, radius);  // Center the circle
 
     // Position the circle
     collisionShape.setPosition(
-        m_sprite.getPosition().x + m_frameWidth / 2 - (3*CIRCLRE_OFFSET),
-        m_sprite.getPosition().y + m_frameHeight / 2 - (3*CIRCLRE_OFFSET)
+        m_sprite.getPosition().x + m_frameWidth / 2 - CIRCLRE_OFFSET,
+        m_sprite.getPosition().y + m_frameHeight / 2 - CIRCLRE_OFFSET
     );
 
     return collisionShape;
@@ -195,19 +219,6 @@ void SmartGuard::setVelocity(Direction dir) {
     }
 }
 
-void SmartGuard::update(float deltaTime) {
-    m_previousPosition = m_sprite.getPosition();
-
-    calculateVelocity();
-    m_sprite.move(m_velocity * deltaTime);
-
-    updateAnimation();
-
-    if (m_directionChangeClock.getElapsedTime() >= m_randomChangeInterval) {
-        randomizeBehavior();
-        m_directionChangeClock.restart();
-    }
-}
 
 void SmartGuard::moveInAnyAvailableDirection() {
     std::vector<Direction> possibleDirections = { UP, DOWN, LEFT, RIGHT };
