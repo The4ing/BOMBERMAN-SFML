@@ -11,12 +11,15 @@ const float GUARD_CHANGE_INTERVAL = 2.f;  // Interval to change direction
 StupidGuard::StupidGuard()
     : m_randomChangeInterval(sf::seconds(GUARD_CHANGE_INTERVAL)), m_animationFrame(0), m_previousPosition(0.f, 0.f) {
     // Load sprite sheet
-    if (!m_texture.loadFromFile("scary_guard_spritesheet.png")) {
+   /* if (!m_texture.loadFromFile("scary_guard_spritesheet.png")) {
         std::cerr << "Failed to load guard spritesheet" << std::endl;
-    }
+    }*/
+
+
+    ResourceManager& resourceManager = ResourceManager::getInstance();
 
     // Set up the sprite
-    m_sprite.setTexture(m_texture);
+    m_sprite.setTexture(resourceManager.getTexture("scary_guard_spritesheet.png"));
 
     // Calculate frame dimensions
     m_frameWidth = 127.5f;
@@ -24,9 +27,9 @@ StupidGuard::StupidGuard()
 
     // Set the initial texture rectangle (first frame of the first row)
     m_sprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
-   // m_sprite.setOrigin(m_frameWidth / 2, m_frameHeight / 2);
+    // m_sprite.setOrigin(m_frameWidth / 2, m_frameHeight / 2);
 
-    // Initialize random direction
+     // Initialize random direction
     changeDirection();
 }
 
@@ -98,15 +101,15 @@ void StupidGuard::update(float deltaTime) {
     }
     else if (m_direction == LEFT) {
         textureY = m_frameHeight;
-      //  m_sprite.setOrigin(0.f, 0.f);
+        //  m_sprite.setOrigin(0.f, 0.f);
     }
     else if (m_direction == RIGHT) {
         textureY = m_frameHeight;
-       // m_sprite.setOrigin(m_frameWidth, 0.f);
+        // m_sprite.setOrigin(m_frameWidth, 0.f);
     }
     else if (m_direction == UP) {
         textureY = m_frameHeight * 2;
-       // m_sprite.setOrigin(0.f, 0.f);
+        // m_sprite.setOrigin(0.f, 0.f);
     }
 
     m_sprite.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
@@ -135,27 +138,31 @@ sf::FloatRect StupidGuard::getBoundingBox() const {
 
 void StupidGuard::handleCollisionWith(Wall& wall) {
 
-        revertPosition();
+    revertPosition();
 }
 
 void StupidGuard::handleCollisionWith(Rock& rock) {
 
-        revertPosition();
+    revertPosition();
 }
 
 void StupidGuard::handleCollisionWith(Door&) {
-    std::cout << "StupidGuard collided with Door.\n";
+    // std::cout << "StupidGuard collided with Door.\n";
 }
 void StupidGuard::handleCollisionWith(Robot&) {
-    std::cout << "StupidGuard collided with Door.\n";
+    //std::cout << "StupidGuard collided with Door.\n";
 }
 
 
 void StupidGuard::handleCollisionWith(Guard&) {
-    std::cout << "StupidGuard collided with another Guard.\n";
+    //std::cout << "StupidGuard collided with another Guard.\n";
+}
+void StupidGuard::handleCollisionWith(Present& Present)
+{
+    //do nothing 
 }
 void StupidGuard::handleCollisionWith(Bomb&, bool isExploding) {
-      revertPosition();
+    revertPosition();
 }
 
 void StupidGuard::revertPosition() {
@@ -170,14 +177,12 @@ sf::CircleShape StupidGuard::getCollisionShape() const {
     sf::CircleShape collisionEllipse;
     float radiusX = m_frameWidth / 4;  // Horizontal radius (adjust as needed)
     float radiusY = m_frameHeight / 6; // Vertical radius (adjust as needed)
-
     collisionEllipse.setRadius(radiusX);  // Base radius (use the larger dimension)
     // Scale it horizontally to form an ellipse
     float horizontalScale = 0.7f;  // Adjust this value for width
     float verticalScale = 1.f;    // Keep this 1.0 to maintain original height
     collisionEllipse.setScale(horizontalScale, verticalScale);
-
-  //  collisionEllipse.setOrigin(radiusX, radiusX);  // Origin remains at center
+    //  collisionEllipse.setOrigin(radiusX, radiusX);  // Origin remains at center
     collisionEllipse.setPosition(
         m_sprite.getPosition().x + m_frameWidth / 2 - (5 * CIRCLRE_OFFSET),
         m_sprite.getPosition().y + m_frameHeight / 2 - (6 * CIRCLRE_OFFSET)
@@ -185,8 +190,6 @@ sf::CircleShape StupidGuard::getCollisionShape() const {
 
     return collisionEllipse;
 }
-
-
 void StupidGuard::setStartingPosition(float newX, float newY) {
     m_startingPosition = sf::Vector2f(newX, newY);
 }
