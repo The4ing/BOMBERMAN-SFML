@@ -5,12 +5,11 @@ const int CIRCLRE_OFFSET = 10;
 class Guard : public MovingGameObject {
 protected:
     // Shared attributes and behavior for all guards
-    int guardID;
-    float detectionRange;
+   
     sf::Vector2f m_startingPosition;
 
 public:
-    Guard() : guardID(0), detectionRange(100.0f) {}
+    Guard() {}
     virtual void setStartingPosition(float newX, float newY) {
 		m_startingPosition.x = newX;
 		m_startingPosition.y = newY;
@@ -22,6 +21,8 @@ public:
     //    m_direction.x = -m_direction.x; // Reverse X direction
     //    m_direction.y = -m_direction.y; // Reverse Y direction
     //}
+
+    
 
 };
 
