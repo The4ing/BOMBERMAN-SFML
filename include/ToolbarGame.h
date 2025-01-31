@@ -8,33 +8,7 @@
 #include "ResourceManager.h"
 
 
-const int NUM_HEART = 3;
-const int MAX_TIME = 100;
 
-enum toolbarObjects {
-
-    HEART,
-    TIMER,
-    SIZE_TOOLBAR,
-    /*CLOCK,
-    ARROW,*/
-    // BAR,
-    // TIMERTEXT,
-};
-
-enum objects {
-    WALL,
-    ROCK,
-    ROBOT,
-    GUARD,
-    DOOR,
-    EMPTY,
-    BOMB,
-    PRESENT,
-    TEXTURE_COUNT,
-
-
-};
 class ToolbarGame {
 
 public:
