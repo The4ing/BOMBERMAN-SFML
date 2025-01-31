@@ -10,7 +10,7 @@ class Guard;
 
 class Door : public GameObject {
 public:
-    explicit Door(const sf::Texture& texture); // Constructor to initialize the door with a texture
+    explicit Door(); // Constructor to initialize the door with a texture
 
     char getSymbol() const override;  // Returns 'D' to represent a door
     sf::Vector2f getPosition() const override; // Gets the door's position
@@ -24,6 +24,7 @@ public:
     void handleCollisionWith(Rock&) override;        // No-op for Rock
     void handleCollisionWith(Door&) override;        // No-op for another Door
     void handleCollisionWith(Guard&) override;       // No-op for Guard
+    void handleCollisionWith(Present& Present) override;
     void handleCollisionWith(Bomb&, bool isExploding) override;        // No-op for Bomb
     void setScale(float scaleX, float scaleY);
 
