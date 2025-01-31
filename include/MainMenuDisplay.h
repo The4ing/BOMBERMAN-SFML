@@ -4,6 +4,10 @@
 #include <SFML/Audio.hpp>
 #include <string>
 #include <vector>
+#include "ResourceManager.h"
+
+
+
 
 const int START_GAME = 1;
 
@@ -27,13 +31,13 @@ private:
     int m_game;                   // Game reference
 
     // Backgrounds
-    sf::Texture m_mainBackgroundTexture;
+   // sf::Texture m_mainBackgroundTexture;
     sf::Sprite m_mainBackgroundSprite;
-    sf::Texture m_helpBackgroundTexture;
+    //sf::Texture m_helpBackgroundTexture;
     sf::Sprite m_helpBackgroundSprite;
 
     // Fonts and text
-    sf::Font m_font;
+   // sf::Font m_font;
     sf::Text m_startButton;
     sf::Text m_helpButton;
     sf::Text m_exitButton;
