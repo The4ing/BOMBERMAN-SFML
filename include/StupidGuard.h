@@ -23,7 +23,9 @@ public:
     void handleCollisionWith(Rock& rock) override;
     void handleCollisionWith(Door& door) override;
     void handleCollisionWith(Guard& guard) override;
+    void handleCollisionWith(Present& Present) override;
     void handleCollisionWith(Bomb&, bool isExploding) override;        // No-op for Bomb
+
     void setScale(float scaleX, float scaleY) override;
     sf::CircleShape getCollisionShape() const override;
     void setStartingPosition(float newX, float newY) override;
@@ -33,7 +35,8 @@ private:
     void changeDirection();
     void revertPosition();
     // Animation-related members
-    sf::Texture m_texture;          // Texture for the guard's sprite
+   // sf::Texture m_texture;          // Texture for the guard's sprite
+
     sf::Sprite m_sprite;            // Sprite for the guard
     int m_frameWidth;               // Width of a single frame
     int m_frameHeight;              // Height of a single frame
