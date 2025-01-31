@@ -1,8 +1,9 @@
 #include "Door.h"
 #include <iostream>
 
-Door::Door(const sf::Texture& texture) {
-    m_sprite.setTexture(texture); // Assign the texture to the sprite
+Door::Door() {
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+    m_sprite.setTexture(resourceManager.getTexture("door.png")); // Assign the texture to the sprite
 }
 
 char Door::getSymbol() const {
@@ -55,6 +56,10 @@ void Door::handleCollisionWith(Door&) {
 
 void Door::handleCollisionWith(Guard&) {
     // No-op: Doors don't react to Guards
+}
+void Door::handleCollisionWith(Present& Present)
+{
+    //do nothing 
 }
 void Door::handleCollisionWith(Bomb&, bool isExploding) {
     // No-op: Rocks don't react to Guards
