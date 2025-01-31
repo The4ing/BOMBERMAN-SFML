@@ -1,9 +1,8 @@
-
 #include "Board.h"
 
 
 Board::Board()
-    : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false),m_pause(false), m_pausedByHit(false), m_levelComplete (false), m_lives(0), m_pauseDuration(2) {
+    : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_pause(false), m_pausedByHit(false), m_levelComplete(false), m_lives(0), m_pauseDuration(2) {
     m_robot = std::make_unique<Robot>();
     loadTextures();
     srand(static_cast<unsigned int>(time(0)));
@@ -43,7 +42,7 @@ bool Board::loadFromFile(const std::string& fileName) {
             sf::Vector2f position(j * m_cellSize.x, i * m_cellSize.y + TOOLBAR_HEIGHT); // Offset by toolbar height
             switch (symbol) {
             case '#': {
-                auto wall = std::make_unique<Wall>(GetTexture(WALL));
+                auto wall = std::make_unique<Wall>();
                 wall->setPosition(position.x, position.y);
                 wall->setScale(scaleX, scaleY); // Ensure consistent scaling
                 m_objects.push_back(std::move(wall));
@@ -80,22 +79,51 @@ bool Board::loadFromFile(const std::string& fileName) {
 
 
             case '@': {
-                auto rock = std::make_unique<Rock>(GetTexture(ROCK));
+                auto rock = std::make_unique<Rock>();
                 rock->setPosition(position.x, position.y);
                 rock->setScale(scaleX, scaleY); // Ensure consistent scaling
                 m_objects.push_back(std::move(rock));
                 break;
             }
             case 'D': {
-                auto door = std::make_unique<Door>(GetTexture(DOOR));
+                auto door = std::make_unique<Door>();
                 door->setPosition(position.x, position.y);
                 door->setScale(scaleX, scaleY); // Ensure consistent scaling
                 m_objects.push_back(std::move(door));
                 break;
             }
+            case ' ': {  // Randomly place presents
+                int random = rand() % 4; // Random number to decide which present type
+                int randomPlace = rand() % 5;
+                std::unique_ptr<Present> present;
+                if (Present::getPresentCount() < 5 && randomPlace == 1) {
+
+                    switch (random) {
+                    case 0:
+                        present = std::make_unique<FreezeGuard>();
+                        break;
+                    case 1:
+                        present = std::make_unique<ExtraLife>();
+                        break;
+                    case 2:
+                        present = std::make_unique<RemovedGuard>();
+                        break;
+                    case 3:
+                        present = std::make_unique<IncreaseTime>();
+                        break;
+                    }
+                    if (present) {  // Ensure present was created before adding it
+                        present->setPosition(position.x, position.y);
+                        present->setScale(scaleX, scaleY);
+                        m_objects.push_back(std::move(present));
+                    }
+                }
+                break;
+            }
             default:
                 break;
             }
+
         }
     }
     return true;
@@ -117,29 +145,58 @@ bool Board::setSmartGuard(int level) {
 }
 
 
-void Board::PowerUp(const powerUps choice) {
+void Board::PowerUp(const char choice) {
     switch (choice) {
-    case FreezeGuards:
-        // FreezeAllGuards(true);
-        std::cout << "All guards have been frozen!" << std::endl;
+        // 🧊 Freeze All Guards for 10 Seconds
+    case 'F':
+        for (const auto& obj : m_movingObjects) {
+            if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
+                //  guard->setFrozen(true);  // Freeze guard
+            }
+        }
+
+        // Create a thread to unfreeze guards after 10 seconds
+        //std::thread([this]() {
+        //    std::this_thread::sleep_for(std::chrono::seconds(10));
+        //    for (const auto& obj : m_movingObjects) {
+        //        if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
+        //            guard->setFrozen(false);  // Unfreeze guard
+        //        }
+        // }
+        //}).detach();  // Detach the thread to avoid blocking
+
+        std::cout << "All guards frozen for 10 seconds!" << std::endl;
         break;
-    case ExtraLife:
-        GrantExtraLife();
-        std::cout << "An extra life has been granted!" << std::endl;
+
+
+    case 'L':
+        m_Toolbar.IncreaseHeart();  // Assuming a function to add lives
+        std::cout << "Extra life granted!" << std::endl;
         break;
-    case RemovedGuard:
-        // Implement logic to remove a guard
-        std::cout << "A guard has been removed!" << std::endl;
+
+
+    case 'R':
+        for (auto it = m_movingObjects.begin(); it != m_movingObjects.end(); ++it) {
+            if (dynamic_cast<Guard*>(it->get())) {
+                m_movingObjects.erase(it);
+                std::cout << "A guard has been removed!" << std::endl;
+                break;  // Remove only one guard
+            }
+        }
         break;
-    case TimeIncrease:
+
+        // ⏳ Increase Time
+    case 'T':
         m_Toolbar.IncreaseTime(30);
-        std::cout << "Time has been increased!" << std::endl;
+        std::cout << "Time increased by 30 seconds!" << std::endl;
         break;
+
     default:
         std::cout << "Invalid power-up choice!" << std::endl;
         break;
     }
 }
+
 
 //void Board::FreezeAllGuards(const bool status) {
 //    m_FreezeGuardsStatus = status;
@@ -150,9 +207,7 @@ void Board::PowerUp(const powerUps choice) {
 //    }
 //}
 
-void Board::GrantExtraLife() {
-    m_lives++;
-}
+//
 
 const sf::Texture& Board::GetTexture(const int choice) const {
     return m_textures[choice];
@@ -187,6 +242,7 @@ void Board::loadTextures() {
         {DOOR, "door.png"},
         {EMPTY, "empty.png"},
         {BOMB, "bomb.png"},
+        {PRESENT,"present.png"},
     };
 
     for (const auto& [index, filename] : textureFiles) {
@@ -323,119 +379,78 @@ void Board::handleMouseClick(sf::RenderWindow& window, const sf::Vector2i& mouse
 
 void Board::handleCollisions() {
     sf::CircleShape robotShape = m_robot->getCollisionShape();
-
-    // Track objects to remove
     std::vector<MovingGameObject*> movingObjectsToRemove;
     std::vector<GameObject*> staticObjectsToRemove;
 
-    // Check collisions between the robot and static objects
-    for (const auto& staticObject : m_objects) {
-        if (robotShape.getGlobalBounds().intersects(staticObject->getBoundingBox())) {
-            m_robot->handleCollision(*staticObject);
-            staticObject->handleCollision(*m_robot);
+    // Check collisions between the robot and objects
+    for (const auto& obj : m_objects) {
+        if (robotShape.getGlobalBounds().intersects(obj->getBoundingBox())) {
+            m_robot->handleCollision(*obj);
+            obj->handleCollision(*m_robot);
+
+            //  Handle presents: Apply power-up before removing
+            if (auto* present = dynamic_cast<Present*>(obj.get())) {
+                PowerUp(present->getSymbol());
+                staticObjectsToRemove.push_back(obj.get());
+            }
         }
     }
 
     // Check collisions between the robot and moving objects
-    for (const auto& movingObject : m_movingObjects) {
-        const sf::Shape& movingShape = movingObject->getCollisionShape();
-
+    for (const auto& obj : m_movingObjects) {
+        const sf::Shape& movingShape = obj->getCollisionShape();
         if (robotShape.getGlobalBounds().intersects(movingShape.getGlobalBounds())) {
-            m_robot->handleCollision(*movingObject);
-            movingObject->handleCollision(*m_robot);
+            m_robot->handleCollision(*obj);
+            obj->handleCollision(*m_robot);
         }
 
-        // Handle bomb explosions
-       // Handle bomb explosions
-        auto* bomb = dynamic_cast<Bomb*>(movingObject.get());
-        if (bomb && bomb->CheckBombExplode()) {
-            std::vector<sf::FloatRect> explosionBounds = bomb->getExplosionPlusShapeBounds();
+        // 💣 Handle bomb explosions
+        if (auto* bomb = dynamic_cast<Bomb*>(obj.get()); bomb && bomb->CheckBombExplode()) {
+            for (const auto& rect : bomb->getExplosionPlusShapeBounds()) {
+                for (const auto& staticObj : m_objects)
+                    if (dynamic_cast<Rock*>(staticObj.get()) && rect.intersects(staticObj->getBoundingBox()))
+                        staticObjectsToRemove.push_back(staticObj.get());
 
-            // Check if the robot is hit by the explosion
-            sf::FloatRect robotBounds = m_robot->getCollisionShape().getGlobalBounds();
-            for (const auto& rect : explosionBounds) {
-                if (rect.intersects(robotBounds)) {
-                    std::cout << "Robot was hit by an explosion!" << std::endl;
-                    m_robot->setHitStatus(true);
-                    break;
-                }
-            }
-
-            // Mark static objects (like rocks) for removal, excluding walls and doors
-            for (const auto& obj : m_objects) {
-                if (dynamic_cast<Rock*>(obj.get())) {
-                    for (const auto& rect : explosionBounds) {
-                        if (rect.intersects(obj->getBoundingBox())) {
-                            bomb->handleCollision(*obj);
-                            staticObjectsToRemove.push_back(obj.get());
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // Mark moving objects (like guards) for removal
-            for (const auto& obj : m_movingObjects) {
-                if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
-                    const sf::Shape& objShape = obj->getCollisionShape();
-                    for (const auto& rect : explosionBounds) {
-                        if (rect.intersects(objShape.getGlobalBounds())) {
-                            bomb->handleCollision(*obj);
-                            movingObjectsToRemove.push_back(obj.get());
-                            break;
-                        }
-                    }
-                }
+                for (const auto& movingObj : m_movingObjects)
+                    if (dynamic_cast<Guard*>(movingObj.get()) && rect.intersects(movingObj->getCollisionShape().getGlobalBounds()))
+                        movingObjectsToRemove.push_back(movingObj.get());
             }
         }
 
-
-        // Check collisions between moving objects and static objects
-        for (const auto& staticObject : m_objects) {
-            if (movingShape.getGlobalBounds().intersects(staticObject->getBoundingBox())) {
-                movingObject->handleCollision(*staticObject);
-                staticObject->handleCollision(*movingObject);
+        // Check collisions between moving and static objects
+        for (const auto& staticObj : m_objects)
+            if (movingShape.getGlobalBounds().intersects(staticObj->getBoundingBox())) {
+                obj->handleCollision(*staticObj);
+                staticObj->handleCollision(*obj);
             }
-        }
     }
 
     // Check collisions between moving objects
-    for (size_t i = 0; i < m_movingObjects.size(); ++i) {
-        for (size_t j = i + 1; j < m_movingObjects.size(); ++j) { // Avoid duplicate checks
-            const sf::Shape& shape1 = m_movingObjects[i]->getCollisionShape();
-            const sf::Shape& shape2 = m_movingObjects[j]->getCollisionShape();
-
-            if (shape1.getGlobalBounds().intersects(shape2.getGlobalBounds())) {
+    for (size_t i = 0; i < m_movingObjects.size(); ++i)
+        for (size_t j = i + 1; j < m_movingObjects.size(); ++j)
+            if (m_movingObjects[i]->getCollisionShape().getGlobalBounds().intersects(m_movingObjects[j]->getCollisionShape().getGlobalBounds())) {
                 m_movingObjects[i]->handleCollision(*m_movingObjects[j]);
                 m_movingObjects[j]->handleCollision(*m_movingObjects[i]);
             }
-        }
-    }
 
-    // Remove marked static objects
-    m_objects.erase(
-        std::remove_if(m_objects.begin(), m_objects.end(),
-            [&staticObjectsToRemove](const std::unique_ptr<GameObject>& obj) {
-                return std::find(staticObjectsToRemove.begin(), staticObjectsToRemove.end(), obj.get()) != staticObjectsToRemove.end();
-            }),
-        m_objects.end()
-    );
+    // Remove marked objects
+    m_objects.erase(std::remove_if(m_objects.begin(), m_objects.end(),
+        [&staticObjectsToRemove](const std::unique_ptr<GameObject>& obj) {
+            return std::find(staticObjectsToRemove.begin(), staticObjectsToRemove.end(), obj.get()) != staticObjectsToRemove.end();
+        }), m_objects.end());
 
-    // Remove marked moving objects
-    m_movingObjects.erase(
-        std::remove_if(m_movingObjects.begin(), m_movingObjects.end(),
-            [&movingObjectsToRemove](const std::unique_ptr<MovingGameObject>& obj) {
-                return std::find(movingObjectsToRemove.begin(), movingObjectsToRemove.end(), obj.get()) != movingObjectsToRemove.end();
-            }),
-        m_movingObjects.end()
-    );
+    m_movingObjects.erase(std::remove_if(m_movingObjects.begin(), m_movingObjects.end(),
+        [&movingObjectsToRemove](const std::unique_ptr<MovingGameObject>& obj) {
+            return std::find(movingObjectsToRemove.begin(), movingObjectsToRemove.end(), obj.get()) != movingObjectsToRemove.end();
+        }), m_movingObjects.end());
 }
 
 
 
 
+
 void Board::GenerateBomb() {
-    auto bomb = std::make_unique<Bomb>(GetTexture(BOMB));
+    auto bomb = std::make_unique<Bomb>();
     sf::Vector2f robotPos = m_robot->getPosition();
     bomb->setPosition(robotPos.x, robotPos.y);
 
