@@ -1,12 +1,15 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "Utilities.h"
+//#include "Utilities.h"
+#include "ResourceManager.h"
+
 class Robot;
 class Wall;
 class Rock;
 class Door;
 class Guard;
 class Bomb;
+class Present;
 
 class GameObject {
 public:
@@ -27,5 +30,6 @@ public:
     virtual void handleCollisionWith(Rock&) = 0;
     virtual void handleCollisionWith(Door&) = 0;
     virtual void handleCollisionWith(Guard&) = 0;
+    virtual void handleCollisionWith(Present&) = 0;
     virtual void handleCollisionWith(Bomb&, bool isExploding) = 0; // Add this!
 };
