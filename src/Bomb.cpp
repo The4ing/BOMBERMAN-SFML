@@ -2,9 +2,11 @@
 #include <iostream>
 
 // Constructor
-Bomb::Bomb(const sf::Texture& texture)
+Bomb::Bomb()
     : m_startTime(std::chrono::steady_clock::now()), m_exploded(false) {
-    m_sprite.setTexture(texture);
+
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+    m_sprite.setTexture(resourceManager.getTexture("bomb.png"));
 }
 
 // Draw function
@@ -109,8 +111,9 @@ const bool Bomb::CanBeRemoved() const {
     }
 
     auto elapsed = std::chrono::steady_clock::now() - m_explosionTime.value();
-    return std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() >= 2;
+    return std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() >= EXPLOSION_DURATION;
 }
+
 
 // Mark bomb for removal
 void Bomb::markForRemoval() {
@@ -118,14 +121,14 @@ void Bomb::markForRemoval() {
     m_explosionTime.reset();
 }
 
-// Get explosion area
+// Get the explosion area
 sf::FloatRect Bomb::getExplosionArea() const {
     if (!m_exploded) {
         return {};
     }
 
     sf::FloatRect explosionBounds = m_sprite.getGlobalBounds();
-    float explosionRadius = explosionBounds.width * 1.5f;
+    float explosionRadius = explosionBounds.width * 1.5f; // Adjust explosion size if necessary
 
     return sf::FloatRect(
         explosionBounds.left - (explosionRadius / 2),
@@ -135,20 +138,13 @@ sf::FloatRect Bomb::getExplosionArea() const {
     );
 }
 
-// Collision handling
 void Bomb::handleCollision(GameObject& other) {
-    other.handleCollisionWith(*this, m_exploded);
+    other.handleCollisionWith(*this, m_exploded); // Delegate collision handling to the other object
 }
 
-// Preserve all existing collision handlers
-void Bomb::handleCollisionWith(Robot&) {}
-void Bomb::handleCollisionWith(Wall&) {}
-void Bomb::handleCollisionWith(Rock&) {}
-void Bomb::handleCollisionWith(Door&) {}
-void Bomb::handleCollisionWith(Guard&) {}
-void Bomb::handleCollisionWith(Bomb&, bool isExploding) {}
 
-// Get bomb collision shape
+
+
 sf::CircleShape Bomb::getCollisionShape() const {
     sf::CircleShape collisionCircle;
     collisionCircle.setRadius(30.f);
@@ -159,6 +155,8 @@ sf::CircleShape Bomb::getCollisionShape() const {
         m_sprite.getPosition().y + 30 / 2 - 5);
     return collisionCircle;
 }
+
+
 
 // Get explosion bounds
 std::vector<sf::FloatRect> Bomb::getExplosionPlusShapeBounds() const {
