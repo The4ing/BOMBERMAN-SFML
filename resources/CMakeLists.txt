@@ -30,4 +30,8 @@ configure_file ("unmute.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("bomb.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("bombXPLD.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("explosion.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("lost_life_screen.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("timer.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("present.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("digit.ttf" ${CMAKE_BINARY_DIR} COPYONLY)
  
