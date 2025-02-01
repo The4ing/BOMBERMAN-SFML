@@ -2,9 +2,9 @@
 
 
 Board::Board()
-    : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_pause(false), m_pausedByHit(false), m_levelComplete(false), m_lives(0), m_pauseDuration(2) {
+    : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_pause(false), m_pausedByHit(false), m_levelComplete(false), m_lives(3), m_pauseDuration(2) {
     m_robot = std::make_unique<Robot>();
-    loadTextures();
+    //loadTextures();
     srand(static_cast<unsigned int>(time(0)));
 }
 
@@ -209,9 +209,9 @@ void Board::PowerUp(const char choice) {
 
 //
 
-const sf::Texture& Board::GetTexture(const int choice) const {
-    return m_textures[choice];
-}
+//const sf::Texture& Board::GetTexture(const int choice) const {
+//    return m_textures[choice];
+//}
 
 void Board::callUpdateToolbar(const float deltatime) {
     m_Toolbar.callUpdateToolbar(deltatime);
@@ -233,24 +233,24 @@ void Board::SetSprite(sf::Sprite& picture, const float POSx, const float POSy, c
 
 
 
-void Board::loadTextures() {
-    m_textures.resize(TEXTURE_COUNT);
-    const std::map<int, std::string> textureFiles = {
-        {WALL, "wall.png"},
-        {ROCK, "rock.png"},
-        {GUARD, "guard.png"},
-        {DOOR, "door.png"},
-        {EMPTY, "empty.png"},
-        {BOMB, "bomb.png"},
-        {PRESENT,"present.png"},
-    };
-
-    for (const auto& [index, filename] : textureFiles) {
-        if (!m_textures[index].loadFromFile(filename)) {
-            std::cerr << "Error: Could not load texture file " << filename << std::endl;
-        }
-    }
-}
+//void Board::loadTextures() {
+//    m_textures.resize(TEXTURE_COUNT);
+//    const std::map<int, std::string> textureFiles = {
+//        {WALL, "wall.png"},
+//        {ROCK, "rock.png"},
+//        {GUARD, "guard.png"},
+//        {DOOR, "door.png"},
+//        {EMPTY, "empty.png"},
+//        {BOMB, "bomb.png"},
+//        {PRESENT,"present.png"},
+//    };
+//
+//    for (const auto& [index, filename] : textureFiles) {
+//        if (!m_textures[index].loadFromFile(filename)) {
+//            std::cerr << "Error: Could not load texture file " << filename << std::endl;
+//        }
+//    }
+//}
 
 void Board::display(sf::RenderWindow& window) {
     // Draw the toolbar
@@ -276,6 +276,7 @@ sf::Vector2f Board::getCellSize() const {
 }
 
 int Board::update(float deltaTime) {
+    if (m_lives <= 0) return LOST_GAME;
 
     if (m_pausedByHit) {
         // Wait for 2 seconds before resuming
@@ -285,7 +286,7 @@ int Board::update(float deltaTime) {
             m_Toolbar.IncreaseTime(2);
         }
         else {
-            return 0;  // Skip updates while paused
+            return PLAYING;  // Skip updates while paused
         }
     }
 
@@ -298,10 +299,10 @@ int Board::update(float deltaTime) {
         // Ensure the robot's hit state resets after handling
         m_robot->update(deltaTime);
 
-        return 1;
+        return LOST_LIFE;
     }
 
-    if (m_pause) return 0;  // Stop updates if paused
+    if (m_pause) return PLAYING;  // Stop updates if paused
 
     // Normal game update logic
         // Check if 'B' key is pressed to generate a bomb
@@ -330,7 +331,7 @@ int Board::update(float deltaTime) {
     handleCollisions();
 
 
-    return 0;
+    return PLAYING;
 }
 
 
@@ -385,13 +386,16 @@ void Board::handleCollisions() {
     // Check collisions between the robot and objects
     for (const auto& obj : m_objects) {
         if (robotShape.getGlobalBounds().intersects(obj->getBoundingBox())) {
-            m_robot->handleCollision(*obj);
-            obj->handleCollision(*m_robot);
-
-            //  Handle presents: Apply power-up before removing
-            if (auto* present = dynamic_cast<Present*>(obj.get())) {
+            if (auto* door = dynamic_cast<Door*>(obj.get())) {
+                m_levelComplete = true;
+            }
+            else if (auto* present = dynamic_cast<Present*>(obj.get())) {
                 PowerUp(present->getSymbol());
                 staticObjectsToRemove.push_back(obj.get());
+            }
+            else {
+                m_robot->handleCollision(*obj);
+                obj->handleCollision(*m_robot);
             }
         }
     }
@@ -404,9 +408,15 @@ void Board::handleCollisions() {
             obj->handleCollision(*m_robot);
         }
 
-        // 💣 Handle bomb explosions
+        // Handle bomb explosions
         if (auto* bomb = dynamic_cast<Bomb*>(obj.get()); bomb && bomb->CheckBombExplode()) {
             for (const auto& rect : bomb->getExplosionPlusShapeBounds()) {
+                // Check if the robot is hit by the explosion
+                if (rect.intersects(robotShape.getGlobalBounds())) {
+                    std::cout << "Robot was hit by an explosion!" << std::endl;
+                    m_robot->setHitStatus(true);
+                }
+
                 for (const auto& staticObj : m_objects)
                     if (dynamic_cast<Rock*>(staticObj.get()) && rect.intersects(staticObj->getBoundingBox()))
                         staticObjectsToRemove.push_back(staticObj.get());
@@ -444,6 +454,7 @@ void Board::handleCollisions() {
             return std::find(movingObjectsToRemove.begin(), movingObjectsToRemove.end(), obj.get()) != movingObjectsToRemove.end();
         }), m_movingObjects.end());
 }
+
 
 
 
@@ -524,6 +535,8 @@ bool Board::isLevelComplete() {
     return false;
 }
 
+
+//todo change this function according to resource manager
 void Board::showTransitionScreen(sf::RenderWindow& window, const std::string& message, sf::Color backgroundColor) {
     // Create overlay
     sf::RectangleShape overlay(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
