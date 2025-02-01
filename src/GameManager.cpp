@@ -15,7 +15,7 @@ GameManager::GameManager()
     m_settingsScreen(&m_window),
     m_currentLevel(1) // Start from Level 1
 {
-    m_board.loadTextures();
+    //m_board.loadTextures();
 }
 
 
@@ -37,7 +37,14 @@ void GameManager::newGame() {
 }
 
 void GameManager::startGame() {
+    sf::Texture lostLifeTexture;
+    if (!lostLifeTexture.loadFromFile("lost_life_screen.png")) {
+        std::cerr << "Error: Failed to load lost_life_screen.png" << std::endl;
+        return;
+    }
+    sf::Sprite lostLifeSprite(lostLifeTexture);
     sf::Clock clock;
+    int gameState = 0;
     bool isWindowFocused = true;
     m_board.startTimer();
     while (m_window.isOpen()) {
@@ -61,8 +68,19 @@ void GameManager::startGame() {
         if (!isWindowFocused) continue; // Skip updates when window is unfocused
 
         sf::Time deltaTime = clock.restart();
-        m_board.update(deltaTime.asSeconds()); // Handles pause & game logic
+        gameState = m_board.update(deltaTime.asSeconds()); // Handles pause & game logic
+        if (gameState == LOST_GAME) break;
+        else if (gameState == WON) break;
+        else if (gameState == LOST_LIFE) {
+            sf::sleep(sf::seconds(1));
 
+            m_window.draw(lostLifeSprite);
+            m_window.display();
+
+            sf::sleep(sf::seconds(2));
+
+
+        }
         m_window.clear();
         m_board.display(m_window);
         m_window.display();
