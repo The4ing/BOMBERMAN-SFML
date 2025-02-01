@@ -5,7 +5,7 @@
 
 // Constructor
 GameManager::GameManager()
-    : m_window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "BOMBERMAN"),
+    : m_window(sf::VideoMode(static_cast<int>(WINDOW_WIDTH), static_cast<int>(WINDOW_HEIGHT)), "BOMBERMAN"),
     m_robotLives(3),
     m_pause(false),
     m_arrowKeyPressed(false),

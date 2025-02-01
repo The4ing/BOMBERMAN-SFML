@@ -2,14 +2,16 @@
 #include <iostream>
 
 // Constants
-const float GUARD_SPEED = 500.f;   // Speed in pixels per second
+const float GUARD_SPEED = 150.f;   // Speed in pixels per second
 const int SPRITE_COLUMNS = 3;      // Number of frames per row
 const int SPRITE_ROWS = 4;         // Number of directional rows
 const float GUARD_SCALE = 1.f;    // Scale factor
 const float GUARD_CHANGE_INTERVAL = 2.f;  // Interval to change direction
 
 StupidGuard::StupidGuard()
-    : m_randomChangeInterval(sf::seconds(GUARD_CHANGE_INTERVAL)), m_animationFrame(0), m_previousPosition(0.f, 0.f) {
+    : m_randomChangeInterval(sf::seconds(GUARD_CHANGE_INTERVAL))
+    
+{
     // Load sprite sheet
    /* if (!m_texture.loadFromFile("scary_guard_spritesheet.png")) {
         std::cerr << "Failed to load guard spritesheet" << std::endl;
@@ -21,10 +23,6 @@ StupidGuard::StupidGuard()
     // Set up the sprite
     m_sprite.setTexture(resourceManager.getTexture("scary_guard_spritesheet.png"));
 
-    // Calculate frame dimensions
-    m_frameWidth = 127.5f;
-    m_frameHeight = 163.3f;
-
     // Set the initial texture rectangle (first frame of the first row)
     m_sprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
     // m_sprite.setOrigin(m_frameWidth / 2, m_frameHeight / 2);
@@ -33,13 +31,10 @@ StupidGuard::StupidGuard()
     changeDirection();
 }
 
-void StupidGuard::setPosition(float x, float y) {
-    m_sprite.setPosition(x, y);
-}
 
-sf::Vector2f StupidGuard::getPosition() const {
-    return m_sprite.getPosition();
-}
+
+
+
 
 void StupidGuard::changeDirection() {
     // Random direction generator
@@ -118,64 +113,36 @@ void StupidGuard::update(float deltaTime) {
 
 
 
-void StupidGuard::draw(sf::RenderWindow& window) const {
-    window.draw(m_sprite);
-    sf::CircleShape collisionShape = getCollisionShape();
-    collisionShape.setFillColor(sf::Color::Transparent);
-    collisionShape.setOutlineColor(sf::Color::Red);
-    collisionShape.setOutlineThickness(1.f);
-    window.draw(collisionShape);
-}
 
 
-void StupidGuard::handleCollision(GameObject& other) {
-    other.handleCollisionWith(*this);
-}
 
-sf::FloatRect StupidGuard::getBoundingBox() const {
-    return m_sprite.getGlobalBounds();
-}
+
+
 
 void StupidGuard::handleCollisionWith(Wall& wall) {
 
     revertPosition();
 }
 
-void StupidGuard::handleCollisionWith(Rock& rock) {
 
-    revertPosition();
-}
 
-void StupidGuard::handleCollisionWith(Door&) {
-    // std::cout << "StupidGuard collided with Door.\n";
-}
-void StupidGuard::handleCollisionWith(Robot&) {
-    //std::cout << "StupidGuard collided with Door.\n";
-}
 
 
 void StupidGuard::handleCollisionWith(Guard&) {
     //std::cout << "StupidGuard collided with another Guard.\n";
 }
-void StupidGuard::handleCollisionWith(Present& Present)
-{
-    //do nothing 
-}
-void StupidGuard::handleCollisionWith(Bomb&, bool isExploding) {
+
+
+void StupidGuard::handleCollisionWith(Bomb&, bool) {
     revertPosition();
 }
 
-void StupidGuard::revertPosition() {
-    m_sprite.setPosition(m_previousPosition);
-}
 
-void StupidGuard::setScale(float scaleX, float scaleY) {
-    m_sprite.setScale(scaleX, scaleY);
-}
+
 
 sf::CircleShape StupidGuard::getCollisionShape() const {
     sf::CircleShape collisionShape;
-    float radius = m_frameWidth / 6;  // Adjust the radius
+    float radius = static_cast<float>(m_frameWidth / 6);  // Adjust the radius
     collisionShape.setRadius(radius);
     collisionShape.setOrigin(radius, radius);  // Center the circle
 
@@ -187,9 +154,7 @@ sf::CircleShape StupidGuard::getCollisionShape() const {
 
     return collisionShape;
 }
-void StupidGuard::setStartingPosition(float newX, float newY) {
-    m_startingPosition = sf::Vector2f(newX, newY);
-}
-sf::Vector2f StupidGuard::getStartingPosition() {
-    return m_startingPosition;
-}
+
+
+
+

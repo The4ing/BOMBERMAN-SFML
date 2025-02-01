@@ -25,8 +25,8 @@ bool Board::loadFromFile(const std::string& fileName) {
     }
     file.close();
 
-    m_rows = lines.size();
-    m_cols = lines.empty() ? 0 : lines[0].size();
+    m_rows = static_cast<int>(lines.size());
+    m_cols = lines.empty() ? 0 : static_cast<int>(lines[0].size());
 
     float gridHeight = WINDOW_HEIGHT - TOOLBAR_HEIGHT; // Remaining height after the toolbar
 
@@ -58,9 +58,11 @@ bool Board::loadFromFile(const std::string& fileName) {
                 std::unique_ptr<Guard> guard;
 
                 if (isGuardSmart(5)) {
+                   
                     guard = std::make_unique<SmartGuard>();  // Create a smart guard
                 }
                 else {
+                   
                     guard = std::make_unique<StupidGuard>();  // Create a stupid guard
                 }
 
@@ -170,7 +172,7 @@ void Board::PowerUp(const char choice) {
 
 
     case 'L':
-        m_Toolbar.IncreaseHeart();  // Assuming a function to add lives
+        m_Toolbar.IncreaseHeart(true);  // Assuming a function to add lives
         std::cout << "Extra life granted!" << std::endl;
         break;
 
@@ -404,6 +406,13 @@ void Board::handleCollisions() {
     for (const auto& obj : m_movingObjects) {
         const sf::Shape& movingShape = obj->getCollisionShape();
         if (robotShape.getGlobalBounds().intersects(movingShape.getGlobalBounds())) {
+
+            //erase heart
+            if (dynamic_cast<Guard*>(obj.get())) {
+                m_Toolbar.IncreaseHeart(false);
+               // continue;
+            }
+
             m_robot->handleCollision(*obj);
             obj->handleCollision(*m_robot);
         }
@@ -415,6 +424,7 @@ void Board::handleCollisions() {
                 if (rect.intersects(robotShape.getGlobalBounds())) {
                     std::cout << "Robot was hit by an explosion!" << std::endl;
                     m_robot->setHitStatus(true);
+                    m_Toolbar.IncreaseHeart(false);
                 }
 
                 for (const auto& staticObj : m_objects)

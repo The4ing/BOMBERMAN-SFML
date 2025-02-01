@@ -75,6 +75,18 @@ sf::Sprite& ResourceManager::getSprite(const std::string& key) {
     throw std::runtime_error("Sprite not found: " + key);
 }
 
+void ResourceManager::removeSprite(const std::string& key)
+{
+    auto it = m_sprites.find(key);
+    if (it != m_sprites.end()) {
+        m_sprites.erase(it);  // Correctly removes the sprite from the map
+        return;  // Exit the function after successful removal
+    }
+
+    std::cerr << "Sprite not found: " + key << std::endl;
+}
+
+
 void ResourceManager::addText(const std::string& key, const sf::Text& text) {
     m_texts[key] = text;
 }

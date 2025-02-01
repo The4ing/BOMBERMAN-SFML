@@ -22,8 +22,8 @@ public:
     void toggleMute();
     void handleMouseClick(const sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition);
 
-    const int getHeartCount();
-    void IncreaseHeart();
+    const int getHeartCount() const ;
+    void IncreaseHeart(const bool status);
     void draw(sf::RenderWindow& m_window);
 
 
@@ -51,14 +51,17 @@ private:
     //sf::RectangleShape m_timerBackground;
     //sf::Sprite m_clockHand;
     //sf::Sprite m_arrow;
+    sf::Sprite m_timer;
+    std::vector<sf::Sprite> m_heart;
+    sf::Sprite m_muteButton;       // Sprite for the mute button
+    
 
 
     //std::vector<sf::Texture> m_ToolbatTexture;
-    //sf::Sprite m_timer;
     //sf::Font m_font;
     //sf::Text m_timerText;
-    //std::vector<sf::Sprite> m_heart;
-    //sf::Sprite m_muteButton;       // Sprite for the mute button
+    
+    
     //sf::Texture m_muteTexture;     // Mute icon texture
     //sf::Texture m_unmuteTexture;   // Unmute icon texture
     //void SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const;
@@ -70,7 +73,7 @@ private:
     sf::Clock m_clock;  // SFML Clock for timing
     bool m_isTimerRunning;  // Timer running status
     sf::RectangleShape m_progressBar;
-    int num_heart;
+    int m_num_heart;
     //for mute:
   
     bool m_isMuted;     // Mute state

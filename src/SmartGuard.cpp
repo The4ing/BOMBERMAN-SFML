@@ -3,11 +3,8 @@
 #include <iostream>
 
 SmartGuard::SmartGuard()
-    : m_speed(200.f),
-    m_randomChangeInterval(sf::seconds(3.f)),
-    m_animationFrame(0),
-    m_frameWidth(127.5f), // Frame width based on your sprite sheet
-    m_frameHeight(163.3f) // Frame height based on your sprite sheet
+    : m_speed(100.f),
+    m_randomChangeInterval(sf::seconds(3.f))
 {
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
@@ -19,41 +16,22 @@ SmartGuard::SmartGuard()
 
     // Setup the sprite
     m_sprite.setTexture(resourceManager.getTexture("smartGuardSprite.png"));
-    m_sprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
+    m_sprite.setTextureRect(sf::IntRect(0, 0,static_cast<int>(m_frameWidth), static_cast<int>(m_frameHeight)));
     // m_sprite.setScale(1.f, 1.f); // Scale as needed
 
      // Randomize initial behavior
     randomizeBehavior();
 }
 
-void SmartGuard::setPosition(float newX, float newY) {
-    m_sprite.setPosition(newX, newY);
-}
 
-void SmartGuard::setStartingPosition(float newX, float newY) {
-    m_startingPosition = sf::Vector2f(newX, newY);
-}
 
-sf::Vector2f SmartGuard::getStartingPosition() {
-    return m_startingPosition;
-}
 
-sf::Vector2f SmartGuard::getPosition() const {
-    return m_sprite.getPosition();
-}
 
 void SmartGuard::setPlayerPosition(const sf::Vector2f& playerPos) {
     m_playerPosition = playerPos;
 }
 
-void SmartGuard::draw(sf::RenderWindow& window) const {
-    window.draw(m_sprite);
-    sf::CircleShape collisionShape = getCollisionShape();
-    collisionShape.setFillColor(sf::Color::Transparent);
-    collisionShape.setOutlineColor(sf::Color::Red);
-    collisionShape.setOutlineThickness(1.f);
-    window.draw(collisionShape);
-}
+
 
 
 void SmartGuard::randomizeBehavior() {
@@ -96,23 +74,23 @@ void SmartGuard::updateAnimation() {
     }
 
     // Determine texture row based on movement direction
-    int textureX = m_animationFrame * m_frameWidth;
+    int textureX = m_animationFrame * static_cast<int>(m_frameWidth);
     int textureY = 0;
 
     if (m_velocity.y > 0) {
         textureY = 0;  // Moving down
     }
     else if (m_velocity.y < 0) {
-        textureY = m_frameHeight * 2;  // Moving up
+        textureY = static_cast<int>(m_frameHeight * 2);  // Moving up
     }
     else if (m_velocity.x > 0) {
-        textureY = m_frameHeight;  // Moving right
+        textureY = static_cast<int>(m_frameHeight);  // Moving right
     }
     else if (m_velocity.x < 0) {
-        textureY = m_frameHeight;  // Moving left
+        textureY = static_cast<int>(m_frameHeight);  // Moving left
     }
 
-    m_sprite.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
+    m_sprite.setTextureRect(sf::IntRect(textureX, textureY, static_cast<int>(m_frameWidth), static_cast<int>(m_frameHeight)));
 }
 
 
@@ -132,14 +110,6 @@ void SmartGuard::update(float deltaTime) {
 
 
 
-void SmartGuard::handleCollision(GameObject& other) {
-    other.handleCollisionWith(*this);
-}
-
-void SmartGuard::handleCollisionWith(Robot& robot) {
-    //  std::cout << "SmartGuard collided with Robot: Initiate chase logic!\n";
-}
-
 void SmartGuard::handleCollisionWith(Wall&) {
   //  std::cout << "SmartGuard hit a wall! Changing direction.\n";
 
@@ -154,19 +124,14 @@ void SmartGuard::handleCollisionWith(Wall&) {
 }
 
 
-void SmartGuard::handleCollisionWith(Rock&) {
-    revertPosition();
-}
 
-void SmartGuard::handleCollisionWith(Door&) {
-    revertPosition();
-}
 
-void SmartGuard::handleCollisionWith(Bomb&, bool isExploding) {
-    // std::cout << "SmartGuard collided with Bomb: Reverting position and avoiding bomb.\n";
+void SmartGuard::handleCollisionWith(Bomb&, bool ) {
+    
 
-     // Revert position
+    // Revert position
     revertPosition();
+
 
     // Adjust velocity to move away from the bomb
     m_velocity = -m_velocity; // Reverse direction
@@ -178,28 +143,20 @@ void SmartGuard::handleCollisionWith(Guard&) {
     m_velocity = sf::Vector2f(0.f, 0.f);
 }
 
-void SmartGuard::handleCollisionWith(Present& Present)
-{
-    //  activate the present
-}
 
-sf::FloatRect SmartGuard::getBoundingBox() const {
-    return m_sprite.getGlobalBounds();
-}
 
-void SmartGuard::setScale(float scaleX, float scaleY) {
-    m_sprite.setScale(scaleX, scaleY);
-}
 
-void SmartGuard::revertPosition() {
-    m_sprite.setPosition(m_previousPosition);
-}
+
+
+
 
 sf::CircleShape SmartGuard::getCollisionShape() const {
     sf::CircleShape collisionEllipse;
+
     float radiusX = m_frameWidth / 4;  // Horizontal radius (adjust as needed)
     float radiusY = m_frameHeight / 6; // Vertical radius (adjust as needed)
     collisionEllipse.setRadius(radiusX);  // Base radius (use the larger dimension)
+
     // Scale it horizontally to form an ellipse
     float horizontalScale = 0.7f;  // Adjust this value for width
     float verticalScale = 1.f;    // Keep this 1.0 to maintain original height

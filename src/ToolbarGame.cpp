@@ -2,7 +2,7 @@
 
 
 ToolbarGame::ToolbarGame()
-    : m_isTimerRunning(true), m_LevelDuration(0), m_TimeLeft(0), m_isMuted(false), num_heart(0){
+    : m_isTimerRunning(true), m_LevelDuration(0), m_TimeLeft(0), m_isMuted(false), m_num_heart(0){
     m_clock.restart();
     setTimer(40);
 
@@ -45,7 +45,7 @@ ToolbarGame::ToolbarGame()
         heart.setPosition(1750.f - i * 40.f, 50.f);
         heart.setScale(0.3f, 0.3f);
         resourceManager.addSprite(heartKey, heart);
-        num_heart++;
+        m_num_heart++;
     }
 }
 //ToolbarGame::ToolbarGame()
@@ -172,23 +172,31 @@ ToolbarGame::ToolbarGame()
 //    return m_ToolbatTexture[choice];
 //}
 
-const int ToolbarGame::getHeartCount()
+const int ToolbarGame::getHeartCount() const 
 {
-    return num_heart;
+    return m_num_heart;
 }
 
 
-void ToolbarGame::IncreaseHeart() {
+void ToolbarGame::IncreaseHeart(const bool add) {
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
-    if (getHeartCount() < 4) {
+    if (getHeartCount() < 4 && add) {
         std::string heartKey = "heart" + std::to_string(getHeartCount());
         sf::Sprite newHeart;
         newHeart.setPosition(1750.f - getHeartCount() * 40.f, 50.f);
         newHeart.setScale(0.3f, 0.3f);
         resourceManager.addSprite(heartKey, newHeart);
-        num_heart++;
+        m_num_heart++;
     }
+    else if (!add && getHeartCount() > 0) {  // Remove a heart
+        m_num_heart--;  // Decrease heart count first
+        std::string heartKey = "heart" + std::to_string(getHeartCount());
+        std::cout << heartKey << std::endl;
+        // Check if `ResourceManager` has a remove method
+        resourceManager.removeSprite(heartKey);
+    }
+
 }
 
 void ToolbarGame::draw(sf::RenderWindow& window) {
@@ -199,7 +207,7 @@ void ToolbarGame::draw(sf::RenderWindow& window) {
     window.draw(resourceManager.getSprite("mute"));
     window.draw(m_progressBar);
 
-    for (int i = 0; i < NUM_HEART; ++i) {
+    for (int i = 0; i < getHeartCount(); ++i) {
         window.draw(resourceManager.getSprite("heart" + std::to_string(i)));
     }
 }

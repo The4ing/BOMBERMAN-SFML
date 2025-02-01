@@ -56,6 +56,7 @@ public:
 
     void addSprite(const std::string& key, const sf::Sprite& sprite);
     sf::Sprite& getSprite(const std::string& key);
+    void removeSprite(const std::string& key);
     void addText(const std::string& key, const sf::Text& text);
     sf::Text& getText(const std::string& key);
 

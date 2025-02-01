@@ -38,7 +38,7 @@ void Rock::handleCollision(GameObject& other) {
 }
 
 void Rock::handleCollisionWith(Robot& robot) {
-    std::cout << "Robot collided with Rock: Interaction triggered.\n";
+   // std::cout << "Robot collided with Rock: Interaction triggered.\n";
     // Implement Rock-specific interaction with Robot here
 }
 
