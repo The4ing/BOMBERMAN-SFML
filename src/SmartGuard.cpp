@@ -196,18 +196,21 @@ void SmartGuard::revertPosition() {
 }
 
 sf::CircleShape SmartGuard::getCollisionShape() const {
-    sf::CircleShape collisionShape;
-    float radius = m_frameWidth / 4;  // Adjust the radius
-    collisionShape.setRadius(radius);
-    collisionShape.setOrigin(radius, radius);  // Center the circle
-
-    // Position the circle
-    collisionShape.setPosition(
-        m_sprite.getPosition().x + m_frameWidth / 2 - CIRCLRE_OFFSET,
-        m_sprite.getPosition().y + m_frameHeight / 2 - CIRCLRE_OFFSET
+    sf::CircleShape collisionEllipse;
+    float radiusX = m_frameWidth / 4;  // Horizontal radius (adjust as needed)
+    float radiusY = m_frameHeight / 6; // Vertical radius (adjust as needed)
+    collisionEllipse.setRadius(radiusX);  // Base radius (use the larger dimension)
+    // Scale it horizontally to form an ellipse
+    float horizontalScale = 0.7f;  // Adjust this value for width
+    float verticalScale = 1.f;    // Keep this 1.0 to maintain original height
+    collisionEllipse.setScale(horizontalScale, verticalScale);
+    //  collisionEllipse.setOrigin(radiusX, radiusX);  // Origin remains at center
+    collisionEllipse.setPosition(
+        m_sprite.getPosition().x + m_frameWidth / 2 - (5 * CIRCLRE_OFFSET),
+        m_sprite.getPosition().y + m_frameHeight / 2 - (6 * CIRCLRE_OFFSET)
     );
 
-    return collisionShape;
+    return collisionEllipse;
 }
 
 void SmartGuard::setVelocity(Direction dir) {
