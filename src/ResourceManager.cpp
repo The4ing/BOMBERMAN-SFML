@@ -1,61 +1,39 @@
 #include "ResourceManager.h"
 
-
 ResourceManager::ResourceManager() {
-    loadTexture();
-    loadFont();
+    loadTextures();
+    loadFonts();
 }
 
 ResourceManager& ResourceManager::getInstance() {
-    
     static ResourceManager instance;
     return instance;
 }
 
-void ResourceManager::loadTexture() {
-
-    std::vector<std::string> m_NamefilesTextures =
-    {
-        {"wall.png"},
-         {"rock.png"},
-        { "guard.png"},
-        {"door.png"},
-        {"empty.png"},
-        {"bomb.png"},
-        {"present.png"},
-        { "arrow.png"},
-        {"bombXPLD.png"},
-        {"clock.png"},
-        {"explosion.png"},
-        {"heart.png"},
-        {"helpBackground.png"},
-        {"menu.png"},
-        {"mute.png"},
-        {"Robot.png"},
-        {"RobotXPL.png"},
-        {"robot_spritesheet.png"},
-        {"Rock.png"},
-        {"scary_guard_spritesheet.png"},
-        {"smartGuardSprite.png"},
-        {"timer.png"},
-        {"unmute.png"},
-        {"wall.png"},
-
+void ResourceManager::loadTextures() {
+    std::vector<std::string> textureFiles = {
+        "wall.png", "rock.png", "guard.png", "door.png", "empty.png",
+        "bomb.png", "present.png", "arrow.png", "bombXPLD.png", "clock.png",
+        "explosion.png", "heart.png", "helpBackground.png", "menu.png",
+        "mute.png", "Robot.png", "RobotXPL.png", "robot_spritesheet.png",
+        "Rock.png", "scary_guard_spritesheet.png", "smartGuardSprite.png",
+        "timer.png", "unmute.png"
     };
-    for (const auto& filename : m_NamefilesTextures) {
-        if (!m_textures[filename].loadFromFile(filename)) {
+
+    for (const auto& filename : textureFiles) {
+        sf::Texture texture;
+        if (!texture.loadFromFile(filename)) {
             std::cerr << "Error: Could not load texture file " << filename << std::endl;
         }
+        else {
+            m_textures[filename] = std::move(texture);
+        }
     }
-    
 }
 
-void ResourceManager::loadFont() {
+void ResourceManager::loadFonts() {
     std::vector<std::string> fontFiles = {
-        "Ariel.ttf",
-        "digit.ttf",  // Fixed typo
-        "PixelFontBlack.otf",
-        "PixelFontWhite.otf"
+        "Arial.ttf", "digit.ttf", "PixelFontBlack.otf", "PixelFontWhite.otf"
     };
 
     for (const auto& filename : fontFiles) {
@@ -64,18 +42,25 @@ void ResourceManager::loadFont() {
             std::cerr << "Error: Could not load font file " << filename << std::endl;
         }
         else {
-            m_font[filename] = std::move(font);  // Store the successfully loaded font
+            m_fonts[filename] = std::move(font);
         }
     }
 }
 
-
-const sf::Texture& ResourceManager::getTexture(const std::string& key) const {
-    return m_textures.at(key);
+const sf::Texture& ResourceManager::getTexture(const std::string& key) {
+    auto it = m_textures.find(key);
+    if (it != m_textures.end()) {
+        return it->second;
+    }
+    throw std::runtime_error("Texture not found: " + key);
 }
 
-const sf::Font& ResourceManager::getFont(const std::string& key) const {
-    return m_font.at(key);
+const sf::Font& ResourceManager::getFont(const std::string& key) {
+    auto it = m_fonts.find(key);
+    if (it != m_fonts.end()) {
+        return it->second;
+    }
+    throw std::runtime_error("Font not found: " + key);
 }
 
 void ResourceManager::addSprite(const std::string& key, const sf::Sprite& sprite) {
@@ -83,14 +68,21 @@ void ResourceManager::addSprite(const std::string& key, const sf::Sprite& sprite
 }
 
 sf::Sprite& ResourceManager::getSprite(const std::string& key) {
-    return m_sprites.at(key);
+    auto it = m_sprites.find(key);
+    if (it != m_sprites.end()) {
+        return it->second;
+    }
+    throw std::runtime_error("Sprite not found: " + key);
 }
 
-
-void ResourceManager::addText(const std::string& key, sf::Text Text) {
-    m_texts[key] = Text;  // Store it in the map with the given key
+void ResourceManager::addText(const std::string& key, const sf::Text& text) {
+    m_texts[key] = text;
 }
 
 sf::Text& ResourceManager::getText(const std::string& key) {
-    return m_texts.at(key);
+    auto it = m_texts.find(key);
+    if (it != m_texts.end()) {
+        return it->second;
+    }
+    throw std::runtime_error("Text not found: " + key);
 }
