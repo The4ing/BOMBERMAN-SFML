@@ -53,7 +53,7 @@ public:
 
     // Other members and variables for game state
     bool loadFromFile(const std::string& fileName);
-    void loadTextures();
+    //void loadTextures();
     // void displayConsole() const;
     void display(sf::RenderWindow& window);
 
@@ -98,7 +98,7 @@ private:
     bool m_levelComplete;
 
     ToolbarGame m_Toolbar;
-    std::vector<sf::Texture> m_textures;
+  //  std::vector<sf::Texture> m_textures;
     //  std::vector<sf::Vector2f> m_guardsStartingPositions;
     sf::Vector2f m_robotStartingPosition;
     void resetObjectsLocation();
