@@ -60,6 +60,6 @@ private:
     int m_animationFrame;            // Current animation frame index
     sf::Clock m_animationClock;      // Clock for animation timing
     sf::Time m_animationTimer;       // Time per animation frame
-    sf::CircleShape m_collisionShape;
+    //sf::CircleShape m_collisionShape;
     bool m_robotHit;
 };

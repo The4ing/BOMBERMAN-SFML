@@ -61,6 +61,46 @@ const bool Guard::getIsFreeze() const
 	return m_freezeGuard;
 }
 
+void Guard::setVelocity(const sf::Vector2f velocity)
+{
+	m_velocity = velocity;
+}
+
+sf::Vector2f Guard::getVelocity()
+{
+	return m_velocity;
+}
+
+void Guard::getRevert()
+{
+	void revertPosition();
+}
+
+void Guard::setAnimation(const int UpdateAnim)
+{
+	m_animationFrame = UpdateAnim;
+}
+
+const int Guard::getAnimation()
+{
+	return m_animationFrame;
+}
+
+void Guard::setPrevPpos(const sf::Vector2f velocity)
+{
+	m_previousPosition = velocity;
+}
+
+const float Guard::getFrameWidth() const
+{
+	return m_frameWidth;
+}
+
+const float Guard::getFrameHight() const 
+{
+	return m_frameHeight;
+}
+
 
 
 void Guard::draw(sf::RenderWindow& window) const

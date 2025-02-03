@@ -21,7 +21,7 @@ StupidGuard::StupidGuard()
     sprite.setTexture(resourceManager.getTexture("scary_guard_spritesheet.png"));
 
     // Set the initial texture rectangle (first frame of the first row)
-    sprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
+    sprite.setTextureRect(sf::IntRect(0, 0, getFrameWidth(), getFrameHight()));
 
 
     // m_sprite.setOrigin(m_frameWidth / 2, m_frameHeight / 2);
@@ -46,16 +46,16 @@ void StupidGuard::changeDirection() {
     // Update velocity based on direction
     switch (m_direction) {
     case UP:
-        m_velocity = { 0.f, -GUARD_SPEED };
+        setVelocity({ 0.f, -GUARD_SPEED });
         break;
     case DOWN:
-        m_velocity = { 0.f, GUARD_SPEED };
+        setVelocity({ 0.f, GUARD_SPEED });
         break;
     case LEFT:
-        m_velocity = { -GUARD_SPEED, 0.f };
+        setVelocity({ -GUARD_SPEED, 0.f });
         break;
     case RIGHT:
-        m_velocity = { GUARD_SPEED, 0.f };
+        setVelocity({ GUARD_SPEED, 0.f });
         break;
     default:
         break;
@@ -68,13 +68,13 @@ void StupidGuard::update(float deltaTime) {
 
 
     // Save the current position before moving
-    m_previousPosition = getPosition();
+    setPrevPpos(getPosition());
 
     // Increase the time since the last direction change
     m_timeSinceLastChange += sf::seconds(deltaTime);
 
     // Move the guard
-    spriteGurad.move(m_velocity * deltaTime);
+    spriteGurad.move(getVelocity() * deltaTime);
 
     // Change direction if the cooldown period has passed
     if (m_timeSinceLastChange >= m_randomChangeInterval) {
@@ -85,12 +85,12 @@ void StupidGuard::update(float deltaTime) {
     // Animation frame update with a cooldown to prevent flickering
     m_animationTimeSinceLastChange += sf::seconds(deltaTime);
     if (m_animationTimeSinceLastChange >= sf::milliseconds(100)) {
-        m_animationFrame = (m_animationFrame + 1) % 4;
+        setAnimation((getAnimation() + 1) % 4);
         m_animationTimeSinceLastChange = sf::Time::Zero;  // Reset the timer
     }
 
     // Determine the current animation frame and texture rectangle
-    int textureX = m_animationFrame * m_frameWidth;
+    int textureX = getAnimation() * getFrameWidth();
     int textureY = 0;
 
     if (m_direction == DOWN) {
@@ -98,19 +98,19 @@ void StupidGuard::update(float deltaTime) {
         //m_sprite.setOrigin(0.f, 0.f);
     }
     else if (m_direction == LEFT) {
-        textureY = static_cast<int>(m_frameHeight);
+        textureY = static_cast<int>(getFrameHight());
         //  m_sprite.setOrigin(0.f, 0.f);
     }
     else if (m_direction == RIGHT) {
-        textureY = static_cast<int>(m_frameHeight);
+        textureY = static_cast<int>(getFrameHight());
         // m_sprite.setOrigin(m_frameWidth, 0.f);
     }
     else if (m_direction == UP) {
-        textureY = static_cast<int>(m_frameHeight * 2);
+        textureY = static_cast<int>(getFrameHight() * 2);
         // m_sprite.setOrigin(0.f, 0.f);
     }
 
-    spriteGurad.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
+    spriteGurad.setTextureRect(sf::IntRect(textureX, textureY, getFrameWidth(), getFrameHight()));
 }
 
 
@@ -124,32 +124,27 @@ void StupidGuard::update(float deltaTime) {
 
 void StupidGuard::handleCollisionWith(Wall& wall) {
 
-    revertPosition();
+    getRevert();
 }
 
 
 
-
-
-
-
-
 void StupidGuard::handleCollisionWith(Bomb&, bool) {
-    revertPosition();
+    getRevert();
 }
 
 
 
 sf::CircleShape StupidGuard::getCollisionShape() const {
     sf::CircleShape collisionShape;
-    float radius = static_cast<float>(m_frameWidth / 6);  // Adjust the radius
+    float radius = static_cast<float>(getFrameWidth() / 6);  // Adjust the radius
     collisionShape.setRadius(radius);
     collisionShape.setOrigin(radius, radius);  // Center the circle
 
     // Position the circle
     collisionShape.setPosition(
-        getPosition().x + m_frameWidth / 2 - (3 * CIRCLRE_OFFSET),
-        getPosition().y + m_frameHeight / 2 - (3 * CIRCLRE_OFFSET)
+        getPosition().x + getFrameWidth() / 2 - (3 * CIRCLRE_OFFSET),
+        getPosition().y + getFrameHight() / 2 - (3 * CIRCLRE_OFFSET)
     );
 
     return collisionShape;

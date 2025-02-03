@@ -7,8 +7,7 @@ class MovingGameObject : public GameObject {
    // Velocity components (in units per second)
 
 public:
-    
-
+  
     virtual sf::CircleShape getCollisionShape() const = 0;
     virtual void update(float deltaTime) = 0;          
    

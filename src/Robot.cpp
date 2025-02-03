@@ -26,15 +26,7 @@ Robot::Robot()
 
 
 
-//sf::Vector2f Robot::getPosition() const {
-//    return m_sprite.getPosition();
-//}
 
-
-// Position handling
-//void Robot::setPosition(float x, float y) {
-//    m_sprite.setPosition(x, y);
-//}
 
 
 

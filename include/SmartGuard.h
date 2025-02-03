@@ -26,12 +26,13 @@ public:
 
     
     // bool isBlocked(float newX, float newY);
-    void setVelocity(Direction dir);
+    void updateVelocity(Direction dir);
     void moveInAnyAvailableDirection();
 
 
 private:
 
+   
     sf::Vector2f m_playerPosition; // Target player position
     sf::Clock m_directionChangeClock;
     sf::Time m_randomChangeInterval;
