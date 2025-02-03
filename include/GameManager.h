@@ -30,7 +30,7 @@ private:
     Board m_board;
 
     std::vector<std::unique_ptr<MovingGameObject>> m_movingObjects; // Manage all game objects dynamically
-
+    sf::Sprite m_backgroundSprite;
     int m_robotLives;
     Direction m_robotDirection;
     sf::Font m_font;

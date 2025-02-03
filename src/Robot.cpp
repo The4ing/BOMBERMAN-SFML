@@ -272,3 +272,21 @@ const bool Robot::isRobotHit() const  {
 void Robot::setHitStatus(bool status) {
     m_robotHit = status;
 }
+
+void Robot::playDeathAnimation() {
+    int deadFrame = (m_animationClock.getElapsedTime().asMilliseconds() / 100);
+    std::cout << deadFrame << std::endl;
+    int i;
+    std::cin >> i;
+
+    if (deadFrame < 7) {
+        m_sprite.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
+    }
+    else {
+        m_sprite.setTextureRect(sf::IntRect(6 * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
+    }
+
+    if (deadFrame >= 7) {
+        m_robotHit = false;
+    }
+}

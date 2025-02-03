@@ -57,12 +57,14 @@ void ResourceManager::loadSound() {
 
 void ResourceManager::loadTextures() {
     std::vector<std::string> textureFiles = {
-        "wall.png", "rock.png", "guard.png", "door.png", "empty.png",
+       "wall.png", "rock.png", "guard.png", "door.png", "empty.png",
         "bomb.png", "present.png", "arrow.png", "bombXPLD.png", "clock.png",
         "explosion.png", "heart.png", "helpBackground.png", "menu.png",
         "mute.png", "Robot.png", "RobotXPL.png", "robot_spritesheet.png",
         "Rock.png", "scary_guard_spritesheet.png", "smartGuardSprite.png",
-        "timer.png", "unmute.png","lost_life_screen.png"
+        "timer.png", "unmute.png", "background1.png", "background2.png",
+        "background3.png", "background4.png", "background5.png",
+        "background6.png", "lost_life_screen.png"
     };
 
     for (const auto& filename : textureFiles) {

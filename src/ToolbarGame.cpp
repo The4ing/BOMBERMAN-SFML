@@ -16,7 +16,7 @@ ToolbarGame::ToolbarGame()
     timerText.setOutlineThickness(4);
     timerText.setStyle(sf::Text::Bold);
     timerText.setPosition(80.f, 32.f);
-    timerText.setScale(1.5f, 1.f);
+    timerText.setScale(1.f, 1.f);
     timerText.setLetterSpacing(2.f);
     resourceManager.addText("timer", timerText);
 
@@ -25,8 +25,8 @@ ToolbarGame::ToolbarGame()
     // Set up timer sprite
     m_timer.setTexture(resourceManager.getTexture("timer.png"));
     m_timer.setOrigin(m_timer.getGlobalBounds().width / 2, m_timer.getGlobalBounds().height / 2);  // Set origin to center of the sprite
-    m_timer.setPosition(100.f, 50.f);
-    m_timer.setScale(0.2f, 0.2f);
+    m_timer.setPosition(105.f, 50.f);
+    m_timer.setScale(0.4f, 0.4f);
    
 
 

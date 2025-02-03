@@ -18,13 +18,13 @@ class Robot : public MovingGameObject {
 public:
     Robot();
    
-
+    
     // Overridden methods
     char getSymbol() const override { return '/'; }
     void update(float deltaTime) override;
     void handleInput(sf::Keyboard::Key key, bool isPressed);
     void draw(sf::RenderWindow& window) const override;
-    
+    void playDeathAnimation();
    
    
 
@@ -55,7 +55,9 @@ private:
     sf::Vector2f m_previousPosition;
     int lastDirection;
 
-   
+    
+        
+    sf::Sprite m_sprite;
     // Animation-related members
     int m_animationFrame;            // Current animation frame index
     sf::Clock m_animationClock;      // Clock for animation timing

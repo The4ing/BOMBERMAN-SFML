@@ -93,13 +93,52 @@ bool Board::loadFromFile(const std::string& fileName) {
                 m_objects.push_back(std::move(door));
                 break;
             }
-            case ' ': {  // Randomly place presents
-                int random = rand() % 4; // Random number to decide which present type
-                int randomPlace = rand() % 5;
-                std::unique_ptr<Present> present;
-                if (Present::getPresentCount() < 5 && randomPlace == 1) {
-                    std::cout << random << " f" << std::endl;
+           
+            default:
+                break;
+            }
 
+        }
+    }
+    return true;
+
+}
+
+bool Board::loadPresent(const std::string& fileName) {
+    std::ifstream file(fileName);
+    if (!file.is_open()) {
+        std::cerr << "Error: Cannot open file " << fileName << std::endl;
+        return false;
+    }
+
+    std::vector<std::string> lines;
+    std::string line;
+    while (std::getline(file, line)) {
+        lines.push_back(line);
+    }
+    file.close();
+
+    float scaleX = m_cellSize.x / SINGLE_SPRITE_DIMENSIONS;
+    float scaleY = m_cellSize.y / SINGLE_SPRITE_DIMENSIONS;
+
+    int maxAttempts = 10; // Limit the number of attempts to prevent infinite loops
+
+    for (int attempts = 0; attempts < maxAttempts; ++attempts) {
+        int i = rand() % m_rows;
+        int j = rand() % m_cols;
+
+        sf::Vector2f position(j * m_cellSize.x, i * m_cellSize.y + TOOLBAR_HEIGHT);
+
+        // Check if the space is empty and no present exists there
+        if (lines[i][j] == ' ' && !isPresentAtPosition(position)) {
+            int randomChance = rand() % 10; // 1 in 10 chance
+            int randomPresentCount = rand() % 2 + 1; // 1 or 2 presents at a time
+
+            if (randomChance < 5 && Present::getPresentCount() <= 5) {
+                for (int p = 0; p < randomPresentCount; ++p) {
+                    int random = rand() % 4; // Random number to decide which present type
+
+                    std::unique_ptr<Present> present;
                     switch (random) {
                     case 0:
                         present = std::make_unique<FreezeGuard>();
@@ -114,23 +153,34 @@ bool Board::loadFromFile(const std::string& fileName) {
                         present = std::make_unique<IncreaseTime>();
                         break;
                     }
-                    if (present) {  // Ensure present was created before adding it
+
+                    if (present) {
                         present->setPosition(position.x, position.y);
                         present->setScale(scaleX, scaleY);
                         m_objects.push_back(std::move(present));
                     }
                 }
-                break;
+                return true; // Exit after placing presents
             }
-            default:
-                break;
-            }
-
         }
     }
-    return true;
-
+    return false; // No suitable empty space found after attempts
 }
+
+
+bool Board::isPresentAtPosition(const sf::Vector2f& position) {
+    for (const auto& obj : m_objects) {
+        if (dynamic_cast<Present*>(obj.get())) {
+            if (obj->getPosition() == position) {
+                return true; // A present already exists at this position
+            }
+        }
+    }
+    return false;
+}
+
+
+
 
 // Set the probability based on the level
 // For example, level 1 = 10% chance, level 10 = 90% chance, and so on
@@ -255,8 +305,7 @@ void Board::display(sf::RenderWindow& window) {
 sf::Vector2f Board::getCellSize() const {
     return m_cellSize;
 }
-
-int Board::update(float deltaTime) {
+int Board::update(float deltaTime, const int level) {
     if (m_lives <= 0) return LOST_GAME;
 
     if (m_pausedByHit) {
@@ -277,26 +326,34 @@ int Board::update(float deltaTime) {
         m_pauseClock.restart();  // Start pause timer
         m_pausedByHit = true;
         m_pause = true;
-        // Ensure the robot's hit state resets after handling
         m_robot->update(deltaTime);
-
         return LOST_LIFE;
     }
 
     if (m_pause) return PLAYING;  // Stop updates if paused
 
     // Normal game update logic
-        // Check if 'B' key is pressed to generate a bomb
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::B)) {
         GenerateBomb();
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::N)) {
         m_levelComplete = true; // Generate a bomb when 'B' is pressed
     }
+
     m_robot->update(deltaTime);
     m_Toolbar.callUpdateToolbar(deltaTime);
+
+    // Timer for placing presents periodically (for example, every 5 seconds)
+    static float timeElapsed = 0.0f;
+    timeElapsed += deltaTime;
+
+    if (timeElapsed >= 5.0f) {  // Every 5 seconds
+        std::string levelFile = "level" + std::to_string(level) + ".txt";
+        loadPresent(levelFile);  // Call the function to place presents
+        timeElapsed = 0.0f;  // Reset the timer
+    }
+
     // Use an iterator-based loop for safe removal
-   // Use an iterator-based loop for safe removal
     for (auto it = m_movingObjects.begin(); it != m_movingObjects.end(); ) {
         auto* bomb = dynamic_cast<Bomb*>((*it).get());
 
@@ -304,7 +361,6 @@ int Board::update(float deltaTime) {
             std::cout << "Bomb removed!\n";
             it = m_movingObjects.erase(it); // Erase bomb & update iterator
         }
-
         else { // Ensure we only increment if not erased
             auto* guard = dynamic_cast<Guard*>((*it).get());
             if (guard && !guard->getIsFreeze()) {
@@ -320,9 +376,9 @@ int Board::update(float deltaTime) {
 
     handleCollisions();
 
-
     return PLAYING;
 }
+
 
 
 

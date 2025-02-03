@@ -82,7 +82,7 @@ char Bomb::getSymbol() const
 // Update function
 void Bomb::update(const float deltaTime) {
     auto elapsed = std::chrono::steady_clock::now() - m_startTime;
-    std::cout << elapsed << " time" << std::endl;
+  
     if (!m_exploded && std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() >= 4) {
         SetXplode();
     }

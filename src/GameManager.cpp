@@ -38,14 +38,21 @@ void GameManager::newGame() {
 
 void GameManager::startGame() {
 
+
+
     ResourceManager& resourceManager = ResourceManager::getInstance();
     sf::Sprite lostLifeSprite(resourceManager.getTexture("lost_life_screen.png"));
+
+    std::string backgroundImage = "background" + std::to_string(m_currentLevel) + ".png";
+
+    m_backgroundSprite.setTexture(resourceManager.getTexture(backgroundImage)); // Assign the texture to the sprite
     m_gameMusic = "startGame";
     if (m_currentLevel == 6) { // 6  = BOSS_LEVEL
         m_gameMusic = "bossGame";
     }
     sf::Music& gamePlay = resourceManager.getMusic(m_gameMusic);
     gamePlay.setLoop(true);
+    
     // m_menuMusic.setVolume(50);
     gamePlay.play();
     m_window.clear();
@@ -53,6 +60,8 @@ void GameManager::startGame() {
     int gameState = 0;
     bool isWindowFocused = true;
     m_board.startTimer();
+
+  
     while (m_window.isOpen()) {
         sf::Event event;
         while (m_window.pollEvent(event)) {
@@ -73,8 +82,11 @@ void GameManager::startGame() {
 
         if (!isWindowFocused) continue; // Skip updates when window is unfocused
 
+        //std::string levelFile = "level" + std::to_string(m_currentLevel) + ".txt";
+        //m_board.loadPresent(levelFile);
+
         sf::Time deltaTime = clock.restart();
-        gameState = m_board.update(deltaTime.asSeconds()); // Handles pause & game logic
+        gameState = m_board.update(deltaTime.asSeconds(), m_currentLevel); // Handles pause & game logic
         if (gameState == LOST_GAME) break;
         else if (gameState == WON) break;
         else if (gameState == LOST_LIFE) {
@@ -88,6 +100,7 @@ void GameManager::startGame() {
 
         }
         m_window.clear();
+        m_window.draw(m_backgroundSprite);
         m_board.display(m_window);
         m_window.display();
         if (m_board.isLevelComplete()) {  // Check if the player completed the level
@@ -120,7 +133,6 @@ void GameManager::processGameEvents() {
             }
             else if (event.key.code == sf::Keyboard::B) {
                 m_board.GenerateBomb();
-                loadNextLevel();  // Skip to next level
             }
             else if (event.key.code == sf::Keyboard::N) {
                 loadNextLevel();  // Skip to next level

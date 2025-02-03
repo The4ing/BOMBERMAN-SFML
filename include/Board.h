@@ -43,6 +43,8 @@ public:
 
     // Other members and variables for game state
     bool loadFromFile(const std::string& fileName);
+    bool loadPresent(const std::string& fileName);
+    bool isPresentAtPosition(const sf::Vector2f& position);
     void display(sf::RenderWindow& window);
 
     
@@ -51,7 +53,7 @@ public:
     void handleMouseClick(sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition);
     bool setSmartGuard(int level);
 
-    int update(float deltaTime);
+    int update(float deltaTime, const int level);
     void removeAllBombs();
     void handleInput(sf::Keyboard::Key key, bool isPressed);
     bool isGuardSmart(int level);

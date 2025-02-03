@@ -73,7 +73,7 @@ sf::Vector2f Guard::getVelocity()
 
 void Guard::getRevert()
 {
-	void revertPosition();
+	 revertPosition();
 }
 
 void Guard::setAnimation(const int UpdateAnim)

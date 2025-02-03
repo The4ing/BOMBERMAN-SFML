@@ -122,7 +122,7 @@ void StupidGuard::update(float deltaTime) {
 
 
 
-void StupidGuard::handleCollisionWith(Wall& wall) {
+void StupidGuard::handleCollisionWith(Wall& ) {
 
     getRevert();
 }
