@@ -32,10 +32,11 @@ public:
 
     void draw(sf::RenderWindow& window) const override;
     char getSymbol() const override;
-   
+    void setFreezeGaurd(const bool status);
+    const bool getIsFreeze() const;
    
 
-   
+    
     virtual void setStartingPosition(float newX, float newY);
     virtual sf::Vector2f getStartingPosition();
 
@@ -48,7 +49,7 @@ public:
 
 
 private:
-
+    bool m_freezeGuard;
     static int m_numGuard;
     
 };

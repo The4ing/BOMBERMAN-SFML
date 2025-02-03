@@ -2,7 +2,7 @@
 #include <iostream>
 
 // Constants
-const float GUARD_SPEED = 150.f;   // Speed in pixels per second
+const float GUARD_SPEED = 100.f;   // Speed in pixels per second
 const int SPRITE_COLUMNS = 3;      // Number of frames per row
 const int SPRITE_ROWS = 4;         // Number of directional rows
 const float GUARD_SCALE = 1.f;    // Scale factor
@@ -12,18 +12,10 @@ StupidGuard::StupidGuard()
     : m_randomChangeInterval(sf::seconds(GUARD_CHANGE_INTERVAL))
     
 {
-    // Load sprite sheet
-   /* if (!m_texture.loadFromFile("scary_guard_spritesheet.png")) {
-        std::cerr << "Failed to load guard spritesheet" << std::endl;
-    }*/
-
-
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
     // Set up the sprite
-    
-
-
+  
     sf::Sprite& sprite = getSprite();
 
     sprite.setTexture(resourceManager.getTexture("scary_guard_spritesheet.png"));

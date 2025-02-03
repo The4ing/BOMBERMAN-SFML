@@ -7,26 +7,12 @@ Bomb::Bomb()
 
     ResourceManager& resourceManager = ResourceManager::getInstance();
     setTexture(resourceManager.getTexture("bomb.png"));
-  //  m_sprite.setTexture(resourceManager.getTexture("bomb.png"));
+  
 }
 
 
 
-//Get bomb position
-//sf::Vector2f Bomb::getPosition() const {
-//    return m_sprite.getPosition();
-//}
 
-// Set bomb position
-//void Bomb::setPosition(float newX, float newY) {
-//    m_sprite.setPosition(newX, newY);
-//}
-
-
-//sf::FloatRect Bomb::getBoundingBox() const
-//{
-//    return getSprite().getGlobalBounds();
-//}
 
 // Draw function
 void Bomb::draw(sf::RenderWindow& window) const {
@@ -45,6 +31,7 @@ void Bomb::draw(sf::RenderWindow& window) const {
                 return;
             }
         }
+
         sprite.setTexture(explodedTexture);
         sprite.setScale(
             (m_cellSizex * 2.f) / sprite.getTexture()->getSize().x,
@@ -95,7 +82,7 @@ char Bomb::getSymbol() const
 // Update function
 void Bomb::update(const float deltaTime) {
     auto elapsed = std::chrono::steady_clock::now() - m_startTime;
-
+    std::cout << elapsed << " time" << std::endl;
     if (!m_exploded && std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() >= 4) {
         SetXplode();
     }

@@ -98,6 +98,7 @@ bool Board::loadFromFile(const std::string& fileName) {
                 int randomPlace = rand() % 5;
                 std::unique_ptr<Present> present;
                 if (Present::getPresentCount() < 5 && randomPlace == 1) {
+                    std::cout << random << " f" << std::endl;
 
                     switch (random) {
                     case 0:
@@ -152,19 +153,19 @@ void Board::PowerUp(const char choice) {
     case 'F':
         for (const auto& obj : m_movingObjects) {
             if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
-                //  guard->setFrozen(true);  // Freeze guard
+                guard->setFreezeGaurd(true);  // Freeze guard
             }
         }
 
         // Create a thread to unfreeze guards after 10 seconds
-        //std::thread([this]() {
-        //    std::this_thread::sleep_for(std::chrono::seconds(10));
-        //    for (const auto& obj : m_movingObjects) {
-        //        if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
-        //            guard->setFrozen(false);  // Unfreeze guard
-        //        }
-        // }
-        //}).detach();  // Detach the thread to avoid blocking
+        std::thread([this]() {
+            std::this_thread::sleep_for(std::chrono::seconds(10));
+            for (const auto& obj : m_movingObjects) {
+                if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
+                    guard->setFreezeGaurd(false);  // Unfreeze guard
+                }
+         }
+        }).detach();  // Detach the thread to avoid blocking
 
         std::cout << "All guards frozen for 10 seconds!" << std::endl;
         break;
@@ -210,9 +211,6 @@ void Board::PowerUp(const char choice) {
 
 //
 
-//const sf::Texture& Board::GetTexture(const int choice) const {
-//    return m_textures[choice];
-//}
 
 void Board::callUpdateToolbar(const float deltatime) {
     m_Toolbar.callUpdateToolbar(deltatime);
@@ -234,24 +232,6 @@ void Board::SetSprite(sf::Sprite& picture, const float POSx, const float POSy, c
 
 
 
-//void Board::loadTextures() {
-//    m_textures.resize(TEXTURE_COUNT);
-//    const std::map<int, std::string> textureFiles = {
-//        {WALL, "wall.png"},
-//        {ROCK, "rock.png"},
-//        {GUARD, "guard.png"},
-//        {DOOR, "door.png"},
-//        {EMPTY, "empty.png"},
-//        {BOMB, "bomb.png"},
-//        {PRESENT,"present.png"},
-//    };
-//
-//    for (const auto& [index, filename] : textureFiles) {
-//        if (!m_textures[index].loadFromFile(filename)) {
-//            std::cerr << "Error: Could not load texture file " << filename << std::endl;
-//        }
-//    }
-//}
 
 void Board::display(sf::RenderWindow& window) {
     // Draw the toolbar
@@ -316,6 +296,7 @@ int Board::update(float deltaTime) {
     m_robot->update(deltaTime);
     m_Toolbar.callUpdateToolbar(deltaTime);
     // Use an iterator-based loop for safe removal
+   // Use an iterator-based loop for safe removal
     for (auto it = m_movingObjects.begin(); it != m_movingObjects.end(); ) {
         auto* bomb = dynamic_cast<Bomb*>((*it).get());
 
@@ -323,12 +304,20 @@ int Board::update(float deltaTime) {
             std::cout << "Bomb removed!\n";
             it = m_movingObjects.erase(it); // Erase bomb & update iterator
         }
-        else {
-            (*it)->update(deltaTime);
-            checkIfSmartGuard((*it).get());
+
+        else { // Ensure we only increment if not erased
+            auto* guard = dynamic_cast<Guard*>((*it).get());
+            if (guard && !guard->getIsFreeze()) {
+                (*it)->update(deltaTime);
+                checkIfSmartGuard((*it).get());
+            }
+            else if (!guard) {
+                (*it)->update(deltaTime);
+            }
             ++it; // Only increment if not erased
         }
     }
+
     handleCollisions();
 
 
@@ -486,7 +475,7 @@ void Board::GenerateBomb() {
 
             // Check if the bounding boxes of the two collision shapes intersect
             if (newBombCollisionShape.getGlobalBounds().intersects(existingBombCollisionShape.getGlobalBounds())) {
-                std::cout << "Cannot place bomb: Overlaps with an existing bomb.\n";
+               // std::cout << "Cannot place bomb: Overlaps with an existing bomb.\n";
                 return; // Bomb overlaps, do not place
             }
         }
@@ -494,7 +483,7 @@ void Board::GenerateBomb() {
 
     // Add the bomb to the moving objects if no overlap
     m_movingObjects.push_back(std::move(bomb));
-    std::cout << "Bomb placed successfully at: (" << robotPos.x << ", " << robotPos.y << ").\n";
+   // std::cout << "Bomb placed successfully at: (" << robotPos.x << ", " << robotPos.y << ").\n";
 }
 
 void Board::resetObjectsLocation() {

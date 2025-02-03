@@ -2,7 +2,7 @@
 
 
 Guard::Guard() : m_previousPosition(0.f, 0.f), m_frameWidth(127.5f), m_frameHeight(163.3f),
-m_animationFrame(0)
+m_animationFrame(0), m_freezeGuard(false)
 {
 	m_numGuard++;
 }
@@ -49,6 +49,16 @@ char Guard::getSymbol() const
 {
 	 return '!'; 
 	
+}
+
+void Guard::setFreezeGaurd(const bool status)
+{
+	m_freezeGuard = status;
+}
+
+const bool Guard::getIsFreeze() const 
+{
+	return m_freezeGuard;
 }
 
 

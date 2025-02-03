@@ -3,7 +3,7 @@
 #include <iostream>
 
 SmartGuard::SmartGuard()
-    : m_speed(100.f),
+    : m_speed(50.f),
     m_randomChangeInterval(sf::seconds(3.f))
 {
     ResourceManager& resourceManager = ResourceManager::getInstance();
