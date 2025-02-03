@@ -1,18 +1,35 @@
 #include "Guard.h"
 
 
-
-
-Guard::Guard() : m_previousPosition(0.f, 0.f),m_frameWidth(127.5f), m_frameHeight(163.3f),\
+Guard::Guard() : m_previousPosition(0.f, 0.f), m_frameWidth(127.5f), m_frameHeight(163.3f),
 m_animationFrame(0)
+{
+	m_numGuard++;
+}
 
-{}
+int Guard::m_numGuard = 0;
+
+
+int Guard::getGuardCount()
+{
+	return m_numGuard;
+}
+
+void Guard::restartNumGuard()
+{
+	m_numGuard = 0;
+}
+
+void Guard::reduceNumGuard()
+{
+	m_numGuard--;
+}
 
 
 
 void Guard::revertPosition()
 {
-	m_sprite.setPosition(m_previousPosition);
+	setPosition(m_previousPosition.x, m_previousPosition.y);
 }
 
 
@@ -34,26 +51,12 @@ char Guard::getSymbol() const
 	
 }
 
-void Guard::setPosition(float newX, float newY)
-{
-	m_sprite.setPosition(newX, newY);
 
-}
-
-
-sf::Vector2f Guard::getPosition() const
-{
-	return m_sprite.getPosition();
-}
-
-sf::FloatRect Guard::getBoundingBox() const
-{
-	return m_sprite.getGlobalBounds();
-}
 
 void Guard::draw(sf::RenderWindow& window) const
 {
-	window.draw(m_sprite);
+	
+	window.draw(getSprite());
 	sf::CircleShape collisionShape = getCollisionShape();
 	collisionShape.setFillColor(sf::Color::Transparent);
 	collisionShape.setOutlineColor(sf::Color::Red);
@@ -80,10 +83,7 @@ void Guard::handleCollisionWith(Door&)
 	revertPosition();
 }
 
-void Guard::setScale(float scaleX, float scaleY)
-{
-	m_sprite.setScale(scaleX, scaleY);
-}
+
 
 
 

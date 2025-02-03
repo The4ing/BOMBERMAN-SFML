@@ -21,10 +21,17 @@ StupidGuard::StupidGuard()
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
     // Set up the sprite
-    m_sprite.setTexture(resourceManager.getTexture("scary_guard_spritesheet.png"));
+    
+
+
+    sf::Sprite& sprite = getSprite();
+
+    sprite.setTexture(resourceManager.getTexture("scary_guard_spritesheet.png"));
 
     // Set the initial texture rectangle (first frame of the first row)
-    m_sprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
+    sprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
+
+
     // m_sprite.setOrigin(m_frameWidth / 2, m_frameHeight / 2);
 
      // Initialize random direction
@@ -64,14 +71,18 @@ void StupidGuard::changeDirection() {
 }
 
 void StupidGuard::update(float deltaTime) {
+
+    sf::Sprite& spriteGurad = getSprite();
+
+
     // Save the current position before moving
-    m_previousPosition = m_sprite.getPosition();
+    m_previousPosition = getPosition();
 
     // Increase the time since the last direction change
     m_timeSinceLastChange += sf::seconds(deltaTime);
 
     // Move the guard
-    m_sprite.move(m_velocity * deltaTime);
+    spriteGurad.move(m_velocity * deltaTime);
 
     // Change direction if the cooldown period has passed
     if (m_timeSinceLastChange >= m_randomChangeInterval) {
@@ -95,19 +106,19 @@ void StupidGuard::update(float deltaTime) {
         //m_sprite.setOrigin(0.f, 0.f);
     }
     else if (m_direction == LEFT) {
-        textureY = m_frameHeight;
+        textureY = static_cast<int>(m_frameHeight);
         //  m_sprite.setOrigin(0.f, 0.f);
     }
     else if (m_direction == RIGHT) {
-        textureY = m_frameHeight;
+        textureY = static_cast<int>(m_frameHeight);
         // m_sprite.setOrigin(m_frameWidth, 0.f);
     }
     else if (m_direction == UP) {
-        textureY = m_frameHeight * 2;
+        textureY = static_cast<int>(m_frameHeight * 2);
         // m_sprite.setOrigin(0.f, 0.f);
     }
 
-    m_sprite.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
+    spriteGurad.setTextureRect(sf::IntRect(textureX, textureY, m_frameWidth, m_frameHeight));
 }
 
 
@@ -128,15 +139,12 @@ void StupidGuard::handleCollisionWith(Wall& wall) {
 
 
 
-void StupidGuard::handleCollisionWith(Guard&) {
-    //std::cout << "StupidGuard collided with another Guard.\n";
-}
+
 
 
 void StupidGuard::handleCollisionWith(Bomb&, bool) {
     revertPosition();
 }
-
 
 
 
@@ -148,8 +156,8 @@ sf::CircleShape StupidGuard::getCollisionShape() const {
 
     // Position the circle
     collisionShape.setPosition(
-        m_sprite.getPosition().x + m_frameWidth / 2 - (3 * CIRCLRE_OFFSET),
-        m_sprite.getPosition().y + m_frameHeight / 2 - (3 * CIRCLRE_OFFSET)
+        getPosition().x + m_frameWidth / 2 - (3 * CIRCLRE_OFFSET),
+        getPosition().y + m_frameHeight / 2 - (3 * CIRCLRE_OFFSET)
     );
 
     return collisionShape;

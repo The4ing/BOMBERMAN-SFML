@@ -4,7 +4,6 @@
 Board::Board()
     : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_pause(false), m_pausedByHit(false), m_levelComplete(false), m_lives(3), m_pauseDuration(2) {
     m_robot = std::make_unique<Robot>();
-    //loadTextures();
     srand(static_cast<unsigned int>(time(0)));
 }
 
@@ -475,6 +474,7 @@ void Board::GenerateBomb() {
     sf::Vector2f robotPos = m_robot->getPosition();
     bomb->setPosition(robotPos.x, robotPos.y);
 
+    
     // Get the collision shape of the new bomb
     sf::CircleShape newBombCollisionShape = bomb->getCollisionShape();
 

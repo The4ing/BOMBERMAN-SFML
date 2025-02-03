@@ -6,9 +6,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Clock.hpp>
 #include <sstream>
-#include "Cell.h"
 #include "Wall.h"
-#include "Empty.h"
 #include "Door.h"
 #include "Robot.h"
 #include "SmartGuard.h"
@@ -25,24 +23,14 @@
 #include "increaseTime.h"
 
 
-// Enum to define power-up choices
-//enum powerUps {
-//    FreezeGuards,
-//    ExtraLife,
-//    RemovedGuard,
-//    TimeIncrease
-//};
+
 
 class Board {
 public:
     Board();
 
     void PowerUp(const char choice);
-    //void FreezeAllGuards(const bool status);
-    //void GrantExtraLife();
-
-    /* int getCols() const;
-     int getRows() const;*/
+   
 
 
     //const sf::Texture& GetTexture(const int choice) const;
@@ -53,15 +41,9 @@ public:
 
     // Other members and variables for game state
     bool loadFromFile(const std::string& fileName);
-    //void loadTextures();
-    // void displayConsole() const;
     void display(sf::RenderWindow& window);
 
-    // New methods for robot position
-    //sf::Vector2i getRobotGridPosition() const;
-   //
-   // 
-   // sf::Vector2f getRobotScreenPosition(const sf::RenderWindow& window) ;
+    
 
     sf::Vector2f getCellSize() const;
     void handleMouseClick(sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition);
@@ -89,17 +71,13 @@ private:
     bool m_pausedByHit;      // Track if pause was triggered by robot hit
 
     sf::Vector2f m_cellSize;
-
     std::vector<std::unique_ptr<GameObject>> m_objects;          // Static objects (e.g., walls, rocks)
     std::vector<std::unique_ptr<MovingGameObject>> m_movingObjects; // Moving objects (e.g., robot, guards)
     std::unique_ptr<Robot> m_robot;
     int m_rows, m_cols;
-    //    bool m_pause = false;  // ? New flag to freeze game
     bool m_levelComplete;
 
     ToolbarGame m_Toolbar;
-  //  std::vector<sf::Texture> m_textures;
-    //  std::vector<sf::Vector2f> m_guardsStartingPositions;
     sf::Vector2f m_robotStartingPosition;
     void resetObjectsLocation();
     sf::View m_view;

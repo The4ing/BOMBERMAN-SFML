@@ -11,26 +11,28 @@ class Guard;
 class Wall : public GameObject {
 public:
     Wall();
-
+    //sf::Vector2f getPosition() const override;
     char getSymbol() const override;
-    sf::Vector2f getPosition() const override;
-    void setPosition(float x, float y) override;
     void draw(sf::RenderWindow& window) const override;
-    sf::FloatRect getBoundingBox() const override;
+
+   // void setPosition(float x, float y) override;
+    /*sf::FloatRect getBoundingBox() const override;
+    void setScale(float scaleX, float scaleY) override;*/
+
 
     void handleCollision(GameObject& other) override;
 
     // Handle collisions with specific types
-    void handleCollisionWith(Robot& robot) override;
-    void handleCollisionWith(Wall& wall) override;
-    void handleCollisionWith(Rock& rock) override;
-    void handleCollisionWith(Door& door) override;
-    void handleCollisionWith(Guard& guard) override;
-    void handleCollisionWith(Present& Present) override;
-    void handleCollisionWith(Bomb& Bomb, bool isExploding) override;       // No-op for Bomb
+    void handleCollisionWith(Robot& ) override {}
+    void handleCollisionWith(Wall& ) override{}
+    void handleCollisionWith(Rock& ) override {}
+    void handleCollisionWith(Door& ) override {}
+    void handleCollisionWith(Guard& ) override {}
+    void handleCollisionWith(Present& ) override {}
+    void handleCollisionWith(Bomb& , bool) override {}    // No-op for Bomb
 
-    void setScale(float scaleX, float scaleY);
+   
 
 private:
-    sf::Sprite m_sprite;
+    //sf::Sprite m_sprite;
 };

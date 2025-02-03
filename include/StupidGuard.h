@@ -13,13 +13,11 @@ public:
    
     
     void update(float deltaTime) override;
-    
-   
 
     // Specific collision handling
     
     void handleCollisionWith(Wall&) override;
-    void handleCollisionWith(Guard& ) override;
+    void handleCollisionWith(Guard&) override {}
     void handleCollisionWith(Bomb&, bool ) override;        // No-op for Bomb
 
     
@@ -30,10 +28,7 @@ private:
     // Helper Methods
     void changeDirection();
    
-    // Animation-related members
-   // sf::Texture m_texture;          // Texture for the guard's sprite
-
-    // Sprite for the guard
+    
   
 
     sf::Clock m_animationClock;     // Clock for animating the guard

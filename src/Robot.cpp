@@ -15,24 +15,33 @@ Robot::Robot()
     }*/
 
     ResourceManager& resourceManager = ResourceManager::getInstance();
+    setTexture(resourceManager.getTexture("robot_spritesheet.png"));
 
-    m_sprite.setTexture(resourceManager.getTexture("robot_spritesheet.png"));
-    m_sprite.setTextureRect(sf::IntRect(4 * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
-    m_sprite.setScale(ROBOT_SCALE, ROBOT_SCALE);
+
+    sf::Sprite& sprite = getSprite();
+    sprite.setTexture(resourceManager.getTexture("robot_spritesheet.png"));
+    sprite.setTextureRect(sf::IntRect(4 * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
+    setScale(ROBOT_SCALE, ROBOT_SCALE);
 }
+
+
+
+//sf::Vector2f Robot::getPosition() const {
+//    return m_sprite.getPosition();
+//}
+
 
 // Position handling
-void Robot::setPosition(float x, float y) {
-    m_sprite.setPosition(x, y);
-}
+//void Robot::setPosition(float x, float y) {
+//    m_sprite.setPosition(x, y);
+//}
 
-sf::Vector2f Robot::getPosition() const {
-    return m_sprite.getPosition();
-}
+
 
 
 sf::Vector2i Robot::getCurrentCell() const {
-    sf::Vector2f pos = m_sprite.getPosition();
+  
+    sf::Vector2f pos = getPosition();
     return sf::Vector2i(
         static_cast<int>(pos.x / (SPRITE_WIDTH * ROBOT_SCALE)),
         static_cast<int>(pos.y / (SPRITE_HEIGHT * ROBOT_SCALE))
@@ -40,15 +49,16 @@ sf::Vector2i Robot::getCurrentCell() const {
 }
 
 void Robot::update(float deltaTime) {
+    sf::Sprite& spriteRobot = getSprite();
 
     if (m_robotHit) { // Robot is in death state
         int deadFrame = (m_animationClock.getElapsedTime().asMilliseconds() / 100);
 
         if (deadFrame < 7) {
-            m_sprite.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
+            spriteRobot.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
         }
         else {
-            m_sprite.setTextureRect(sf::IntRect(6 * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT)); // Stay on last frame
+            spriteRobot.setTextureRect(sf::IntRect(6 * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT)); // Stay on last frame
         }
         m_robotHit = false;
         return; // Skip movement when dead
@@ -76,15 +86,15 @@ void Robot::update(float deltaTime) {
     }
 
     // Move based on updated velocity
-    m_previousPosition = m_sprite.getPosition();
-    m_sprite.move(m_velocity * deltaTime);
+    m_previousPosition = spriteRobot.getPosition();
+    spriteRobot.move(m_velocity * deltaTime);
 
     // Handle animation updates for movement
     if (m_velocity.x != 0 || m_velocity.y != 0) {
         if (m_animationClock.getElapsedTime() > m_animationTimer) {
             m_animationFrame = (m_animationFrame + 1) % 3;
             int textureX = (m_animationFrame + ((m_direction - 1) * 3)) * SPRITE_WIDTH;
-            m_sprite.setTextureRect(sf::IntRect(textureX, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
+            spriteRobot.setTextureRect(sf::IntRect(textureX, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
             m_animationClock.restart();
         }
     }
@@ -176,7 +186,8 @@ bool Robot::validKeys(sf::Keyboard::Key key) {
 
 // Draw method
 void Robot::draw(sf::RenderWindow& window) const {
-    window.draw(m_sprite);
+  
+    window.draw(getSprite());
     sf::CircleShape collisionShape = getCollisionShape();
     collisionShape.setFillColor(sf::Color::Transparent);
     collisionShape.setOutlineColor(sf::Color::Red);
@@ -185,10 +196,12 @@ void Robot::draw(sf::RenderWindow& window) const {
 
 }
 
-sf::FloatRect Robot::getBoundingBox() const {
-    return m_sprite.getGlobalBounds();
-    sf::FloatRect bounds = m_sprite.getGlobalBounds();
-}
+//sf::FloatRect Robot::getBoundingBox() const {
+//    sf::Sprite sprite = getSprite();
+//    return sprite.getGlobalBounds();
+//
+//   
+//}
 
 void Robot::handleCollision(GameObject& other) {
     other.handleCollisionWith(*this); // Delegate collision handling to the other object
@@ -213,14 +226,7 @@ void Robot::handleCollisionWith(Guard& guard) {
     }
 }
 
-void Robot::handleCollisionWith(Present& Present)
-{
-    //  activate the present
-}
 
-void Robot::handleCollisionWith(Robot& robot) {
-    //  stop(); // Stop movement when hitting another robot
-}
 void Robot::handleCollisionWith(Bomb&, bool isExploding) {
     if (isExploding) {
         m_robotHit = true;
@@ -230,6 +236,7 @@ void Robot::handleCollisionWith(Bomb&, bool isExploding) {
 }
 
 void Robot::resolveCollision(const GameObject& object) {
+
     // Get bounding boxes
     sf::FloatRect robotBounds = getBoundingBox();
     sf::FloatRect objectBounds = object.getBoundingBox();
@@ -243,7 +250,7 @@ void Robot::resolveCollision(const GameObject& object) {
     // Check if there's a collision
     if (overlapLeft > 0 && overlapRight > 0 && overlapTop > 0 && overlapBottom > 0) {
         // Restore the robot's previous position
-        m_sprite.setPosition(m_previousPosition);
+        setPosition(m_previousPosition.x, m_previousPosition.y);
 
         // Stop the robot's velocity to prevent further movement into the object
         m_velocity = { 0.f, 0.f };
@@ -261,8 +268,8 @@ sf::CircleShape Robot::getCollisionShape() const {
     float verticalScale = 1.f;    // Keep this 1.0 to maintain original height
     collisionCircle.setScale(horizontalScale, verticalScale);
 
-    collisionCircle.setPosition(m_sprite.getPosition().x + SPRITE_WIDTH / 2 - 10,
-        m_sprite.getPosition().y + SPRITE_HEIGHT / 2 - 5);
+    collisionCircle.setPosition(getPosition().x + SPRITE_WIDTH / 2 - 10,
+        getPosition().y + SPRITE_HEIGHT / 2 - 5);
     return collisionCircle;
 }
 

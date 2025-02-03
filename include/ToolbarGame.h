@@ -14,9 +14,7 @@ class ToolbarGame {
 public:
 
     ToolbarGame();
-    //void LoudSprite();
-    //void loadTextures();
-   // const sf::Texture& GetTexture(const int& choice) const;
+   
 
     //mute:
     void toggleMute();
@@ -48,25 +46,14 @@ private:
    
    
 
-    //sf::RectangleShape m_timerBackground;
-    //sf::Sprite m_clockHand;
-    //sf::Sprite m_arrow;
+   
     sf::Sprite m_timer;
     std::vector<sf::Sprite> m_heart;
     sf::Sprite m_muteButton;       // Sprite for the mute button
     
 
 
-    //std::vector<sf::Texture> m_ToolbatTexture;
-    //sf::Font m_font;
-    //sf::Text m_timerText;
-    
-    
-    //sf::Texture m_muteTexture;     // Mute icon texture
-    //sf::Texture m_unmuteTexture;   // Unmute icon texture
-    //void SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const;
-
-    
+   
 
     float m_LevelDuration;        // Total duration of the level
     float m_TimeLeft;             // Time remaining for the level

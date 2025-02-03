@@ -6,12 +6,31 @@ Bomb::Bomb()
     : m_startTime(std::chrono::steady_clock::now()), m_exploded(false) {
 
     ResourceManager& resourceManager = ResourceManager::getInstance();
-    m_sprite.setTexture(resourceManager.getTexture("bomb.png"));
+    setTexture(resourceManager.getTexture("bomb.png"));
+  //  m_sprite.setTexture(resourceManager.getTexture("bomb.png"));
 }
+
+
+
+//Get bomb position
+//sf::Vector2f Bomb::getPosition() const {
+//    return m_sprite.getPosition();
+//}
+
+// Set bomb position
+//void Bomb::setPosition(float newX, float newY) {
+//    m_sprite.setPosition(newX, newY);
+//}
+
+
+//sf::FloatRect Bomb::getBoundingBox() const
+//{
+//    return getSprite().getGlobalBounds();
+//}
 
 // Draw function
 void Bomb::draw(sf::RenderWindow& window) const {
-    sf::Sprite sprite = m_sprite;
+    sf::Sprite sprite = getSprite();
 
     float windowWidth = 1920.0f;
     float windowHeight = 1080.0f;
@@ -31,14 +50,14 @@ void Bomb::draw(sf::RenderWindow& window) const {
             (m_cellSizex * 2.f) / sprite.getTexture()->getSize().x,
             (m_cellSizey * 2.f) / sprite.getTexture()->getSize().y
         );
-        sprite.setPosition(m_sprite.getPosition().x - 45, m_sprite.getPosition().y - 45);
+        sprite.setPosition(getPosition().x - 45, getPosition().y - 45);
     }
     else {
         sprite.setScale(
             m_cellSizex / sprite.getTexture()->getSize().x,
             m_cellSizey / sprite.getTexture()->getSize().y
         );
-        sprite.setPosition(m_sprite.getPosition().x - 15, m_sprite.getPosition().y);
+        sprite.setPosition(getPosition().x - 15, getPosition().y);
     }
 
     window.draw(sprite);
@@ -64,14 +83,13 @@ void Bomb::draw(sf::RenderWindow& window) const {
 }
 
 
-// Get bomb position
-sf::Vector2f Bomb::getPosition() const {
-    return m_sprite.getPosition();
-}
 
-// Set bomb position
-void Bomb::setPosition(float newX, float newY) {
-    m_sprite.setPosition(newX, newY);
+
+
+
+char Bomb::getSymbol() const
+{
+     return 'B'; 
 }
 
 // Update function
@@ -123,11 +141,13 @@ void Bomb::markForRemoval() {
 
 // Get the explosion area
 sf::FloatRect Bomb::getExplosionArea() const {
+    sf::Sprite sprite = getSprite();
+
     if (!m_exploded) {
         return {};
     }
 
-    sf::FloatRect explosionBounds = m_sprite.getGlobalBounds();
+    sf::FloatRect explosionBounds = getBoundingBox();
     float explosionRadius = explosionBounds.width * 1.5f; // Adjust explosion size if necessary
 
     return sf::FloatRect(
@@ -151,8 +171,8 @@ sf::CircleShape Bomb::getCollisionShape() const {
     float horizontalScale = 0.7f;
     float verticalScale = 1.0f;
     collisionCircle.setScale(horizontalScale, verticalScale);
-    collisionCircle.setPosition(m_sprite.getPosition().x + 20 / 2 - 10,
-        m_sprite.getPosition().y + 30 / 2 - 5);
+    collisionCircle.setPosition(getPosition().x + 20 / 2 - 10,
+        getPosition().y + 30 / 2 - 5);
     return collisionCircle;
 }
 
@@ -169,7 +189,7 @@ std::vector<sf::FloatRect> Bomb::getExplosionPlusShapeBounds() const {
     float horizontalLength = 100.f;
     float verticalLength = 140.f;
     float thickness = 25.f;
-    sf::Vector2f center = m_sprite.getPosition();
+    sf::Vector2f center = getPosition();
 
     sf::FloatRect horizontalRect(
         center.x - horizontalLength / 2 + 20,

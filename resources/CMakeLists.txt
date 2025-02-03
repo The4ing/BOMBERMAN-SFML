@@ -34,4 +34,5 @@ configure_file ("lost_life_screen.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("timer.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("present.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("digit.ttf" ${CMAKE_BINARY_DIR} COPYONLY)
- 
+configure_file ("gamePlay.ogg" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("bossGame.ogg" ${CMAKE_BINARY_DIR} COPYONLY)

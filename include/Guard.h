@@ -11,7 +11,6 @@ protected:
     sf::Vector2f m_velocity;        // Guard's current velocity
 
     sf::CircleShape m_collisionShape;
-
     float m_frameWidth;
     float m_frameHeight;
     int m_animationFrame;           // frame of the animation
@@ -20,14 +19,25 @@ protected:
 
 public:
     Guard();
+
+
+    static int getGuardCount();
+    static void restartNumGuard();
+    static void reduceNumGuard();
+  
+
+  
+
+
+
+    void draw(sf::RenderWindow& window) const override;
+    char getSymbol() const override;
+   
+   
+
+   
     virtual void setStartingPosition(float newX, float newY);
     virtual sf::Vector2f getStartingPosition();
-    char getSymbol() const override;
-    void setPosition(float newX, float newY) override;
-    sf::Vector2f getPosition() const override;
-    sf::FloatRect getBoundingBox() const override;
-    void draw(sf::RenderWindow& window) const override;
-    virtual void setScale(float scaleX, float scaleY);
 
 
     void handleCollision(GameObject& other) override;
@@ -37,18 +47,10 @@ public:
     void handleCollisionWith(Present& ) override {}
 
 
-  
+private:
 
+    static int m_numGuard;
     
-  //  virtual void colision() = 0; // Pure virtual function
-  
-  //  virtual void reverseDirection() = 0; 
-    //    m_direction.x = -m_direction.x; // Reverse X direction
-    //    m_direction.y = -m_direction.y; // Reverse Y direction
-    //}
-
-    
-
 };
 
 

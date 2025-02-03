@@ -4,41 +4,25 @@
 // Constructor
 MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     : m_window(window), m_game(game), m_state(MAIN_MENU) {
-    // Load main menu background
-  /*  if (!m_mainBackgroundTexture.loadFromFile("menu.png")) {
-        std::cerr << "Error loading main menu background!" << std::endl;
-    }*/
+  
 
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
     m_mainBackgroundSprite.setTexture(resourceManager.getTexture("menu.png"));
-
-    // Load help menu background
-   /* if (!m_helpBackgroundTexture.loadFromFile("helpBackground.png")) {
-        std::cerr << "Error loading help menu background!" << std::endl;
-    }*/
-
     m_helpBackgroundSprite.setTexture(resourceManager.getTexture("helpBackground.png"));
 
-    // Load font
-    /*if (!m_font.loadFromFile("PixelFontBlack.otf")) {
-        std::cerr << "Error loading font!" << std::endl;
-    }*/
 
     // Load and play background music
-    if (!m_menuMusic.openFromFile("menuMusic.ogg")) {
-        std::cerr << "Error loading menu music!" << std::endl;
-    }
-    m_menuMusic.setLoop(true); // Loop the music
-    m_menuMusic.setVolume(20);
-    m_menuMusic.play();        // Start playing the music
+    sf::Music& BGMusic = resourceManager.getMusic("menuMusic");
+    BGMusic.setLoop(false);
+    // m_menuMusic.setVolume(50);
+    BGMusic.play();
 
-
-    // Load button sound
-    if (!m_buttonClickBuffer.loadFromFile("ButtonMusic.ogg")) {
-        std::cerr << "Error loading button click sound!" << std::endl;
-    }
-    m_buttonClickSound.setBuffer(m_buttonClickBuffer);
+    //// Load button sound
+    //if (!m_buttonClickBuffer.loadFromFile("ButtonMusic.ogg")) {
+    //    std::cerr << "Error loading button click sound!" << std::endl;
+    //}
+    //m_buttonClickSound.setBuffer(m_buttonClickBuffer);
 
 
 
@@ -135,6 +119,11 @@ void MainMenuDisplay::initializeHelpObjects() {
 
 // Handle user input
 int MainMenuDisplay::handleInput() {
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+
+
+    sf::Music& BGMusic = resourceManager.getMusic("menuMusic");
+
     sf::Event event;
     while (m_window->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
@@ -151,7 +140,8 @@ int MainMenuDisplay::handleInput() {
 
         if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
             if (handleButtonClick(sf::Mouse::getPosition(*m_window)) == START_GAME) {
-                m_menuMusic.stop();
+                //   m_menuMusic.stop();
+                BGMusic.stop();;
                 return START_GAME;
             }
         }
@@ -233,16 +223,19 @@ void MainMenuDisplay::show() {
 int MainMenuDisplay::handleButtonClick(const sf::Vector2i mousePosition) {
     sf::Vector2f worldMousePos = m_window->mapPixelToCoords(mousePosition);
 
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+    sf::Sound& explosionSound = resourceManager.getSound("ButtonMusic");
+
     if (m_startButton.getGlobalBounds().contains(worldMousePos)) {
-        m_buttonClickSound.play();
+        explosionSound.play();
         return START_GAME;
     }
     if (m_helpButton.getGlobalBounds().contains(worldMousePos)) {
-        m_buttonClickSound.play();
+        explosionSound.play();
         m_state = HELP_SCREEN;
     }
     if (m_exitButton.getGlobalBounds().contains(worldMousePos)) {
-        m_buttonClickSound.play();
+        explosionSound.play();
         m_window->close();
     }
     return 0;

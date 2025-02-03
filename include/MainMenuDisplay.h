@@ -31,13 +31,11 @@ private:
     int m_game;                   // Game reference
 
     // Backgrounds
-   // sf::Texture m_mainBackgroundTexture;
+   
     sf::Sprite m_mainBackgroundSprite;
-    //sf::Texture m_helpBackgroundTexture;
     sf::Sprite m_helpBackgroundSprite;
 
     // Fonts and text
-   // sf::Font m_font;
     sf::Text m_startButton;
     sf::Text m_helpButton;
     sf::Text m_exitButton;
@@ -60,7 +58,7 @@ private:
     bool played = false;
 
     // Menu music
-    sf::Music m_menuMusic;
+  //  sf::Music m_menuMusic;
 
     // Helper methods
     void configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset);

@@ -37,12 +37,18 @@ void GameManager::newGame() {
 }
 
 void GameManager::startGame() {
-    sf::Texture lostLifeTexture;
-    if (!lostLifeTexture.loadFromFile("lost_life_screen.png")) {
-        std::cerr << "Error: Failed to load lost_life_screen.png" << std::endl;
-        return;
+
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+    sf::Sprite lostLifeSprite(resourceManager.getTexture("lost_life_screen.png"));
+    m_gameMusic = "startGame";
+    if (m_currentLevel == 6) { // 6  = BOSS_LEVEL
+        m_gameMusic = "bossGame";
     }
-    sf::Sprite lostLifeSprite(lostLifeTexture);
+    sf::Music& gamePlay = resourceManager.getMusic(m_gameMusic);
+    gamePlay.setLoop(true);
+    // m_menuMusic.setVolume(50);
+    gamePlay.play();
+    m_window.clear();
     sf::Clock clock;
     int gameState = 0;
     bool isWindowFocused = true;
@@ -85,6 +91,7 @@ void GameManager::startGame() {
         m_board.display(m_window);
         m_window.display();
         if (m_board.isLevelComplete()) {  // Check if the player completed the level
+            gamePlay.stop();
             loadNextLevel();  // Load the next level
             //
             m_mainMenu.Run();
@@ -162,7 +169,7 @@ char GameManager::getSingleKeyPress() {
 }
 
 void GameManager::loadNextLevel() {
-    m_window.clear();
+  
     m_currentLevel++;  // Move to the next level
 
     // Generate the filename based on level number

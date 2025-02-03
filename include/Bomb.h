@@ -1,7 +1,6 @@
 #pragma once
 #include "MovingGameObject.h"
 #include <SFML/Graphics.hpp>
-//#include "Utilities.h" 
 #include <chrono>
 #include <optional> // To handle the optional explosion time
 
@@ -12,13 +11,14 @@ public:
 
 
     Bomb();
-    sf::FloatRect getBoundingBox() const override { return m_sprite.getGlobalBounds(); }
-    char getSymbol() const override { return 'B'; }
-    //  sf::Vector2f getPosition() const override { return m_sprite.getPosition(); }
-    void setPosition(float newX, float newY) override;
+   
+
+
+    char getSymbol() const override;
+   
     void update(const float deltaTime) override;
     void draw(sf::RenderWindow& window) const override;
-    sf::Vector2f getPosition() const override;
+ 
 
     void handleCollision(GameObject& other) override; // Double dispatch entry point
     void handleCollisionWith(Robot& robot) override {} // Handle collision with a Robot
@@ -27,7 +27,7 @@ public:
     void handleCollisionWith(Door&) override {}       // No-op for Door
     void handleCollisionWith(Guard&) override {}       // No-op for Guard
     void handleCollisionWith(Present&) override {}
-    void handleCollisionWith(Bomb&, bool isExploding) override {}       // No-op for Bomb
+    void handleCollisionWith(Bomb&, bool ) override {}       // No-op for Bomb
 
     std::vector<sf::FloatRect> getExplosionPlusShapeBounds() const;
 
@@ -38,8 +38,7 @@ public:
     void markForRemoval();
 
 private:
-   // sf::Texture m_explodedTexture;
-    sf::Sprite m_sprite;
+  
     void SetXplode();
     bool m_exploded;
     std::chrono::steady_clock::time_point m_startTime;

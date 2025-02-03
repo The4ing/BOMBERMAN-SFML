@@ -20,71 +20,35 @@ ToolbarGame::ToolbarGame()
     timerText.setLetterSpacing(2.f);
     resourceManager.addText("timer", timerText);
 
+
+
     // Set up timer sprite
-    sf::Sprite timerSprite;
-    timerSprite.setTexture(resourceManager.getTexture("timer.png"));
-    timerSprite.setOrigin(timerSprite.getGlobalBounds().width / 2, timerSprite.getGlobalBounds().height / 2);  // Set origin to center of the sprite
-    timerSprite.setPosition(100.f, 50.f);
-    timerSprite.setScale(0.2f, 0.2f);
-    resourceManager.addSprite("timer", timerSprite);
+    m_timer.setTexture(resourceManager.getTexture("timer.png"));
+    m_timer.setOrigin(m_timer.getGlobalBounds().width / 2, m_timer.getGlobalBounds().height / 2);  // Set origin to center of the sprite
+    m_timer.setPosition(100.f, 50.f);
+    m_timer.setScale(0.2f, 0.2f);
+   
 
 
     // Set up mute button
-    sf::Sprite muteButton;
-    muteButton.setTexture(resourceManager.getTexture("unmute.png"));
-    muteButton.setScale(0.1f, 0.1f);
-    muteButton.setPosition(1850.f, 10.f);
-    resourceManager.addSprite("mute", muteButton);
+
+    m_muteButton.setTexture(resourceManager.getTexture("unmute.png"));
+    m_muteButton.setScale(0.1f, 0.1f);
+    m_muteButton.setPosition(1850.f, 10.f);
+    
+    m_heart.resize(NUM_HEART);  // Reserve space for 3 sprites
 
     // Set up heart sprites
     for (int i = 0; i < NUM_HEART; ++i) {
         std::string heartKey = "heart" + std::to_string(i);
-        sf::Sprite heart;
-        heart.setTexture(resourceManager.getTexture("heart.png"));
-        heart.setOrigin(heart.getGlobalBounds().width / 2, heart.getGlobalBounds().height / 2);
-        heart.setPosition(1750.f - i * 40.f, 50.f);
-        heart.setScale(0.3f, 0.3f);
-        resourceManager.addSprite(heartKey, heart);
+        m_heart[i].setTexture(resourceManager.getTexture("heart.png"));
+        m_heart[i].setOrigin(m_heart[i].getGlobalBounds().width / 2, m_heart[i].getGlobalBounds().height / 2);
+        m_heart[i].setPosition(1750.f - i * 40.f, 50.f);
+        m_heart[i].setScale(0.3f, 0.3f);
         m_num_heart++;
     }
 }
-//ToolbarGame::ToolbarGame()
-//    : m_isTimerRunning(true), m_LevelDuration(0), m_TimeLeft(0), m_isMuted(false) {
-//    m_clock.restart();
-//    setLevelDuration(40);
-//
-//    // Load font for timer text
-//    if (!m_font.loadFromFile("digit.ttf")) {
-//        std::cerr << "Error: Failed to load font!" << std::endl;
-//        return;
-//    }
-//
-//
-//    m_timerText.setFont(m_font);
-//    m_timerText.setCharacterSize(30);
-//    m_timerText.setOutlineThickness(4);
-//    m_timerText.setStyle(sf::Text::Bold);
-//    m_timerText.setPosition(80.f, 32.f);
-//    m_timerText.setScale(1.5f, 1.f);
-//    m_timerText.setLetterSpacing(2.f);
-//
-//
-//
-//
-//    // Load toolbar textures
-//    loadTextures();
-//    LoudSprite();
-//
-//    // Load mute and unmute button textures
-//    if (!m_muteTexture.loadFromFile("mute.png") || !m_unmuteTexture.loadFromFile("unmute.png")) {
-//        std::cerr << "Error: Could not load mute/unmute textures!" << std::endl;
-//    }
-//
-//    // Initialize mute button
-//    m_muteButton.setTexture(m_unmuteTexture);          // Default to unmuted
-//    m_muteButton.setScale(0.1f, 0.1f);                 // Scale down for smaller size
-//    m_muteButton.setPosition(1850.f, 10.f);            // Position at top-right of 1920x1080 screen
-//}
+
 
 
 
@@ -124,53 +88,7 @@ ToolbarGame::ToolbarGame()
 //
 //}
 
-//void ToolbarGame::LoudSprite() {
-//    // Set the texture for the timer and position it at the center of the toolbar
-//    m_timer.setTexture(GetTexture(TIMER));
-//
-//    // Center the timer on the top-left corner or another specific position
-//    float timerX = 100.f;  // Adjust X coordinate for timer
-//    float timerY = 50.f;   // Adjust Y coordinate for timer
-//    SetSprite(m_timer, timerX, timerY, 0.2f);  // Reduce scale factor to size the sprite
-//
-//
-//    // Assuming you want an array of 3 heart sprites, each spaced equally
-//    m_heart.resize(NUM_HEART);  // Reserve space for the number of hearts
-//
-//    // Position the hearts relative to the timer
-//    float heartX = 1750.f;  // Initial X position for the hearts
-//    float heartY = 50.f;   // Same Y position as the timer
-//    float heartSpacing = 40.f;  // Spacing between each heart
-//
-//    for (int i = 0; i < NUM_HEART; ++i) {
-//        m_heart[i].setTexture(GetTexture(HEART));  // Assign texture to each heart sprite
-//        SetSprite(m_heart[i], heartX, heartY, 0.3f);  // Adjust scale and position
-//        heartX -= heartSpacing;  // Increment X position for the next heart
-//    }
-//}
-//
-//
-//void ToolbarGame::loadTextures() {
-//    m_ToolbatTexture.resize(SIZE_TOOLBAR);
-//    const std::map<int, std::string> textureFiles = {
-//       { HEART, "heart.png" },
-//        { TIMER,"timer.png" },
-//        //{ ARROW, "arrow.png" }*/
-//    };
-//
-//    for (const auto& [index, filename] : textureFiles) {
-//        //std::cout << index << std::endl;
-//        if (!m_ToolbatTexture[index].loadFromFile(filename)) {
-//            std::cerr << "Error: Could not load texture file " << filename << std::endl;
-//        }
-//    }
-//}
 
-
-//const sf::Texture& ToolbarGame::GetTexture(const int& choice) const
-//{
-//    return m_ToolbatTexture[choice];
-//}
 
 const int ToolbarGame::getHeartCount() const 
 {
@@ -184,52 +102,37 @@ void ToolbarGame::IncreaseHeart(const bool add) {
     if (getHeartCount() < 4 && add) {
         std::string heartKey = "heart" + std::to_string(getHeartCount());
         sf::Sprite newHeart;
+        newHeart.setTexture(resourceManager.getTexture("heart.png"));
+        newHeart.setOrigin(newHeart.getGlobalBounds().width / 2, newHeart.getGlobalBounds().height / 2);
         newHeart.setPosition(1750.f - getHeartCount() * 40.f, 50.f);
         newHeart.setScale(0.3f, 0.3f);
-        resourceManager.addSprite(heartKey, newHeart);
+        m_heart.push_back(newHeart);
         m_num_heart++;
     }
-    else if (!add && getHeartCount() > 0) {  // Remove a heart
+    else if (!add && !m_heart.empty()) {
         m_num_heart--;  // Decrease heart count first
-        std::string heartKey = "heart" + std::to_string(getHeartCount());
-        std::cout << heartKey << std::endl;
-        // Check if `ResourceManager` has a remove method
-        resourceManager.removeSprite(heartKey);
+        m_heart.pop_back();
     }
 
 }
+
+
 
 void ToolbarGame::draw(sf::RenderWindow& window) {
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
-    window.draw(resourceManager.getSprite("timer"));
-    window.draw(resourceManager.getText("timer"));
-    window.draw(resourceManager.getSprite("mute"));
-    window.draw(m_progressBar);
-
-    for (int i = 0; i < getHeartCount(); ++i) {
-        window.draw(resourceManager.getSprite("heart" + std::to_string(i)));
+    for (const auto& heart : m_heart) {
+        window.draw(heart);
     }
+    // window.draw(m_clockHand);
+     // window.draw(m_arrow);
+    window.draw(m_timer);
+    window.draw(m_progressBar);
+    window.draw(resourceManager.getText("timer"));
+    window.draw(m_muteButton); // Draw the mute button
 }
 
-//void ToolbarGame::draw(sf::RenderWindow& window) {
-//    for (const auto& heart : m_heart) {
-//        window.draw(heart);
-//    }
-//    // window.draw(m_clockHand);
-//     // window.draw(m_arrow);
-//    window.draw(m_timer);
-//    window.draw(m_progressBar);
-//    window.draw(m_timerText);
-//    window.draw(m_muteButton); // Draw the mute button
-//}
 
-//void ToolbarGame::SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const {
-//
-//    picture.setOrigin(picture.getGlobalBounds().width / 2, picture.getGlobalBounds().height / 2);  // Set origin to center of the sprite
-//    picture.setPosition(POSx, POSy);  // Positioning the clock hand (adjust position as needed)
-//    picture.setScale(thicknes, thicknes);  // Uniform scaling for both axes (width and height)
-//}
 
 
 void ToolbarGame::IncreaseTime(const int extraTime) {
@@ -335,10 +238,10 @@ void ToolbarGame::updateTimerDisplay(const float deltaTime) {
     // Heartbeat effect on the timer text (pulsing)
     if (timeLeft <= 10) { // Apply heartbeat effect only when time is low
         float scaleFactor = 1.0f + 0.1f * sin(3.f * timeLeft);  // Sinusoidal pulse effect
-        timerText.setScale(scaleFactor, scaleFactor);  // Scale the text
+        m_timer.setScale(scaleFactor, scaleFactor);  // Scale the text
     }
     else {
-        timerText.setScale(1.f, 1.f);  // Reset scale when time is not critical
+        m_timer.setScale(1.f, 1.f);  // Reset scale when time is not critical
     }
 
     // Fading Text Effect & Change Progress Bar Color
@@ -369,21 +272,23 @@ void ToolbarGame::updateTimerDisplay(const float deltaTime) {
     float heartscale = 0.2f * sin(1.f * timeLeft);  // Scaling based on time left
     float clockRotation = (15.0f - (timeLeft / m_LevelDuration)) * 22.f;  // Calculate rotation
 
-    for (int pos = 0; pos < getHeartCount(); pos++) {
-        // Set the origin to the center of the sprite
-        std::string heartKey = "heart" + std::to_string(pos);
-        sf::Sprite& Heart = resourceManager.getSprite(heartKey);
-        Heart.setOrigin(
-            Heart.getGlobalBounds().width / 2,
-            Heart.getGlobalBounds().height / 2
+
+    for (auto& heart : m_heart) {
+       
+        heart.setOrigin(
+            heart.getGlobalBounds().width / 2,
+            heart.getGlobalBounds().height / 2
         );
 
         // Set position and scale
-        Heart.setScale(heartscale, heartscale);
+        heart.setScale(heartscale, heartscale);
 
         // Apply rotation
-        Heart.setRotation(clockRotation);
+        heart.setRotation(clockRotation);
+
+
     }
+
 }
 
 
@@ -402,7 +307,7 @@ void ToolbarGame::animateProgressBar(const float deltaTime) {
 
 void ToolbarGame::handleMouseClick(const sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition) {
     sf::Vector2f mousePosition = window.mapPixelToCoords(mousePixelPosition);
-    if (ResourceManager::getInstance().getSprite("mute").getGlobalBounds().contains(mousePosition)) {
+    if (m_muteButton.getGlobalBounds().contains(mousePosition)) {
         toggleMute();
     }
 }
@@ -412,9 +317,8 @@ void ToolbarGame::handleMouseClick(const sf::RenderWindow& window, const sf::Vec
 void ToolbarGame::toggleMute() {
     m_isMuted = !m_isMuted;
     ResourceManager& resourceManager = ResourceManager::getInstance();
-    sf::Sprite& muteButton = resourceManager.getSprite("mute");
-
-    muteButton.setTexture(m_isMuted ? resourceManager.getTexture("mute.png") : resourceManager.getTexture("unmute.png"));
+   
+    m_muteButton.setTexture(m_isMuted ? resourceManager.getTexture("mute.png") : resourceManager.getTexture("unmute.png"));
     std::cout << (m_isMuted ? "Muted!" : "Unmuted!") << std::endl;
 }
 

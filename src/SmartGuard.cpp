@@ -14,9 +14,11 @@ SmartGuard::SmartGuard()
         std::cerr << "Failed to load guard sprite sheet" << std::endl;
     }*/
 
+    sf::Sprite& sprite = getSprite();
+
     // Setup the sprite
-    m_sprite.setTexture(resourceManager.getTexture("smartGuardSprite.png"));
-    m_sprite.setTextureRect(sf::IntRect(0, 0,static_cast<int>(m_frameWidth), static_cast<int>(m_frameHeight)));
+    sprite.setTexture(resourceManager.getTexture("smartGuardSprite.png"));
+    sprite.setTextureRect(sf::IntRect(0, 0,static_cast<int>(m_frameWidth), static_cast<int>(m_frameHeight)));
     // m_sprite.setScale(1.f, 1.f); // Scale as needed
 
      // Randomize initial behavior
@@ -48,7 +50,9 @@ void SmartGuard::randomizeBehavior() {
 }
 
 void SmartGuard::calculateVelocity() {
-    sf::Vector2f direction = m_playerPosition - m_sprite.getPosition();
+    
+
+    sf::Vector2f direction = m_playerPosition - getPosition();
     float distanceX = std::abs(direction.x);
     float distanceY = std::abs(direction.y);
 
@@ -67,6 +71,9 @@ void SmartGuard::calculateVelocity() {
 }
 
 void SmartGuard::updateAnimation() {
+
+    sf::Sprite& sprite = getSprite();
+
     // Advance the animation frame every 100ms
     if (m_animationClock.getElapsedTime() >= sf::milliseconds(100)) {
         m_animationFrame = (m_animationFrame + 1) % 4;
@@ -90,15 +97,18 @@ void SmartGuard::updateAnimation() {
         textureY = static_cast<int>(m_frameHeight);  // Moving left
     }
 
-    m_sprite.setTextureRect(sf::IntRect(textureX, textureY, static_cast<int>(m_frameWidth), static_cast<int>(m_frameHeight)));
+    sprite.setTextureRect(sf::IntRect(textureX, textureY, static_cast<int>(m_frameWidth), static_cast<int>(m_frameHeight)));
 }
 
 
 void SmartGuard::update(float deltaTime) {
-    m_previousPosition = m_sprite.getPosition();
+
+    sf::Sprite& sprite = getSprite();
+
+    m_previousPosition = getPosition();
 
     calculateVelocity();
-    m_sprite.move(m_velocity * deltaTime);
+    sprite.move(m_velocity * deltaTime);
 
     updateAnimation();
 
@@ -163,8 +173,8 @@ sf::CircleShape SmartGuard::getCollisionShape() const {
     collisionEllipse.setScale(horizontalScale, verticalScale);
     //  collisionEllipse.setOrigin(radiusX, radiusX);  // Origin remains at center
     collisionEllipse.setPosition(
-        m_sprite.getPosition().x + m_frameWidth / 2 - (5 * CIRCLRE_OFFSET),
-        m_sprite.getPosition().y + m_frameHeight / 2 - (6 * CIRCLRE_OFFSET)
+        getPosition().x + m_frameWidth / 2 - (5 * CIRCLRE_OFFSET),
+        getPosition().y + m_frameHeight / 2 - (6 * CIRCLRE_OFFSET)
     );
 
     return collisionEllipse;

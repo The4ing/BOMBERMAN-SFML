@@ -1,6 +1,5 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-//#include "Utilities.h"
 #include "ResourceManager.h"
 
 class Robot;
@@ -12,14 +11,26 @@ class Bomb;
 class Present;
 
 class GameObject {
+
+
+ 
 public:
     virtual ~GameObject() = default;
+    GameObject() = default;
 
-    virtual char getSymbol() const = 0;
-    virtual sf::Vector2f getPosition() const = 0;
-    virtual void setPosition(float newX, float newY) = 0;
+    virtual void setTexture(const sf::Texture& texture);
+    virtual sf::Sprite& getSprite();
+    virtual const sf::Sprite& getSprite() const;
+
+
+    virtual sf::Vector2f getPosition() const;
+    virtual void setPosition(float newX, float newY) ;
+    virtual sf::FloatRect getBoundingBox() const;
+    virtual void setScale(float scaleX, float scaleY);
+   
+
     virtual void draw(sf::RenderWindow& window) const = 0;
-    virtual sf::FloatRect getBoundingBox() const = 0;
+    virtual char getSymbol() const = 0;
 
     // Entry point for double dispatch
     virtual void handleCollision(GameObject& other) = 0;
@@ -32,4 +43,8 @@ public:
     virtual void handleCollisionWith(Guard&) = 0;
     virtual void handleCollisionWith(Present&) = 0;
     virtual void handleCollisionWith(Bomb&, bool isExploding) = 0; // Add this!
+
+private:
+
+    sf::Sprite m_sprite;
 };

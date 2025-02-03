@@ -7,6 +7,4 @@ public:
     char getSymbol() const override;// Unique symbol
 
 
-private:
-
 };

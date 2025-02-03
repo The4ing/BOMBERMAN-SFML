@@ -7,8 +7,6 @@
 #include "GameDisplay.h"
 #include "SettingsDisplay.h"
 #include "Board.h"
-//#include "Utilities.h"
-//#include "ResourceManager.h"
 #include "Robot.h"
 #include "MovingGameObject.h"
 
@@ -17,15 +15,13 @@ public:
     GameManager();
     void newGame();
     void startGame();
-  //  bool loadLevel(const std::string& fileName);
     void processGameEvents();
-   // void pauseGame(float pauseDuration);
-   // void handleMoveKeys(sf::Keyboard::Key key, const bool isPressed);
-   // void setRobotPosition();
     char getSingleKeyPress();
     void loadNextLevel();
 
 private:
+
+
     sf::RenderWindow m_window;   // SFML render window
     sf::Vector2f m_cellSize;
     MainMenuDisplay m_mainMenu;
@@ -43,6 +39,6 @@ private:
     bool m_arrowKeyPressed;
     std::set<sf::Keyboard::Key> m_activeKeys;
     int m_currentLevel; // Tracks the current level 
-    sf::Texture m_BackgroundGameTexture;
-    sf::Sprite m_BackgroundGameSprite;
+    std::string m_gameMusic;
+    
 };

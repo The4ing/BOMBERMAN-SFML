@@ -8,14 +8,9 @@ class MovingGameObject : public GameObject {
 
 public:
     
-   // virtual void setVelocity(float newVX, float newVY) = 0;
-   
- //   virtual sf::Shape& getCollisionShape() const = 0;
-    //virtual sf::Shape* getCollisionShape() = 0;
+
     virtual sf::CircleShape getCollisionShape() const = 0;
-    virtual void update(float deltaTime) = 0;                 // Pure virtual update
-   // virtual void draw(sf::RenderWindow& window) const = 0;    // Pure virtual draw
-   // virtual void handleInput(sf::Keyboard::Key key, bool isPressed) = 0; // Handle input
-    
+    virtual void update(float deltaTime) = 0;          
+   
 
 };
