@@ -222,7 +222,6 @@ void Robot::handleCollisionWith(Guard& guard) {
 void Robot::handleCollisionWith(Bomb&, bool isExploding) {
     if (isExploding) {
         m_robotHit = true;
-        while (1);
     }
 
 }

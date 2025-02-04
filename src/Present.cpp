@@ -51,15 +51,7 @@ void Present::draw(sf::RenderWindow& window) const
 
 
 
-//void Present::setActive()
-//{
-//	m_activePresent = true;
-//}
-//
-//const bool Present::checkActive()
-//{
-//	return m_activePresent;
-//}
+
 
 
 
@@ -70,7 +62,7 @@ void Present::handleCollision(GameObject& other)
 
 void Present::handleCollisionWith(Robot& robot)
 {
-	
+	reduceNumPresent();
 }
 
 

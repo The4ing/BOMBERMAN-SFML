@@ -134,7 +134,7 @@ bool Board::loadPresent(const std::string& fileName) {
             int randomChance = rand() % 10; // 1 in 10 chance
             int randomPresentCount = rand() % 2 + 1; // 1 or 2 presents at a time
 
-            if (randomChance < 5 && Present::getPresentCount() <= 5) {
+            if (randomChance < 5 && Present::getPresentCount() <= 6) {
                 for (int p = 0; p < randomPresentCount; ++p) {
                     int random = rand() % 4; // Random number to decide which present type
 
@@ -437,6 +437,7 @@ void Board::handleCollisions() {
             }
             else if (auto* present = dynamic_cast<Present*>(obj.get())) {
                 PowerUp(present->getSymbol());
+                m_robot->handleCollision(*obj);
                 staticObjectsToRemove.push_back(obj.get());
             }
             else {

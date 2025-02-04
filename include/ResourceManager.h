@@ -52,12 +52,14 @@ public:
     void loadFonts();
     void loadMusic();  // No parameters, loads predefined music files
     void loadSound();
+    void loadString();
 
     const sf::Texture& getTexture(const std::string& key);
     const sf::Font& getFont(const std::string& key);
     sf::Music& getMusic(const std::string& key);
     sf::Sound& getSound(const std::string& key);
     sf::Text& getText(const std::string& key);
+    const std::string& getString(const std::string& key);
    
 
 
@@ -75,5 +77,6 @@ private:
     std::unordered_map<std::string, std::unique_ptr<sf::Music>> m_music;
     std::unordered_map<std::string, sf::SoundBuffer> m_soundBuffers;
     std::unordered_map<std::string, sf::Sound> m_sounds;
+    std::unordered_map<std::string, std::string> m_HelpXPL;
 
 };

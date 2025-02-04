@@ -3,65 +3,75 @@
 
 // Constructor
 MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
-    : m_window(window), m_game(game), m_state(MAIN_MENU) {
+    : m_window(window), m_game(game), m_state(MAIN_MENU), played(false){
   
 
     ResourceManager& resourceManager = ResourceManager::getInstance();
-
+    
     m_mainBackgroundSprite.setTexture(resourceManager.getTexture("menu.png"));
     m_helpBackgroundSprite.setTexture(resourceManager.getTexture("helpBackground.png"));
 
 
     // Load and play background music
     sf::Music& BGMusic = resourceManager.getMusic("menuMusic");
-    BGMusic.setLoop(false);
-    // m_menuMusic.setVolume(50);
+    BGMusic.setLoop(true);
+    BGMusic.setVolume(20);
     BGMusic.play();
+    played.resize(NUM_XPL);
+    
 
-    //// Load button sound
-    //if (!m_buttonClickBuffer.loadFromFile("ButtonMusic.ogg")) {
-    //    std::cerr << "Error loading button click sound!" << std::endl;
-    //}
-    //m_buttonClickSound.setBuffer(m_buttonClickBuffer);
-
-
-
+    
     // Configure buttons
-    configureButton(m_startButton, "Start Game", sf::Color::Black, -100);
-    configureButton(m_helpButton, "Help", sf::Color::Black, 0);
-    configureButton(m_exitButton, "Exit", sf::Color::Black, 100);
+    configureButton("Start Game", sf::Color::Black, -100);
+    configureButton("Help", sf::Color::Black, 0);
+    configureButton("Exit", sf::Color::Black, 100);
 
     // Configure hover text
-    m_hoverExplanationText.setFont(resourceManager.getFont("PixelFontBlack.otf"));
-    m_hoverExplanationText.setCharacterSize(24);
-    m_hoverExplanationText.setFillColor(sf::Color::Red);
+
+    sf::Text hoverExplanationText;
+    std::string fontFile = "PixelFontBlack.otf";
+    hoverExplanationText.setFont(resourceManager.getFont(fontFile));
+    hoverExplanationText.setCharacterSize(24);
+    hoverExplanationText.setFillColor(sf::Color::White);
+    resourceManager.addText(fontFile, hoverExplanationText);
 
     // Configure instruction text
     m_instructionText.setFont(resourceManager.getFont("PixelFontBlack.otf"));
     m_instructionText.setString("Hover over the pictures to see explanations.");
-    m_instructionText.setCharacterSize(24);
+    m_instructionText.setCharacterSize(30);
     m_instructionText.setFillColor(sf::Color::White);
     m_instructionText.setPosition(20, 20);
 
+    // Position the AboutGame text further down to avoid overlap
+    m_AboutGame.setFont(resourceManager.getFont("PixelFontBlack.otf"));
+    m_AboutGame.setString(resourceManager.getString("AboutGame"));
+    m_AboutGame.setCharacterSize(22);
+    m_AboutGame.setFillColor(sf::Color::White);
+    m_AboutGame.setPosition(20, 50); // Adjust this position if necessary
 
+   
+
+
+    m_ButtonsXPL = {
+         "WallXPL","RobotXPL","BombXPL","SmartGuardXPL",
+         "DoorXPL", "RockXPL","StupidGuardXPL","PresentXPL"
+
+    };
 
     // Load and initialize help objects
     initializeHelpObjects();
 
-
-
     // Load button sound
-    m_ButtonXPL.resize(1);
+   /* m_ButtonXPL.resize(1);*/
 
-    if (!m_ButtonXPL[0].loadFromFile("RobotXPL.ogg")) {
-        std::cerr << "Error loading button click sound!" << std::endl;
-    }
-
-
+    
+    
+    
+   
 }
-
 // Configure buttons
-void MainMenuDisplay::configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset) {
+void MainMenuDisplay::configureButton(const std::string& label, const sf::Color& color, int yOffset) {
+    sf::Text button;
     float windowWidth = m_window->getSize().x;
     float windowHeight = m_window->getSize().y;
 
@@ -74,21 +84,18 @@ void MainMenuDisplay::configureButton(sf::Text& button, const std::string& label
     sf::FloatRect bounds = button.getLocalBounds();
     button.setOrigin(bounds.width / 2, bounds.height / 2);
     button.setPosition(windowWidth / 2, (windowHeight / 2) + yOffset);
+    resourceManager.addText(label, button);
 }
 
 // Initialize help objects
 void MainMenuDisplay::initializeHelpObjects() {
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+
     const std::vector<std::string> textureFiles = {
-        "wall.png", "Robot.png", "Bomb.png", "Guard.png", "Door.png", "Rock.png"
+        "wall.png", "Robot.png", "bomb.png", "rick_guard.png", "door.png",
+        "rock.png", "guard_morty.png" ,"present.png"
     };
-    const std::vector<std::string> explanations = {
-        "Wall: An obstacle.",
-        "Robot: The main character which needs to escape through the door!",
-        "Bomb: Handle with care.",
-        "Guard: Be cautious!",
-        "Door: Leads to the next area.",
-        "Rock: A simple barrier."
-    };
+    
 
     float windowWidth = m_window->getSize().x;
     float windowHeight = m_window->getSize().y;
@@ -96,26 +103,41 @@ void MainMenuDisplay::initializeHelpObjects() {
     float desiredWidth = windowWidth * 0.1f;
     float desiredHeight = windowHeight * 0.1f;
 
-    for (size_t i = 0; i < textureFiles.size(); ++i) {
-        sf::Texture texture;
-        if (!texture.loadFromFile(textureFiles[i])) {
-            std::cerr << "Error loading texture: " << textureFiles[i] << std::endl;
-            continue;
-        }
-        m_helpTextures.push_back(texture);
+    // Set margin for the left side
+    float margin = 0.05f * windowWidth;  // Margin from the left edge
 
-        sf::Sprite sprite(m_helpTextures.back());
-        sf::Vector2u textureSize = texture.getSize();
+    // Loop through each item
+    
+
+    for (size_t i = 0; i < textureFiles.size(); ++i) {
+      
+        // Check if texture exists
+        if (resourceManager.getTexture(textureFiles[i]).getSize().x == 0) {
+            std::cerr << "Error: Texture not found: " << textureFiles[i] << std::endl;
+            continue; // Skip this sprite if texture is missing
+        }
+
+        sf::Sprite sprite;
+        sprite.setTexture(resourceManager.getTexture(textureFiles[i]));
+
+        sf::Vector2u textureSize = resourceManager.getTexture(textureFiles[i]).getSize();
         sprite.setScale(desiredWidth / textureSize.x, desiredHeight / textureSize.y);
 
-        float x = windowWidth * (0.15f + (i % 3) * 0.3f);
-        float y = windowHeight * (0.3f + (i / 3) * 0.3f);
-        sprite.setPosition(x, y);
+        // Calculate x and y positions for three columns
+        float x = margin + (i % 3) * (windowWidth * 0.3f);  // 3 columns, horizontal distribution
+        float y = windowHeight * (0.2f + (i / 3) * 0.25f);  // Reduced the starting y value to move sprites higher
 
+        sprite.setPosition(x, y);
+       
         m_helpSprites.push_back(sprite);
-        m_helpExplanations.push_back(explanations[i]);
+        m_helpExplanations.push_back(resourceManager.getString(m_ButtonsXPL[i]));
+
     }
 }
+
+
+
+
 
 // Handle user input
 int MainMenuDisplay::handleInput() {
@@ -132,6 +154,11 @@ int MainMenuDisplay::handleInput() {
 
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape && m_state == HELP_SCREEN) {
             m_state = MAIN_MENU;
+            for (auto& soundBuf : m_ButtonsXPL) {
+                sf::Sound& explosionSound = resourceManager.getSound(soundBuf);
+                explosionSound.stop();
+            }
+            std::fill(played.begin(), played.end(), false);  // Reset all elements to false
         }
 
         if (event.type == sf::Event::MouseMoved) {
@@ -141,7 +168,7 @@ int MainMenuDisplay::handleInput() {
         if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
             if (handleButtonClick(sf::Mouse::getPosition(*m_window)) == START_GAME) {
                 //   m_menuMusic.stop();
-                BGMusic.stop();;
+                BGMusic.stop();
                 return START_GAME;
             }
         }
@@ -151,6 +178,7 @@ int MainMenuDisplay::handleInput() {
 
 // Handle hover effects
 void MainMenuDisplay::handleHover(const sf::Vector2i mousePosition) {
+    ResourceManager& resourceManager = ResourceManager::getInstance();
     sf::Vector2f worldMousePos = m_window->mapPixelToCoords(mousePosition);
     if (m_state == MAIN_MENU) {
         auto setHoverEffect = [&](sf::Text& button) {
@@ -163,57 +191,88 @@ void MainMenuDisplay::handleHover(const sf::Vector2i mousePosition) {
                 button.setScale(1.0f, 1.0f);
             }
             };
-        setHoverEffect(m_startButton);
-        setHoverEffect(m_helpButton);
-        setHoverEffect(m_exitButton);
+        setHoverEffect(resourceManager.getText("Start Game"));
+        setHoverEffect(resourceManager.getText("Help"));
+        setHoverEffect(resourceManager.getText("Exit"));
     }
     else if (m_state == HELP_SCREEN) {
         bool hovered = false;
 
-
         for (size_t i = 0; i < m_helpSprites.size(); ++i) {
             if (m_helpSprites[i].getGlobalBounds().contains(worldMousePos)) {
-                //for button
-                if (i == 1 && !played) {
-                    ButtonSounds.setBuffer(m_ButtonXPL[0]);
-                    ButtonSounds.play(); // Sound will now play because the object persists
-                    played = true;
+                // Play sound if it's not already played
+                if (!played[i]) {
+                    sf::Sound& explosionSound = resourceManager.getSound(m_ButtonsXPL[i]);
+                    explosionSound.play();
+                    played[i] = true;
                 }
-                //
 
-                m_hoverExplanationText.setString(m_helpExplanations[i]);
-                m_hoverExplanationText.setPosition(worldMousePos.x + 15, worldMousePos.y + 15);
+                // Set the help explanation text
+                sf::Text& helpText = resourceManager.getText("PixelFontBlack.otf");
+                helpText.setString(m_helpExplanations[i]);
+
+                // Calculate text bounds to ensure it fits within the window
+                sf::FloatRect textBounds = helpText.getGlobalBounds();
+                float textWidth = textBounds.width;
+                float textHeight = textBounds.height;
+
+                // Get the window size
+                float windowWidth = m_window->getSize().x;
+                float windowHeight = m_window->getSize().y;
+
+                // Adjust text position if it's going out of bounds
+                float newPosX = worldMousePos.x + 15;
+                float newPosY = worldMousePos.y + 15;
+
+                // Ensure text doesn't go out of the right side of the window
+                if (newPosX + textWidth > windowWidth) {
+                    newPosX = windowWidth - textWidth - 15;  // Shift to the left
+                }
+
+                // Ensure text doesn't go out of the bottom side of the window
+                if (newPosY + textHeight > windowHeight) {
+                    newPosY = windowHeight - textHeight - 15;  // Shift upwards
+                }
+
+                helpText.setPosition(newPosX, newPosY);
+
                 hovered = true;
                 break;
             }
         }
+
         if (!hovered) {
-            //added for the button
-            played = false;
-            ButtonSounds.stop();
-            //
-            m_hoverExplanationText.setString("");
+            // Stop sounds and clear text when not hovering
+            for (auto& soundBuf : m_ButtonsXPL) {
+                sf::Sound& explosionSound = resourceManager.getSound(soundBuf);
+                explosionSound.stop();
+            }
+            std::fill(played.begin(), played.end(), false);  // Reset all elements to false
+
+            resourceManager.getText("PixelFontBlack.otf").setString("");  // Clear the text
         }
     }
+
 }
 
 // Show menu or help screen
 void MainMenuDisplay::show() {
     m_window->clear();
-
+    ResourceManager& resourceManager = ResourceManager::getInstance();
     if (m_state == MAIN_MENU) {
         m_window->draw(m_mainBackgroundSprite);
-        m_window->draw(m_startButton);
-        m_window->draw(m_helpButton);
-        m_window->draw(m_exitButton);
+        m_window->draw(resourceManager.getText("Start Game"));
+        m_window->draw(resourceManager.getText("Help"));
+        m_window->draw(resourceManager.getText("Exit"));
     }
     else if (m_state == HELP_SCREEN) {
         m_window->draw(m_helpBackgroundSprite);
         m_window->draw(m_instructionText);
+        m_window->draw(m_AboutGame);
         for (const auto& sprite : m_helpSprites) {
             m_window->draw(sprite);
         }
-        m_window->draw(m_hoverExplanationText);
+        m_window->draw(resourceManager.getText("PixelFontBlack.otf"));
     }
 
     m_window->display();
@@ -226,15 +285,18 @@ int MainMenuDisplay::handleButtonClick(const sf::Vector2i mousePosition) {
     ResourceManager& resourceManager = ResourceManager::getInstance();
     sf::Sound& explosionSound = resourceManager.getSound("ButtonMusic");
 
-    if (m_startButton.getGlobalBounds().contains(worldMousePos)) {
+    if (resourceManager.getText("Start Game").getGlobalBounds().contains(worldMousePos)) {
+        explosionSound.setVolume(100);
         explosionSound.play();
         return START_GAME;
     }
-    if (m_helpButton.getGlobalBounds().contains(worldMousePos)) {
+    if (resourceManager.getText("Help").getGlobalBounds().contains(worldMousePos)) {
+        explosionSound.setVolume(100);
         explosionSound.play();
         m_state = HELP_SCREEN;
     }
-    if (m_exitButton.getGlobalBounds().contains(worldMousePos)) {
+    if (resourceManager.getText("Exit").getGlobalBounds().contains(worldMousePos)) {
+        explosionSound.setVolume(100);
         explosionSound.play();
         m_window->close();
     }

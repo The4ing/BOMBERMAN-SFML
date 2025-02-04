@@ -10,6 +10,7 @@
 
 
 const int START_GAME = 1;
+const int NUM_XPL = 8;
 
 class MainMenuDisplay {
 public:
@@ -36,32 +37,23 @@ private:
     sf::Sprite m_helpBackgroundSprite;
 
     // Fonts and text
-    sf::Text m_startButton;
-    sf::Text m_helpButton;
-    sf::Text m_exitButton;
-    sf::Text m_hoverExplanationText;
     sf::Text m_instructionText;
-
+    sf::Text m_AboutGame;
     // Button sounds
-    sf::SoundBuffer m_buttonClickBuffer;
-    sf::Sound m_buttonClickSound;
 
+    
     // Help objects (textures and sprites)
-    std::vector<sf::Texture> m_helpTextures;
+   
     std::vector<sf::Sprite> m_helpSprites;
     std::vector<std::string> m_helpExplanations;
 
-
     //for making the music in handlehover 
-    std::vector<sf::SoundBuffer> m_ButtonXPL;
-    sf::Sound ButtonSounds; // Declare outside the loop, so it persists
-    bool played = false;
+    std::vector<std::string> m_ButtonsXPL;
+    std::vector<bool> played;
 
-    // Menu music
-  //  sf::Music m_menuMusic;
 
     // Helper methods
-    void configureButton(sf::Text& button, const std::string& label, const sf::Color& color, int yOffset);
+    void configureButton(const std::string& label, const sf::Color& color, int yOffset);
     void initializeHelpObjects();
     void handleHover(const sf::Vector2i mousePosition);
     int handleButtonClick(const sf::Vector2i mousePosition);
