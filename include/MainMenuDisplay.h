@@ -43,7 +43,8 @@ private:
 
     
     // Help objects (textures and sprites)
-   
+    std::vector<sf::RectangleShape> m_rectangles;
+    sf::RectangleShape m_textBackground;
     std::vector<sf::Sprite> m_helpSprites;
     std::vector<std::string> m_helpExplanations;
 
