@@ -2,6 +2,9 @@
 configure_file ("menuMusic.ogg" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("gamePlay.ogg" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("bossGame.ogg" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("robotXPL.ogg" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("coin.ogg" ${CMAKE_BINARY_DIR} COPYONLY)
+#configure_file ("robotXPL.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("Arial.ttf" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("PixelFontBlack.otf" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("PixelFontWhite.otf" ${CMAKE_BINARY_DIR} COPYONLY)
@@ -51,5 +54,5 @@ configure_file ("background6.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("game_over.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("rick_guard.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("guard_morty.png" ${CMAKE_BINARY_DIR} COPYONLY)
-
+configure_file ("coin.png" ${CMAKE_BINARY_DIR} COPYONLY)
 
