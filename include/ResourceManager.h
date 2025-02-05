@@ -8,7 +8,11 @@
 #include <memory>
 
 const int NUM_HEART = 3;
-const int MAX_TIME = 100;
+const int MAX_TIME = 180;
+const int DEAD_GUARD_SCORE = 5;
+const int LEVEL_COMPLETE_SCORE = 25;
+const int GUARDS_PER_LEVEL_SCORE = 3;
+const int COIN_SCORE = 1;
 
 enum toolbarObjects {
     HEART,
