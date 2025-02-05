@@ -106,9 +106,8 @@ void GameManager::startGame() {
         if (m_board.isLevelComplete()) {  // Check if the player completed the level
             gamePlay.stop();
             loadNextLevel();  // Load the next level
-            //
-            m_mainMenu.Run();
         }
+        processGameEvents(); //can handle here keys and mouse
 
     }
 }
@@ -131,13 +130,6 @@ void GameManager::processGameEvents() {
                 m_mainMenu.Run();
                 return;
             }
-            else if (event.key.code == sf::Keyboard::B) {
-                m_board.GenerateBomb();
-            }
-            else if (event.key.code == sf::Keyboard::N) {
-                loadNextLevel();  // Skip to next level
-            }
-            break;
 
         case sf::Event::KeyReleased:
             m_board.handleInput(event.key.code, false);
