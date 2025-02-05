@@ -9,6 +9,7 @@ class Door;
 class Guard;
 class Bomb;
 class Present;
+class Coin;
 
 class GameObject {
 
@@ -43,6 +44,7 @@ public:
     virtual void handleCollisionWith(Guard&) = 0;
     virtual void handleCollisionWith(Present&) = 0;
     virtual void handleCollisionWith(Bomb&, bool isExploding) = 0; // Add this!
+    void handleCollisionWith(Coin&) {};
 
 private:
 
