@@ -2,7 +2,7 @@
 
 
 Board::Board()
-    : m_rows(0), m_cols(0), m_FreezeGuardsStatus(false), m_pause(false), m_pausedByHit(false), m_levelComplete(false), m_lives(3), m_pauseDuration(2) {
+    : m_rows(0), m_cols(0),m_guardCount(0), m_FreezeGuardsStatus(false), m_pause(false), m_pausedByHit(false), m_levelComplete(false), m_lives(3), m_pauseDuration(2) {
     m_robot = std::make_unique<Robot>();
     srand(static_cast<unsigned int>(time(0)));
 }
@@ -33,7 +33,6 @@ bool Board::loadFromFile(const std::string& fileName) {
     m_cellSize.y = gridHeight / static_cast<float>(m_rows);
     float scaleX = m_cellSize.x / SINGLE_SPRITE_DIMENSIONS;
     float scaleY = m_cellSize.y / SINGLE_SPRITE_DIMENSIONS;
-    int guardCount = 0;
 
     for (int i = 0; i < m_rows; ++i) {
         for (int j = 0; j < m_cols; ++j) {
@@ -67,6 +66,7 @@ bool Board::loadFromFile(const std::string& fileName) {
 
                 guard->setPosition(position.x, position.y);
                 guard->setStartingPosition(position.x, position.y);
+
                 // Scale guards based on individual frame dimensions
                 float guardScaleX = m_cellSize.x / 127.5f;  // 127.5 = guard frame width
                 float guardScaleY = m_cellSize.y / 163.33f; // 163.33 = guard frame height
@@ -74,7 +74,7 @@ bool Board::loadFromFile(const std::string& fileName) {
                 m_movingObjects.push_back(std::move(guard));
                 //  m_guardsStartingPositions.push_back(sf::Vector2f(position.x, position.y));
 
-                guardCount++;
+                m_guardCount++;
                 break;
             }
 
@@ -93,6 +93,16 @@ bool Board::loadFromFile(const std::string& fileName) {
                 m_objects.push_back(std::move(door));
                 break;
             }
+            case ' ':
+                // 20% chance to spawn a coin in empty space
+                if (rand() % 10 == 0) { // 1 in 5 chance (adjust as needed)
+                    auto coin = std::make_unique<Coin>();
+                    coin->setPosition(position.x, position.y);
+                    coin->setScale(15*scaleX, 15*scaleY);
+                    m_objects.push_back(std::move(coin));
+                }
+                break;
+
            
             default:
                 break;
@@ -232,6 +242,7 @@ void Board::PowerUp(const char choice) {
             if (dynamic_cast<Guard*>(it->get())) {
                 m_movingObjects.erase(it);
                 std::cout << "A guard has been removed!" << std::endl;
+                m_Toolbar.addToScore(DEAD_GUARD_SCORE);
                 break;  // Remove only one guard
             }
         }
@@ -263,7 +274,8 @@ void Board::PowerUp(const char choice) {
 
 
 void Board::callUpdateToolbar(const float deltatime) {
-    m_Toolbar.callUpdateToolbar(deltatime);
+   // m_Toolbar.callUpdateToolbar(deltatime);
+    m_Toolbar.updateTimerDisplay(deltatime);
 }
 
 void Board::draw(sf::RenderWindow& window) {
@@ -306,31 +318,34 @@ sf::Vector2f Board::getCellSize() const {
     return m_cellSize;
 }
 int Board::update(float deltaTime, const int level) {
-    if (m_lives <= 0) return LOST_GAME;
+
+
 
     if (m_pausedByHit) {
-        // Wait for 2 seconds before resuming
         if (m_pauseClock.getElapsedTime().asSeconds() >= m_pauseDuration) {
             m_pausedByHit = false;
-            m_pause = false;  // Resume game
-            m_Toolbar.IncreaseTime(2);
+            m_Toolbar.IncreaseTime(3);
+            resetObjectsLocation();  // Reset robot & guards
+            removeAllBombs();        // Remove bombs
         }
         else {
+            std::cout << "Paused by hit. Waiting for 2 seconds..." << std::endl;
             return PLAYING;  // Skip updates while paused
         }
     }
 
     if (m_robot->isRobotHit()) {
-        resetObjectsLocation();  // Reset robot & guards
-        removeAllBombs();        // Remove bombs
+        m_lives--;
+        if (m_lives <= 0) return LOST_GAME;
         m_pauseClock.restart();  // Start pause timer
         m_pausedByHit = true;
         m_pause = true;
-        m_robot->update(deltaTime);
+        m_robot->setHitStatus(false);
         return LOST_LIFE;
     }
-
-    if (m_pause) return PLAYING;  // Stop updates if paused
+    if (!m_Toolbar.getIsTimerRunning()) {
+        return LOST_GAME;
+    }
 
     // Normal game update logic
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::B)) {
@@ -340,8 +355,14 @@ int Board::update(float deltaTime, const int level) {
         m_levelComplete = true; // Generate a bomb when 'B' is pressed
     }
 
+    for (const auto& object : m_objects) {
+        if (auto* coin = dynamic_cast<Coin*>(object.get())) {
+            coin->update(deltaTime);
+        }
+    }
+
     m_robot->update(deltaTime);
-    m_Toolbar.callUpdateToolbar(deltaTime);
+    m_Toolbar.updateTimerDisplay(deltaTime);
 
     // Timer for placing presents periodically (for example, every 5 seconds)
     static float timeElapsed = 0.0f;
@@ -375,6 +396,7 @@ int Board::update(float deltaTime, const int level) {
     }
 
     handleCollisions();
+
 
     return PLAYING;
 }
@@ -425,6 +447,7 @@ void Board::handleMouseClick(sf::RenderWindow& window, const sf::Vector2i& mouse
 }
 
 void Board::handleCollisions() {
+    ResourceManager& resourceManager = ResourceManager::getInstance();
     sf::CircleShape robotShape = m_robot->getCollisionShape();
     std::vector<MovingGameObject*> movingObjectsToRemove;
     std::vector<GameObject*> staticObjectsToRemove;
@@ -443,6 +466,20 @@ void Board::handleCollisions() {
             else {
                 m_robot->handleCollision(*obj);
                 obj->handleCollision(*m_robot);
+            }
+            // Check if the robot collides with a Coin
+            if (auto* coin = dynamic_cast<Coin*>(obj.get())) {
+                if (robotShape.getGlobalBounds().intersects(coin->getCollisionShape().getGlobalBounds())) {
+                    // Handle coin collection (e.g., increase score)
+                    m_Toolbar.addToScore(COIN_SCORE); 
+                    sf::Sound& coinSound = resourceManager.getSound("coin");
+                    coinSound.setVolume(25);
+                    coinSound.play();
+                    // Remove the coin from the game objects
+                    staticObjectsToRemove.push_back(obj.get());
+
+                    std::cout << "Coin collected!" << std::endl;
+                }
             }
         }
     }
@@ -477,8 +514,10 @@ void Board::handleCollisions() {
                         staticObjectsToRemove.push_back(staticObj.get());
 
                 for (const auto& movingObj : m_movingObjects)
-                    if (dynamic_cast<Guard*>(movingObj.get()) && rect.intersects(movingObj->getCollisionShape().getGlobalBounds()))
+                    if (dynamic_cast<Guard*>(movingObj.get()) && rect.intersects(movingObj->getCollisionShape().getGlobalBounds())) {
                         movingObjectsToRemove.push_back(movingObj.get());
+                        m_Toolbar.addToScore(DEAD_GUARD_SCORE);
+                    }
             }
         }
 
@@ -574,14 +613,13 @@ void Board::startTimer() {
 
 bool Board::isLevelComplete() {
     if (m_levelComplete) {
-        // Clear all game objects
         m_objects.clear();
         m_movingObjects.clear();
+        m_Toolbar.setTimer(120);
+        m_Toolbar.addToScore(LEVEL_COMPLETE_SCORE + m_guardCount * GUARDS_PER_LEVEL_SCORE);
+        std::cout << "Level complete! Score: " << m_guardCount << std::endl;
+        m_guardCount = 0;
 
-        // Reset robot to its starting position
-     //   m_robot->setPosition(m_robotStartingPosition);
-
-        // Clear the window (ensuring a fresh start)
         sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Next Level");
         window.clear(sf::Color::Black);
         window.display();
@@ -590,6 +628,8 @@ bool Board::isLevelComplete() {
     }
     return false;
 }
+
+
 
 
 //todo change this function according to resource manager
