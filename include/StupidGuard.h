@@ -36,7 +36,7 @@ private:
     sf::Time m_randomChangeInterval; // Interval to change direction
     sf::Time m_timeSinceLastChange;
     sf::Time m_animationTimeSinceLastChange;
-    sf::Vector2f m_startingPosition;
+   // sf::Vector2f m_startingPosition;
     
     // Movement-related members
    
