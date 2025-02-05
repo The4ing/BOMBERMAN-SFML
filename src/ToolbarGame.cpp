@@ -146,6 +146,11 @@ void ToolbarGame::draw(sf::RenderWindow& window) {
     window.draw(resourceManager.getText("timer"));
     window.draw(m_muteButton);
     window.draw(m_scoreText);  // Draw the score in the toolbar
+
+    // Draw present text if it's been less than 2 seconds
+    if (m_presentClock.getElapsedTime().asSeconds() < 2.0f) {
+        window.draw(m_presentText);
+    }
 }
 
 
@@ -238,6 +243,43 @@ void ToolbarGame::setTimer(const float duration) {
 //}
 
 
+
+void ToolbarGame::ShowPresent(const char Present) {
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+
+    sf::Text presentText;
+    presentText.setFont(resourceManager.getFont("digit.ttf"));
+    presentText.setCharacterSize(35);
+    presentText.setFillColor(sf::Color::White);
+    presentText.setOutlineThickness(3);
+    presentText.setOutlineColor(sf::Color::Black);
+    presentText.setStyle(sf::Text::Bold);
+    presentText.setPosition(WINDOW_WIDTH - 1550.f / 2 , 30.f); // Positioned next to the score
+
+    // Set the message based on the present type
+    switch (Present) {
+    case 'F':
+        presentText.setString("Guards frozen for 3 sec!");
+        break;
+    case 'L':
+        presentText.setString("You got an extra life!");
+        break;
+    case 'R':
+        presentText.setString("One guard removed!");
+        break;
+    case 'T':
+        presentText.setString("You got an extra 30 sec!");
+        break;
+    default:
+        return;  // No valid present, exit function
+    }
+
+    // Draw the text in the existing draw function
+    m_presentText = presentText; // Store text so it's drawn in ToolbarGame::draw()
+
+    // Start a timer so it disappears after some time
+    m_presentClock.restart();
+}
 
 
 

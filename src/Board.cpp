@@ -213,12 +213,13 @@ void Board::PowerUp(const char choice) {
     switch (choice) {
         // 🧊 Freeze All Guards for 10 Seconds
     case 'F':
+        m_Toolbar.ShowPresent('F');
         for (const auto& obj : m_movingObjects) {
             if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
                 guard->setFreezeGaurd(true);  // Freeze guard
             }
         }
-
+        
         // Create a thread to unfreeze guards after 10 seconds
         std::thread([this]() {
             std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -234,12 +235,15 @@ void Board::PowerUp(const char choice) {
 
 
     case 'L':
+        m_Toolbar.ShowPresent('L');
         m_Toolbar.IncreaseHeart(true);  // Assuming a function to add lives
         std::cout << "Extra life granted!" << std::endl;
         break;
 
 
     case 'R':
+
+        m_Toolbar.ShowPresent('R');
         for (auto it = m_movingObjects.begin(); it != m_movingObjects.end(); ++it) {
             if (dynamic_cast<Guard*>(it->get())) {
                 m_movingObjects.erase(it);
@@ -252,6 +256,7 @@ void Board::PowerUp(const char choice) {
 
         // ⏳ Increase Time
     case 'T':
+        m_Toolbar.ShowPresent('T');
         m_Toolbar.IncreaseTime(30);
         break;
 

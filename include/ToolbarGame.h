@@ -35,6 +35,7 @@ public:
     void IncreaseTime(const int extraTime);
     std::string getTimeString() const;
     void startTimer();
+    void ShowPresent(const char Present);
     void updateTimerDisplay(const  float deltaTime);
     bool getIsTimerRunning() const;
 
@@ -45,9 +46,9 @@ public:
 private:
     //for timer
    
-   
+    sf::Text m_presentText;
+    sf::Clock m_presentClock;
     sf::Text m_scoreText;
-   
     sf::Sprite m_timer;
     std::vector<sf::Sprite> m_heart;
     sf::Sprite m_muteButton;       // Sprite for the mute button
