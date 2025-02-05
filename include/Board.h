@@ -15,6 +15,7 @@
 #include "StupidGuard.h"
 #include "Rock.h"
 #include "Bomb.h"
+#include "Coin.h"
 #include "ToolbarGame.h"
 #include <cstdlib>
 #include <ctime>
@@ -68,7 +69,7 @@ private:
     void checkIfSmartGuard(MovingGameObject* obj);
     bool m_FreezeGuardsStatus;    // Tracks whether the guards are frozen
     int m_lives;                  // Number of lives
-
+    int frame_counter;
     bool m_pause;            // Game is paused
     sf::Clock m_pauseClock;  // Timer for pause duration
     float m_pauseDuration;   // Pause duration (2 seconds)
@@ -80,6 +81,7 @@ private:
     std::unique_ptr<Robot> m_robot;
     int m_rows, m_cols;
     bool m_levelComplete;
+    int m_guardCount;
 
     ToolbarGame m_Toolbar;
     sf::Vector2f m_robotStartingPosition;
