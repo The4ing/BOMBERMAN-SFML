@@ -24,18 +24,19 @@ public:
     void IncreaseHeart(const bool status);
     void draw(sf::RenderWindow& m_window);
 
-
+    void addToScore(int addedScore);
     // Timer functions
     void setTimer(const float duration);
-    void callUpdateToolbar(const float deltaTime);
+   // void callUpdateToolbar(const float deltaTime);
+    //void CallUpdateTimer();
     float getTimeLeft() const;           // Get the time left for the level
     float getLevelDuration() const;
-    void CallUpdateTimer();
+
     void IncreaseTime(const int extraTime);
     std::string getTimeString() const;
     void startTimer();
-
-
+    void updateTimerDisplay(const  float deltaTime);
+    bool getIsTimerRunning() const;
 
 
 
@@ -45,14 +46,14 @@ private:
     //for timer
    
    
-
+    sf::Text m_scoreText;
    
     sf::Sprite m_timer;
     std::vector<sf::Sprite> m_heart;
     sf::Sprite m_muteButton;       // Sprite for the mute button
     
 
-
+    int m_score;
    
 
     float m_LevelDuration;        // Total duration of the level
@@ -65,7 +66,7 @@ private:
   
     bool m_isMuted;     // Mute state
     void animateProgressBar(const float deltaTime);
-    void updateTimerDisplay(const  float deltaTime);
+
     void setLevelDuration(const float duration);
     void UpdateTimer();
 
