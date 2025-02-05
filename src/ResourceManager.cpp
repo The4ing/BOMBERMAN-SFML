@@ -37,8 +37,6 @@ void ResourceManager::loadMusic() {
 void ResourceManager::loadSound() {
     std::vector<std::pair<std::string, std::string>> soundFiles = {
         {"ButtonMusic", "ButtonMusic.ogg"},
-        {"jump", "assets/sounds/jump.wav"},
-        {"click", "assets/sounds/click.wav"},
         {"WallXPL", "WallXPL.ogg"},
         {"RobotXPL", "RobotXPL.ogg"},
         {"BombXPL", "BombXPL.ogg"},
@@ -47,6 +45,7 @@ void ResourceManager::loadSound() {
         {"RockXPL", "RockXPL.ogg"},
         {"StupidGuardXPL", "StupidGuardXPL.ogg"},  
         {"PresentXPL", "PresentXPL.ogg"},
+        {"coin", "coin.ogg"},
     };
 
     for (const auto& [key, filename] : soundFiles) {
@@ -125,7 +124,7 @@ void ResourceManager::loadTextures() {
         "Rock.png", "scary_guard_spritesheet.png", "smartGuardSprite.png",
         "timer.png", "unmute.png", "background1.png", "background2.png",
         "background3.png", "background4.png", "background5.png",
-        "background6.png", "lost_life_screen.png", "guard_morty.png" // Add this line
+        "background6.png", "lost_life_screen.png", "guard_morty.png", "Coin.png"
     };
 
     for (const auto& filename : textureFiles) {
