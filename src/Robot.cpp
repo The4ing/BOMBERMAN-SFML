@@ -275,8 +275,7 @@ void Robot::setHitStatus(bool status) {
 void Robot::playDeathAnimation() {
     int deadFrame = (m_animationClock.getElapsedTime().asMilliseconds() / 100);
     std::cout << deadFrame << std::endl;
-    int i;
-    std::cin >> i;
+
 
     if (deadFrame < 7) {
         m_sprite.setTextureRect(sf::IntRect(deadFrame * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
