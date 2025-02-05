@@ -152,21 +152,24 @@ void ToolbarGame::draw(sf::RenderWindow& window) {
 
 
 void ToolbarGame::IncreaseTime(const int extraTime) {
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+    sf::Text& timerText = resourceManager.getText("timer");
 
-    //ResourceManager& resourceManager = ResourceManager::getInstance();
-    //sf::Text& timerText = resourceManager.getText("timer");
-    m_LevelDuration += extraTime;  // Add extra time
-    if (m_LevelDuration > MAX_TIME) {
-        m_LevelDuration = MAX_TIME;  // Cap the time at the maximum allowed time
+    m_TimeLeft += extraTime;  // Directly modify the remaining time
+    if (m_TimeLeft > MAX_TIME) {
+        m_TimeLeft = MAX_TIME;  // Cap the time at the maximum allowed time
     }
 
-    //// Reset the clock to ensure correct countdown behavior
-   // m_clock.restart();
+    // Reset the clock to ensure correct countdown behavior
+    m_clock.restart();
+    m_LevelDuration = std::max(m_LevelDuration, m_TimeLeft);  // Ensure duration doesn't shrink
 
-    //// Immediately update the display
-  //  timerText.setString(getTimeString());
+    // Immediately update the display
+    timerText.setString(getTimeString());
+
     std::cout << "Time increased by " << extraTime << " seconds. New time: " << m_TimeLeft << "s\n";
 }
+
 
 
 

@@ -117,7 +117,7 @@ void SmartGuard::update(float deltaTime) {
 
 
 void SmartGuard::handleCollisionWith(Wall&) {
-   std::cout << "SmartGuard hit a wall! Changing direction.\n";
+ 
 
     if (getVelocity().x != 0 || getVelocity().y != 0) {
         // First, switch to alternate direction

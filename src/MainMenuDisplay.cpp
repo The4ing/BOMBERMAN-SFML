@@ -11,6 +11,25 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     m_mainBackgroundSprite.setTexture(resourceManager.getTexture("menu.png"));
     m_helpBackgroundSprite.setTexture(resourceManager.getTexture("helpBackground.png"));
     m_helpBackgroundSprite.setColor(sf::Color(150, 150, 150, 255));  // Reduce RGB values to darken
+    // Load texture
+    // Load texture
+    m_esc.setTexture(resourceManager.getTexture("ESC.png"));
+
+    // Set scale to make the image smaller
+    float scaleFactor = 0.6f;  // Adjust for desired size
+    m_esc.setScale(scaleFactor, scaleFactor);
+
+    // Get window size and texture size
+    float windowWidth = m_window->getSize().x;
+    sf::Vector2u textureSize = m_esc.getTexture()->getSize();
+
+    // Calculate scaled width & height
+    float scaledWidth = textureSize.x * scaleFactor;
+    float scaledHeight = textureSize.y * scaleFactor;
+
+    // Set position to the **top-right corner** with a margin
+    float margin = 20.0f;  // Space from the edge
+    m_esc.setPosition(windowWidth - scaledWidth - margin, margin + 200.0f);
 
 
     // Load and play background music
@@ -70,13 +89,8 @@ MainMenuDisplay::MainMenuDisplay(sf::RenderWindow* window, int game)
     // Load and initialize help objects
     initializeHelpObjects();
 
-    // Load button sound
-   /* m_ButtonXPL.resize(1);*/
+  
 
-    
-    
-    
-   
 }
 // Configure buttons
 void MainMenuDisplay::configureButton(const std::string& label, const sf::Color& color, int yOffset) {
@@ -292,6 +306,7 @@ void MainMenuDisplay::show() {
     }
     else if (m_state == HELP_SCREEN) {
         m_window->draw(m_helpBackgroundSprite);
+        m_window->draw(m_esc);
         m_window->draw(m_instructionText);
         for (const auto& rect : m_rectangles) {
             m_window->draw(rect);
@@ -309,6 +324,10 @@ void MainMenuDisplay::show() {
 
 // Handle button clicks
 int MainMenuDisplay::handleButtonClick(const sf::Vector2i mousePosition) {
+    // Only allow button clicks in MAIN_MENU
+    if (m_state != MAIN_MENU) {
+        return 0;
+    }    
     sf::Vector2f worldMousePos = m_window->mapPixelToCoords(mousePosition);
 
     ResourceManager& resourceManager = ResourceManager::getInstance();

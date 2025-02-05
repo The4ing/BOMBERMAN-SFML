@@ -134,6 +134,11 @@ bool Board::loadPresent(const std::string& fileName) {
     int maxAttempts = 10; // Limit the number of attempts to prevent infinite loops
 
     for (int attempts = 0; attempts < maxAttempts; ++attempts) {
+        // Check if the present count exceeds the limit before generating a new one
+        if (Present::getPresentCount() > NUM_PRESENT) {
+            return false; // Stop trying if we already have 6 presents
+        }
+
         int i = rand() % m_rows;
         int j = rand() % m_cols;
 
@@ -141,36 +146,33 @@ bool Board::loadPresent(const std::string& fileName) {
 
         // Check if the space is empty and no present exists there
         if (lines[i][j] == ' ' && !isPresentAtPosition(position)) {
-            int randomChance = rand() % 10; // 1 in 10 chance
-            int randomPresentCount = rand() % 2 + 1; // 1 or 2 presents at a time
+            int randomChance = rand() % 10; // 1 in 10 chance to place a present
 
-            if (randomChance < 5 && Present::getPresentCount() <= 6) {
-                for (int p = 0; p < randomPresentCount; ++p) {
-                    int random = rand() % 4; // Random number to decide which present type
+            if (randomChance < 5) { // 50% chance to place a present
+                int random = rand() % 4; // Random number to decide which present type
 
-                    std::unique_ptr<Present> present;
-                    switch (random) {
-                    case 0:
-                        present = std::make_unique<FreezeGuard>();
-                        break;
-                    case 1:
-                        present = std::make_unique<ExtraLife>();
-                        break;
-                    case 2:
-                        present = std::make_unique<RemovedGuard>();
-                        break;
-                    case 3:
-                        present = std::make_unique<IncreaseTime>();
-                        break;
-                    }
-
-                    if (present) {
-                        present->setPosition(position.x, position.y);
-                        present->setScale(scaleX, scaleY);
-                        m_objects.push_back(std::move(present));
-                    }
+                std::unique_ptr<Present> present;
+                switch (random) {
+                case 0:
+                    present = std::make_unique<FreezeGuard>();
+                    break;
+                case 1:
+                    present = std::make_unique<ExtraLife>();
+                    break;
+                case 2:
+                    present = std::make_unique<RemovedGuard>();
+                    break;
+                case 3:
+                    present = std::make_unique<IncreaseTime>();
+                    break;
                 }
-                return true; // Exit after placing presents
+
+                if (present) {
+                    present->setPosition(position.x, position.y);
+                    present->setScale(scaleX, scaleY);
+                    m_objects.push_back(std::move(present));
+                    return true; // Exit after placing ONE present
+                }
             }
         }
     }
@@ -219,7 +221,7 @@ void Board::PowerUp(const char choice) {
 
         // Create a thread to unfreeze guards after 10 seconds
         std::thread([this]() {
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+            std::this_thread::sleep_for(std::chrono::seconds(3));
             for (const auto& obj : m_movingObjects) {
                 if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
                     guard->setFreezeGaurd(false);  // Unfreeze guard
@@ -227,7 +229,7 @@ void Board::PowerUp(const char choice) {
          }
         }).detach();  // Detach the thread to avoid blocking
 
-        std::cout << "All guards frozen for 10 seconds!" << std::endl;
+        std::cout << "All guards frozen for 3 seconds!" << std::endl;
         break;
 
 
@@ -251,7 +253,6 @@ void Board::PowerUp(const char choice) {
         // ⏳ Increase Time
     case 'T':
         m_Toolbar.IncreaseTime(30);
-        std::cout << "Time increased by 30 seconds!" << std::endl;
         break;
 
     default:
@@ -261,16 +262,7 @@ void Board::PowerUp(const char choice) {
 }
 
 
-//void Board::FreezeAllGuards(const bool status) {
-//    m_FreezeGuardsStatus = status;
-//    for (const auto& obj : m_movingObjects) {
-//        if (auto guard = dynamic_cast<Guard*>(obj.get())) {
-//            guard->setFrozen(status);
-//        }
-//    }
-//}
 
-//
 
 
 void Board::callUpdateToolbar(const float deltatime) {

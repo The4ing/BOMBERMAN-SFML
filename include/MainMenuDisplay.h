@@ -9,8 +9,6 @@
 
 
 
-const int START_GAME = 1;
-const int NUM_XPL = 8;
 
 class MainMenuDisplay {
 public:
@@ -35,7 +33,7 @@ private:
    
     sf::Sprite m_mainBackgroundSprite;
     sf::Sprite m_helpBackgroundSprite;
-
+    sf::Sprite m_esc;
     // Fonts and text
     sf::Text m_instructionText;
     sf::Text m_AboutGame;

@@ -124,7 +124,8 @@ void ResourceManager::loadTextures() {
         "Rock.png", "scary_guard_spritesheet.png", "smartGuardSprite.png",
         "timer.png", "unmute.png", "background1.png", "background2.png",
         "background3.png", "background4.png", "background5.png",
-        "background6.png", "lost_life_screen.png", "guard_morty.png", "Coin.png"
+        "background6.png", "lost_life_screen.png", "guard_morty.png", "Coin.png" ,
+        "ESC.png"
     };
 
     for (const auto& filename : textureFiles) {

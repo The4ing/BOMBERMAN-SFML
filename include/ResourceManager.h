@@ -13,6 +13,10 @@ const int DEAD_GUARD_SCORE = 5;
 const int LEVEL_COMPLETE_SCORE = 25;
 const int GUARDS_PER_LEVEL_SCORE = 3;
 const int COIN_SCORE = 1;
+const int NUM_PRESENT = 5;
+const int START_GAME = 1;
+const int NUM_XPL = 8;
+
 
 enum toolbarObjects {
     HEART,
