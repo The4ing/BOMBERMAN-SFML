@@ -2,9 +2,9 @@
 
 
 ToolbarGame::ToolbarGame()
-    : m_isTimerRunning(true), m_LevelDuration(0), m_TimeLeft(0), m_isMuted(false), m_num_heart(0){
+    : m_isTimerRunning(true), m_LevelDuration(0), m_TimeLeft(0),m_score(0), m_isMuted(false), m_num_heart(0){
     m_clock.restart();
-    setTimer(40);
+    setTimer(120.f);
 
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
@@ -19,6 +19,16 @@ ToolbarGame::ToolbarGame()
     timerText.setScale(1.f, 1.f);
     timerText.setLetterSpacing(2.f);
     resourceManager.addText("timer", timerText);
+
+    // Set up score text
+    m_scoreText.setFont(resourceManager.getFont("digit.ttf")); // Use existing font
+    m_scoreText.setCharacterSize(40);  // Set a good size
+    m_scoreText.setOutlineThickness(3);
+    m_scoreText.setStyle(sf::Text::Bold);
+    m_scoreText.setFillColor(sf::Color::White);  // White text
+    m_scoreText.setPosition(WINDOW_WIDTH / 2 - 50.f, 30.f); // Center horizontally
+    m_scoreText.setString("Score: 0");  // Initial score
+
 
 
 
@@ -95,6 +105,12 @@ const int ToolbarGame::getHeartCount() const
     return m_num_heart;
 }
 
+void ToolbarGame::addToScore(int addedScore)
+{
+    m_score += addedScore;
+    m_scoreText.setString("Score: " + std::to_string(m_score));  // Update text
+}
+
 
 void ToolbarGame::IncreaseHeart(const bool add) {
     ResourceManager& resourceManager = ResourceManager::getInstance();
@@ -120,16 +136,16 @@ void ToolbarGame::IncreaseHeart(const bool add) {
 
 void ToolbarGame::draw(sf::RenderWindow& window) {
     ResourceManager& resourceManager = ResourceManager::getInstance();
-
+    
     for (const auto& heart : m_heart) {
         window.draw(heart);
     }
-    // window.draw(m_clockHand);
-     // window.draw(m_arrow);
+
     window.draw(m_timer);
     window.draw(m_progressBar);
     window.draw(resourceManager.getText("timer"));
-    window.draw(m_muteButton); // Draw the mute button
+    window.draw(m_muteButton);
+    window.draw(m_scoreText);  // Draw the score in the toolbar
 }
 
 
@@ -137,18 +153,18 @@ void ToolbarGame::draw(sf::RenderWindow& window) {
 
 void ToolbarGame::IncreaseTime(const int extraTime) {
 
-    ResourceManager& resourceManager = ResourceManager::getInstance();
-    sf::Text& timerText = resourceManager.getText("timer");
-    m_TimeLeft += extraTime;  // Add extra time
-    if (m_TimeLeft > MAX_TIME) {
-        m_TimeLeft = MAX_TIME;  // Cap the time at the maximum allowed time
+    //ResourceManager& resourceManager = ResourceManager::getInstance();
+    //sf::Text& timerText = resourceManager.getText("timer");
+    m_LevelDuration += extraTime;  // Add extra time
+    if (m_LevelDuration > MAX_TIME) {
+        m_LevelDuration = MAX_TIME;  // Cap the time at the maximum allowed time
     }
 
-    // Reset the clock to ensure correct countdown behavior
-    m_clock.restart();
+    //// Reset the clock to ensure correct countdown behavior
+   // m_clock.restart();
 
-    // Immediately update the display
-    timerText.setString(getTimeString());
+    //// Immediately update the display
+  //  timerText.setString(getTimeString());
     std::cout << "Time increased by " << extraTime << " seconds. New time: " << m_TimeLeft << "s\n";
 }
 
@@ -204,19 +220,19 @@ float ToolbarGame::getTimeLeft() const {
 float ToolbarGame::getLevelDuration() const {
     return m_LevelDuration;
 }
-void ToolbarGame::CallUpdateTimer() {
-    UpdateTimer();
-}
+//void ToolbarGame::CallUpdateTimer() {
+//    UpdateTimer();
+//}
 
 void ToolbarGame::setTimer(const float duration) {
     setLevelDuration(duration);
 }
 
-void ToolbarGame::callUpdateToolbar(const float deltaTime)
-{
-    updateTimerDisplay(deltaTime);
-
-}
+//void ToolbarGame::callUpdateToolbar(const float deltaTime)
+//{
+//    updateTimerDisplay(deltaTime);
+//
+//}
 
 
 
@@ -226,8 +242,7 @@ void ToolbarGame::updateTimerDisplay(const float deltaTime) {
     // Update the timer first (call your UpdateTimer() method)
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
-
-    CallUpdateTimer();
+    UpdateTimer();
 
     sf::Text& timerText = resourceManager.getText("timer");
     timerText.setString(getTimeString());
@@ -307,7 +322,9 @@ void ToolbarGame::animateProgressBar(const float deltaTime) {
 
 void ToolbarGame::handleMouseClick(const sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition) {
     sf::Vector2f mousePosition = window.mapPixelToCoords(mousePixelPosition);
+
     if (m_muteButton.getGlobalBounds().contains(mousePosition)) {
+        std::cout << "Mute button clicked!" << std::endl;  // Debug check
         toggleMute();
     }
 }
@@ -320,9 +337,16 @@ void ToolbarGame::toggleMute() {
    
     m_muteButton.setTexture(m_isMuted ? resourceManager.getTexture("mute.png") : resourceManager.getTexture("unmute.png"));
     std::cout << (m_isMuted ? "Muted!" : "Unmuted!") << std::endl;
+    // Apply mute/unmute effect
+    sf::Listener::setGlobalVolume(m_isMuted ? 0.0f : 100.0f); // Mute all sounds in SFML
 }
 
 void ToolbarGame::startTimer() {
-    m_isTimerRunning = true;  // Start the timer
-    m_clock.restart();        // Reset clock
+    m_isTimerRunning = true;
+    m_clock.restart();
+  //  m_TimeLeft = m_LevelDuration;  // Reset time left
+}
+
+bool ToolbarGame::getIsTimerRunning() const {
+	return m_isTimerRunning;
 }
