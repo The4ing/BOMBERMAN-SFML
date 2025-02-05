@@ -150,7 +150,7 @@ bool Board::loadPresent(const std::string& fileName) {
 
             if (randomChance < 5) { // 50% chance to place a present
                 int random = rand() % 4; // Random number to decide which present type
-
+               
                 std::unique_ptr<Present> present;
                 switch (random) {
                 case 0:
@@ -256,8 +256,8 @@ void Board::PowerUp(const char choice) {
 
         // ⏳ Increase Time
     case 'T':
+        m_Toolbar.IncreaseTime(10);
         m_Toolbar.ShowPresent('T');
-        m_Toolbar.IncreaseTime(30);
         break;
 
     default:
@@ -316,7 +316,7 @@ sf::Vector2f Board::getCellSize() const {
 }
 int Board::update(float deltaTime, const int level) {
 
-
+   
 
     if (m_pausedByHit) {
         if (m_pauseClock.getElapsedTime().asSeconds() >= m_pauseDuration) {
@@ -339,8 +339,8 @@ int Board::update(float deltaTime, const int level) {
         m_pausedByHit = true;
         m_pause = true;
         m_robot->setHitStatus(false);
-        m_Toolbar.IncreaseTime(3);
-        m_Toolbar.updateTimerDisplay(deltaTime);
+         m_Toolbar.IncreaseTime(3);        
+          m_Toolbar.updateTimerDisplay(deltaTime);
        
         return LOST_LIFE;
     }

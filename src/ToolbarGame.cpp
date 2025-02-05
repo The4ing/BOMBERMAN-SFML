@@ -160,16 +160,15 @@ void ToolbarGame::IncreaseTime(const int extraTime) {
     ResourceManager& resourceManager = ResourceManager::getInstance();
     sf::Text& timerText = resourceManager.getText("timer");
 
-    m_TimeLeft += extraTime;  // Directly modify the remaining time
+    m_TimeLeft += extraTime;  // Increase time
     if (m_TimeLeft > MAX_TIME) {
         m_TimeLeft = MAX_TIME;  // Cap the time at the maximum allowed time
     }
 
-    // Reset the clock to ensure correct countdown behavior
-    m_clock.restart();
-    m_LevelDuration = std::max(m_LevelDuration, m_TimeLeft);  // Ensure duration doesn't shrink
+    m_LevelDuration = m_TimeLeft;  // Reset level duration to match new time
 
-    // Immediately update the display
+    m_clock.restart();  // Restart the clock to properly count down from new time
+
     timerText.setString(getTimeString());
 
     std::cout << "Time increased by " << extraTime << " seconds. New time: " << m_TimeLeft << "s\n";
@@ -180,15 +179,12 @@ void ToolbarGame::IncreaseTime(const int extraTime) {
 
 
 
+
 //functions for timer
 void ToolbarGame::UpdateTimer() {
     if (m_isTimerRunning) {
-        sf::Time elapsed = m_clock.getElapsedTime();
-        float newTime = m_LevelDuration - elapsed.asSeconds();
-
-        if (newTime < m_TimeLeft) {  // Only reduce time, don't override increases
-            m_TimeLeft = newTime;
-        }
+        float elapsed = m_clock.getElapsedTime().asSeconds();
+        m_TimeLeft = std::max(0.0f, m_LevelDuration - elapsed);  // Ensure time updates properly
 
         if (m_TimeLeft <= 0) {
             m_TimeLeft = 0;
@@ -196,7 +192,10 @@ void ToolbarGame::UpdateTimer() {
             std::cout << "Time's up!" << std::endl;
         }
     }
+
+    
 }
+
 
 
 std::string ToolbarGame::getTimeString() const {
@@ -268,7 +267,7 @@ void ToolbarGame::ShowPresent(const char Present) {
         presentText.setString("One guard removed!");
         break;
     case 'T':
-        presentText.setString("You got an extra 30 sec!");
+        presentText.setString("You got an extra 10 sec!");
         break;
     default:
         return;  // No valid present, exit function
@@ -288,7 +287,6 @@ void ToolbarGame::updateTimerDisplay(const float deltaTime) {
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
     UpdateTimer();
-
     sf::Text& timerText = resourceManager.getText("timer");
     timerText.setString(getTimeString());
 
