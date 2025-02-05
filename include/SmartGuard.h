@@ -48,7 +48,7 @@ private:
     bool m_collisionDetected;
 
    // sf::Texture m_texture;
-    sf::Vector2f m_startingPosition;
+    //sf::Vector2f m_startingPosition;
 
   
     void calculateVelocity();  // Move toward player
