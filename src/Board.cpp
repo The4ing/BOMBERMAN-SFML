@@ -265,10 +265,10 @@ void Board::PowerUp(const char choice) {
 
 
 
-void Board::callUpdateToolbar(const float deltatime) {
-   // m_Toolbar.callUpdateToolbar(deltatime);
-    m_Toolbar.updateTimerDisplay(deltatime);
-}
+//void Board::callUpdateToolbar(const float deltatime) {
+//   // m_Toolbar.callUpdateToolbar(deltatime);
+//    m_Toolbar.updateTimerDisplay(deltatime);
+//}
 
 void Board::draw(sf::RenderWindow& window) {
     m_Toolbar.draw(window);
@@ -316,9 +316,10 @@ int Board::update(float deltaTime, const int level) {
     if (m_pausedByHit) {
         if (m_pauseClock.getElapsedTime().asSeconds() >= m_pauseDuration) {
             m_pausedByHit = false;
-            m_Toolbar.IncreaseTime(3);
             resetObjectsLocation();  // Reset robot & guards
             removeAllBombs();        // Remove bombs
+            m_Toolbar.updateTimerDisplay(deltaTime);
+           
         }
         else {
             std::cout << "Paused by hit. Waiting for 2 seconds..." << std::endl;
@@ -333,6 +334,9 @@ int Board::update(float deltaTime, const int level) {
         m_pausedByHit = true;
         m_pause = true;
         m_robot->setHitStatus(false);
+        m_Toolbar.IncreaseTime(3);
+        m_Toolbar.updateTimerDisplay(deltaTime);
+       
         return LOST_LIFE;
     }
     if (!m_Toolbar.getIsTimerRunning()) {

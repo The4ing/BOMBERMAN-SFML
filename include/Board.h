@@ -38,7 +38,7 @@ public:
 
     //const sf::Texture& GetTexture(const int choice) const;
     void SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const;
-    void callUpdateToolbar(float deltatime);
+    //void callUpdateToolbar(float deltatime);
     void draw(sf::RenderWindow& window);
     const int getHeartCount();
 
