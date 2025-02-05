@@ -54,4 +54,8 @@ configure_file ("rick_guard.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("guard_morty.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("coin.png" ${CMAKE_BINARY_DIR} COPYONLY)
 configure_file ("ESC.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("ExtraLife.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("ExtraTime.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("RemoveGuard.png" ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file ("GuardFreeze.png" ${CMAKE_BINARY_DIR} COPYONLY)
 

@@ -63,40 +63,7 @@ ToolbarGame::ToolbarGame()
 
 
 
-//void ToolbarGame::LoudSprite() {
-//
-//    // Create the clock hand sprite
-//
-//
-//    //m_clockHand.setTexture(GetTexture(CLOCK));
-//    //SetSprite(m_clockHand, 400.f, 50.f, 0.2f);  // Center the clock on the screen
-//
-//
-//    //// Create the arrow sprite
-//    //m_arrow.setTexture(GetTexture(ARROW));
-//    //SetSprite(m_arrow, m_clockHand.getPosition().x, m_clockHand.getPosition().y, 0.4f);  // Center the clock on the screen
-//
-//
-//    //create timer picture
-//    m_timer.setTexture(GetTexture(TIMER));
-//    SetSprite(m_timer, m_timerText.getPosition().x, m_timerText.getPosition().y,0.2f);  // Center the clock on the screen
-//  //  m_timer.setScale(m_timerText.getPosition().x, m_timerText.getPosition().y);
-//
-//
-//    // Assuming you want an array of 3 sprites, each with a decreasing position
-//    m_heart.resize(NUM_HEART);  // Reserve space for 3 sprites
-//
-//    int decrease = 1800;
-//    for (int i = 0; i < NUM_HEART; ++i) {
-//
-//        m_heart[i].setTexture(GetTexture(HEART));  // Assign texture to sprite
-//        SetSprite(m_heart[i], decrease, 50.f, 0.2f);  // Set position and scale
-//        decrease -= 50;  // Decrease the position for the next sprite
-//    }
-//
-//
-//
-//}
+
 
 
 
@@ -227,54 +194,42 @@ float ToolbarGame::getTimeLeft() const {
 float ToolbarGame::getLevelDuration() const {
     return m_LevelDuration;
 }
-//void ToolbarGame::CallUpdateTimer() {
-//    UpdateTimer();
-//}
+
 
 void ToolbarGame::setTimer(const float duration) {
     setLevelDuration(duration);
 }
 
-//void ToolbarGame::callUpdateToolbar(const float deltaTime)
-//{
-//    updateTimerDisplay(deltaTime);
-//
-//}
+
 
 
 
 void ToolbarGame::ShowPresent(const char Present) {
     ResourceManager& resourceManager = ResourceManager::getInstance();
 
-    sf::Text presentText;
-    presentText.setFont(resourceManager.getFont("digit.ttf"));
-    presentText.setCharacterSize(35);
-    presentText.setFillColor(sf::Color::White);
-    presentText.setOutlineThickness(3);
-    presentText.setOutlineColor(sf::Color::Black);
-    presentText.setStyle(sf::Text::Bold);
-    presentText.setPosition(WINDOW_WIDTH - 1550.f / 2 , 30.f); // Positioned next to the score
-
-    // Set the message based on the present type
+    // Set the sprite texture based on the present type
     switch (Present) {
     case 'F':
-        presentText.setString("Guards frozen for 3 sec!");
+        m_presentText.setTexture(resourceManager.getTexture("GuardFreeze.png"));
         break;
     case 'L':
-        presentText.setString("You got an extra life!");
+        m_presentText.setTexture(resourceManager.getTexture("ExtraLife.png"));
         break;
     case 'R':
-        presentText.setString("One guard removed!");
+        m_presentText.setTexture(resourceManager.getTexture("RemoveGuard.png"));
         break;
     case 'T':
-        presentText.setString("You got an extra 10 sec!");
+        m_presentText.setTexture(resourceManager.getTexture("ExtraTime.png"));
         break;
     default:
         return;  // No valid present, exit function
     }
 
-    // Draw the text in the existing draw function
-    m_presentText = presentText; // Store text so it's drawn in ToolbarGame::draw()
+    // Set position in the upper part of the window
+    m_presentText.setPosition(WINDOW_WIDTH - 1500.f, 20.f);
+
+    // Scale down the sprite so it's small
+    m_presentText.setScale(0.5f, 0.5f);
 
     // Start a timer so it disappears after some time
     m_presentClock.restart();

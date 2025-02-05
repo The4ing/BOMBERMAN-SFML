@@ -27,8 +27,7 @@ public:
     void addToScore(int addedScore);
     // Timer functions
     void setTimer(const float duration);
-   // void callUpdateToolbar(const float deltaTime);
-    //void CallUpdateTimer();
+
     float getTimeLeft() const;           // Get the time left for the level
     float getLevelDuration() const;
 
@@ -46,7 +45,7 @@ public:
 private:
     //for timer
    
-    sf::Text m_presentText;
+    sf::Sprite m_presentText;
     sf::Clock m_presentClock;
     sf::Text m_scoreText;
     sf::Sprite m_timer;

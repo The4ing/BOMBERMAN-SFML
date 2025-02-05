@@ -293,14 +293,15 @@ void Board::SetSprite(sf::Sprite& picture, const float POSx, const float POSy, c
 
 
 void Board::display(sf::RenderWindow& window) {
-    // Draw the toolbar
-    m_Toolbar.draw(window);
-
+   
+   
     // Draw static objects
     for (const auto& obj : m_objects) {
         obj->draw(window);
     }
 
+    // Draw the toolbar
+    m_Toolbar.draw(window);
     // Draw moving objects
     for (const auto& obj : m_movingObjects) {
         obj->draw(window);
