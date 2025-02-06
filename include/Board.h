@@ -25,9 +25,6 @@
 #include "FreezeGuard.h"
 #include "increaseTime.h"
 
-
-
-
 class Board {
 public:
     Board();
@@ -57,15 +54,12 @@ private:
     int m_rows, m_cols, m_lives;
     int m_guardCount;
     int m_currentLevel;
-
     sf::Clock m_pauseClock;  
     float m_pauseDuration;   
     sf::Vector2f m_robotStartingPosition;
     sf::Vector2f m_cellSize;
-
     std::vector<std::unique_ptr<GameObject>> m_objects;       
     std::vector<std::unique_ptr<MovingGameObject>> m_movingObjects; 
     std::unique_ptr<Robot> m_robot;
-
     ToolbarGame m_Toolbar;
 };
