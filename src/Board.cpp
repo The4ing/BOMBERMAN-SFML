@@ -8,9 +8,11 @@ Board::Board()
 }
 
 
-bool Board::loadFromFile(const std::string& fileName) {
+bool Board::loadFromFile(const std::string& fileName, int level) {
+    m_Toolbar.setTimer(120);
+    m_currentLevel = level;
     m_levelComplete = false;
-    isGuardSmart(5);
+    isGuardSmart();
     std::ifstream file(fileName);
     if (!file.is_open()) {
         std::cerr << "Error: Cannot open file " << fileName << std::endl;
@@ -55,7 +57,7 @@ bool Board::loadFromFile(const std::string& fileName) {
             case '!': {
                 std::unique_ptr<Guard> guard;
 
-                if (isGuardSmart(5)) {
+                if (isGuardSmart()) {
                    
                     guard = std::make_unique<SmartGuard>();  // Create a smart guard
                 }
@@ -72,6 +74,7 @@ bool Board::loadFromFile(const std::string& fileName) {
                 float guardScaleY = m_cellSize.y / 163.33f; // 163.33 = guard frame height
                 guard->setScale(guardScaleX, guardScaleY);
                 m_movingObjects.push_back(std::move(guard));
+
                 //  m_guardsStartingPositions.push_back(sf::Vector2f(position.x, position.y));
 
                 m_guardCount++;
@@ -196,10 +199,10 @@ bool Board::isPresentAtPosition(const sf::Vector2f& position) {
 
 // Set the probability based on the level
 // For example, level 1 = 10% chance, level 10 = 90% chance, and so on
-bool Board::setSmartGuard(int level) {
+bool Board::setSmartGuard() {
     // Seed random number generator
     srand(static_cast<unsigned int>(time(0)));
-    int probability = std::min(100, level * 10);  // Cap the probability at 100%
+    int probability = std::min(100, m_currentLevel * 10);  // Cap the probability at 100%
 
     // Generate a random number between 1 and 100
     int randomNumber = rand() % 100 + 1;
@@ -293,15 +296,14 @@ void Board::SetSprite(sf::Sprite& picture, const float POSx, const float POSy, c
 
 
 void Board::display(sf::RenderWindow& window) {
-   
-   
+    // Draw the toolbar
+    m_Toolbar.draw(window);
+
     // Draw static objects
     for (const auto& obj : m_objects) {
         obj->draw(window);
     }
 
-    // Draw the toolbar
-    m_Toolbar.draw(window);
     // Draw moving objects
     for (const auto& obj : m_movingObjects) {
         obj->draw(window);
@@ -315,9 +317,12 @@ void Board::display(sf::RenderWindow& window) {
 sf::Vector2f Board::getCellSize() const {
     return m_cellSize;
 }
-int Board::update(float deltaTime, const int level) {
+int Board::update(float deltaTime) {
 
-   
+    if (m_pause) {
+       // m_Toolbar.toggleMute();
+        return PLAYING;
+    }
 
     if (m_pausedByHit) {
         if (m_pauseClock.getElapsedTime().asSeconds() >= m_pauseDuration) {
@@ -325,6 +330,7 @@ int Board::update(float deltaTime, const int level) {
             resetObjectsLocation();  // Reset robot & guards
             removeAllBombs();        // Remove bombs
             m_Toolbar.updateTimerDisplay(deltaTime);
+            return PLAYING;
            
         }
         else {
@@ -338,7 +344,6 @@ int Board::update(float deltaTime, const int level) {
         if (m_lives <= 0) return LOST_GAME;
         m_pauseClock.restart();  // Start pause timer
         m_pausedByHit = true;
-        m_pause = true;
         m_robot->setHitStatus(false);
          m_Toolbar.IncreaseTime(3);        
           m_Toolbar.updateTimerDisplay(deltaTime);
@@ -346,7 +351,10 @@ int Board::update(float deltaTime, const int level) {
         return LOST_LIFE;
     }
     if (!m_Toolbar.getIsTimerRunning()) {
-        return LOST_GAME;
+        //player has run out of time as a result he loses all his score
+        removeAllBombs();
+        m_Toolbar.addToScore(-m_Toolbar.getScore());
+        return TIMES_UP;
     }
 
     // Normal game update logic
@@ -362,7 +370,6 @@ int Board::update(float deltaTime, const int level) {
             coin->update(deltaTime);
         }
     }
-
     m_robot->update(deltaTime);
     m_Toolbar.updateTimerDisplay(deltaTime);
 
@@ -371,7 +378,7 @@ int Board::update(float deltaTime, const int level) {
     timeElapsed += deltaTime;
 
     if (timeElapsed >= 5.0f) {  // Every 5 seconds
-        std::string levelFile = "level" + std::to_string(level) + ".txt";
+        std::string levelFile = "level" + std::to_string(m_currentLevel) + ".txt";
         loadPresent(levelFile);  // Call the function to place presents
         timeElapsed = 0.0f;  // Reset the timer
     }
@@ -421,12 +428,12 @@ void Board::handleInput(sf::Keyboard::Key key, bool isPressed) {
 
 }
 
-bool Board::isGuardSmart(int level) {
+bool Board::isGuardSmart() {
     // Generate a random number between 0 and 99
     int intelligence = rand() % 100;
 
     // Scale the probability based on the level
-    int probability = std::min(100, level * 10);
+    int probability = std::min(100, m_currentLevel * 10);
 
     // Return true if the intelligence value falls within the probability range
     return intelligence < probability;
@@ -475,7 +482,7 @@ void Board::handleCollisions() {
                     // Handle coin collection (e.g., increase score)
                     m_Toolbar.addToScore(COIN_SCORE); 
                     sf::Sound& coinSound = resourceManager.getSound("coin");
-                    coinSound.setVolume(25);
+                    coinSound.setVolume(15);
                     coinSound.play();
                     // Remove the coin from the game objects
                     staticObjectsToRemove.push_back(obj.get());
@@ -517,6 +524,9 @@ void Board::handleCollisions() {
 
                 for (const auto& movingObj : m_movingObjects)
                     if (dynamic_cast<Guard*>(movingObj.get()) && rect.intersects(movingObj->getCollisionShape().getGlobalBounds())) {
+                        sf::Sound& enemyKillSound = resourceManager.getSound("enemyKill");
+                        enemyKillSound.setVolume(25);
+                        enemyKillSound.play();
                         movingObjectsToRemove.push_back(movingObj.get());
                         m_Toolbar.addToScore(DEAD_GUARD_SCORE);
                     }
@@ -592,6 +602,7 @@ void Board::resetObjectsLocation() {
     for (const auto& obj : m_movingObjects) {
         if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
             guard->setPosition(guard->getStartingPosition().x, guard->getStartingPosition().y);
+            std::cout << "Guard reset to: (" << guard->getPosition().x << ", " << guard->getPosition().y << ").\n";
         }
     }
 }
@@ -617,9 +628,8 @@ bool Board::isLevelComplete() {
     if (m_levelComplete) {
         m_objects.clear();
         m_movingObjects.clear();
-        m_Toolbar.setTimer(120);
+        m_Toolbar.setLevel(m_currentLevel + 1);
         m_Toolbar.addToScore(LEVEL_COMPLETE_SCORE + m_guardCount * GUARDS_PER_LEVEL_SCORE);
-        std::cout << "Level complete! Score: " << m_guardCount << std::endl;
         m_guardCount = 0;
 
         sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Next Level");
@@ -630,6 +640,7 @@ bool Board::isLevelComplete() {
     }
     return false;
 }
+
 
 
 
@@ -664,4 +675,38 @@ void Board::showTransitionScreen(sf::RenderWindow& window, const std::string& me
         window.draw(text);
         window.display();
     }
+}
+
+void Board::togglePause() {
+    m_pause = !m_pause;
+
+    if (m_pause) {
+        m_Toolbar.pauseTimer(); // Pause the timer
+    }
+    else {
+        m_Toolbar.resumeTimer(); // Resume the timer
+    }
+
+    std::cout << (m_pause ? "Game Paused!" : "Game Resumed!") << std::endl;
+}
+
+void Board::reset() {
+    m_objects.clear();         // Clear static objects
+    m_movingObjects.clear();   // Clear moving objects
+    m_guardCount = 0;          // Reset guard count
+    m_robot->setPosition(m_robotStartingPosition.x, m_robotStartingPosition.y); // Reset robot position
+    m_Toolbar.setTimer(120);   // Reset timer
+   // m_Toolbar.setScore(0);     // Reset score
+    m_Toolbar.addToScore(-m_Toolbar.getScore());
+    m_Toolbar.setLevel(1);      // Reset level
+    //m_Toolbar.resetLives();    // Reset lives counter
+    m_robot->setHitStatus(false);
+    m_lives = 3;
+    for(int i=0; i<m_lives;i++){
+        m_Toolbar.IncreaseHeart(true);
+	}
+}
+
+bool Board::isPaused() {
+    return m_pause;
 }
