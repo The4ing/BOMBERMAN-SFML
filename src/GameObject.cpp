@@ -20,16 +20,12 @@ void GameObject::setScale(float scaleX, float scaleY)
 }
 
 void GameObject::setTexture(const sf::Texture& texture) {
-
 	m_sprite.setTexture(texture);
-
-
 }
 
 sf::Sprite& GameObject::getSprite()
 {
-	return m_sprite;
-		
+	return m_sprite;	
 }
 
 const sf::Sprite& GameObject::getSprite() const
