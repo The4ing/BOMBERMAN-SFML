@@ -128,6 +128,12 @@ void Guard::handleCollisionWith(Rock&)
 	revertPosition();
 }
 
+
+void Guard::handleCollisionWith(Wall&)
+{
+	revertPosition();
+}
+
 void Guard::handleCollisionWith(Door&)
 {
 	revertPosition();
