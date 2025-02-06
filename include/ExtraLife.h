@@ -3,6 +3,5 @@
 class ExtraLife : public Present {
 public:
     ExtraLife();
-
-    char getSymbol() const override; // Unique symbol
+    char getSymbol() const override; 
 };
