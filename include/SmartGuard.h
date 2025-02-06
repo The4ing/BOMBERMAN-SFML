@@ -13,7 +13,7 @@ public:
 
     // Specific collision handling
     
-    void handleCollisionWith(Wall&) override;
+   // void handleCollisionWith(Wall&) override;
     void handleCollisionWith(Guard&) override;
     void handleCollisionWith(Bomb&, bool) override;        // No-op for Bomb
 
@@ -37,7 +37,7 @@ private:
     sf::Clock m_directionChangeClock;
     sf::Time m_randomChangeInterval;
     sf::Clock m_animationClock;
-   
+    sf::Clock m_directionLockClock; // Lock timer to hold direction for 2 sec
 
     Direction preferredDirection;
     Direction alternateDirection;
