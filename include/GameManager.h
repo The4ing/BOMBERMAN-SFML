@@ -4,7 +4,6 @@
 #include <vector>
 #include <memory>
 #include "MainMenuDisplay.h"
-#include "GameDisplay.h"
 #include "Board.h"
 #include "Robot.h"
 #include "MovingGameObject.h"
@@ -18,12 +17,12 @@ public:
     void loadNextLevel();
 
 private:
-    sf::Sprite m_muteButtonSprite; 
-    sf::RenderWindow m_window;   
+    sf::Sprite m_muteButtonSprite;
+    sf::RenderWindow m_window;
     MainMenuDisplay m_mainMenu;
     Board m_board;
     sf::Sprite m_backgroundSprite;
-    int m_currentLevel; 
+    int m_currentLevel;
     std::string m_gameMusic;
-    
+
 };
