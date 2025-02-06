@@ -4,9 +4,7 @@ IncreaseTime::IncreaseTime()
     : Present() {
 }
 
-
 char IncreaseTime::getSymbol() const
 {
     return 'T';
 }
-
