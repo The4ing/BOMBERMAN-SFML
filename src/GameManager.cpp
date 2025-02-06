@@ -202,12 +202,9 @@ void GameManager::processGameEvents() {
 }
 
 void GameManager::loadNextLevel() {
-  
     m_currentLevel++;  // Move to the next level
-
     // Generate the filename based on level number
     std::string levelFile = "level" + std::to_string(m_currentLevel) + ".txt";
-
     // Try loading the new level file
     if (!m_board.loadFromFile(levelFile, m_currentLevel)) {
         std::cerr << "Error: Could not load " << levelFile << ". Restarting at Level 1." << std::endl;
@@ -215,7 +212,6 @@ void GameManager::loadNextLevel() {
         levelFile = "level1.txt";
         m_board.loadFromFile(levelFile, m_currentLevel);
     }
-
     std::cout << "Loaded " << levelFile << std::endl;
     startGame();
 }
