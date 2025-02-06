@@ -39,6 +39,7 @@ public:
     void handleCollision(GameObject& other) override;
     void handleCollisionWith(Robot&) override {}
     void handleCollisionWith(Rock&) override;
+    void handleCollisionWith(Wall&) override;
     void handleCollisionWith(Door&) override;
     void handleCollisionWith(Present& ) override {}
 
