@@ -16,7 +16,7 @@ public:
 
     // Specific collision handling
     
-    void handleCollisionWith(Wall&) override;
+ //   void handleCollisionWith(Wall&) override;
     void handleCollisionWith(Guard&) override {}
     void handleCollisionWith(Bomb&, bool ) override;        // No-op for Bomb
 
