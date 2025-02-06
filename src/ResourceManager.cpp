@@ -46,6 +46,13 @@ void ResourceManager::loadSound() {
         {"StupidGuardXPL", "StupidGuardXPL.ogg"},  
         {"PresentXPL", "PresentXPL.ogg"},
         {"coin", "coin.ogg"},
+        {"levelComplete", "levelComplete.ogg"},
+        {"died", "died.ogg"},
+        {"gameOver", "gameOver.ogg"},
+        {"timesUp", "timesUp.ogg"},
+        {"explosion", "explosion.ogg"},
+        {"enemyKill", "enemyKill.ogg"},
+        {"won", "won.ogg"},
     };
 
     for (const auto& [key, filename] : soundFiles) {
@@ -124,8 +131,9 @@ void ResourceManager::loadTextures() {
         "Rock.png", "scary_guard_spritesheet.png", "smartGuardSprite.png",
         "timer.png", "unmute.png", "background1.png", "background2.png",
         "background3.png", "background4.png", "background5.png",
-        "background6.png", "lost_life_screen.png", "guard_morty.png", "Coin.png" ,
-        "ESC.png","ExtraLife.png", "ExtraTime.png",  "RemoveGuard.png","GuardFreeze.png"
+        "background6.png", "lost_life_screen.png", "guard_morty.png", "Coin.png",
+        "levelComplete.png", "gameOver.png", "ESC.png", "timesUp.png", "pauseSign.png",
+        "ExtraLife.png", "ExtraTime.png",  "RemoveGuard.png","GuardFreeze.png", "won.png"
     };
 
     for (const auto& filename : textureFiles) {
