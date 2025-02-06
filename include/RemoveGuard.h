@@ -2,9 +2,6 @@
 
 class RemovedGuard : public Present {
 public:
-    RemovedGuard(); // Pass by reference
-
-
-    char getSymbol() const override; // Unique symbol
-
+    RemovedGuard(); 
+    char getSymbol() const override; 
 };
