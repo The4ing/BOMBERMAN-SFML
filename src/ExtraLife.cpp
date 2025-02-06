@@ -1,10 +1,6 @@
 #include "ExtraLife.h"
 
-ExtraLife::ExtraLife()
-    : Present() {
-   
-
-}
+ExtraLife::ExtraLife() : Present() {}
 
 char ExtraLife::getSymbol() const
 {
