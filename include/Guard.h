@@ -1,22 +1,12 @@
 #pragma once
-
 #include "MovingGameObject.h"
-const int CIRCLRE_OFFSET = 10;
+
 class Guard : public MovingGameObject {
-   
 public:
     Guard();
-
-
-    static int getGuardCount();
-    static void restartNumGuard();
-    static void reduceNumGuard();
-  
-
-  
-
-
-
+   // static int getGuardCount();
+    //static void restartNumGuard();
+    //static void reduceNumGuard();
     void draw(sf::RenderWindow& window) const override;
     char getSymbol() const override;
     void setFreezeGaurd(const bool status);
@@ -29,13 +19,8 @@ public:
     void setPrevPpos(const sf::Vector2f velocity);
     const float getFrameWidth() const;
     const float getFrameHight() const ;
-
-
-
     virtual void setStartingPosition(float newX, float newY);
     virtual sf::Vector2f getStartingPosition();
-
-
     void handleCollision(GameObject& other) override;
     void handleCollisionWith(Robot&) override {}
     void handleCollisionWith(Rock&) override;
@@ -43,21 +28,13 @@ public:
     void handleCollisionWith(Door&) override;
     void handleCollisionWith(Present& ) override {}
 
-
 private:
-
+    void revertPosition();
     sf::Vector2f m_previousPosition;        // Guard's current velocity
     sf::Vector2f m_startingPosition;
     sf::Vector2f m_velocity;
     bool m_freezeGuard;
-    static int m_numGuard;
-    void revertPosition();
     int m_animationFrame;           // frame of the animation
-
     float m_frameWidth;
     float m_frameHeight;
 };
-
-
-
- 
