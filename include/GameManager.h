@@ -21,6 +21,8 @@ public:
 
 private:
 
+    bool m_isMuted = false;  // Tracks if sound is muted
+    sf::Sprite m_muteButtonSprite; // Mute button sprite
 
     sf::RenderWindow m_window;   // SFML render window
     sf::Vector2f m_cellSize;
