@@ -2,7 +2,7 @@
 
 
 ToolbarGame::ToolbarGame()
-    : m_isTimerRunning(true), m_LevelDuration(0), m_TimeLeft(0),m_score(0), m_isMuted(false), m_num_heart(0){
+    : m_isTimerRunning(true), m_LevelDuration(0), m_TimeLeft(0),m_score(0), m_isMuted(false), m_num_heart(0), m_isPaused(false){
     m_clock.restart();
     setTimer(120.f);
 
@@ -26,8 +26,18 @@ ToolbarGame::ToolbarGame()
     m_scoreText.setOutlineThickness(3);
     m_scoreText.setStyle(sf::Text::Bold);
     m_scoreText.setFillColor(sf::Color::White);  // White text
-    m_scoreText.setPosition(WINDOW_WIDTH / 2 - 50.f, 30.f); // Center horizontally
+    m_scoreText.setPosition(WINDOW_WIDTH / 2 + 150.f, 30.f); // Center horizontally
     m_scoreText.setString("Score: 0");  // Initial score
+
+    //set up level text
+    m_levelText.setFont(resourceManager.getFont("digit.ttf"));
+    m_levelText.setCharacterSize(40);  // Set a good size
+    m_levelText.setOutlineThickness(3);
+    m_levelText.setStyle(sf::Text::Bold);
+    m_levelText.setFillColor(sf::Color::White);  // White text
+    m_levelText.setPosition(WINDOW_WIDTH / 2 - 300.f, 30.f); // Adjust position as needed
+    m_levelText.setString("Level: 1");  // Initial level display
+
 
 
 
@@ -63,7 +73,40 @@ ToolbarGame::ToolbarGame()
 
 
 
-
+//void ToolbarGame::LoudSprite() {
+//
+//    // Create the clock hand sprite
+//
+//
+//    //m_clockHand.setTexture(GetTexture(CLOCK));
+//    //SetSprite(m_clockHand, 400.f, 50.f, 0.2f);  // Center the clock on the screen
+//
+//
+//    //// Create the arrow sprite
+//    //m_arrow.setTexture(GetTexture(ARROW));
+//    //SetSprite(m_arrow, m_clockHand.getPosition().x, m_clockHand.getPosition().y, 0.4f);  // Center the clock on the screen
+//
+//
+//    //create timer picture
+//    m_timer.setTexture(GetTexture(TIMER));
+//    SetSprite(m_timer, m_timerText.getPosition().x, m_timerText.getPosition().y,0.2f);  // Center the clock on the screen
+//  //  m_timer.setScale(m_timerText.getPosition().x, m_timerText.getPosition().y);
+//
+//
+//    // Assuming you want an array of 3 sprites, each with a decreasing position
+//    m_heart.resize(NUM_HEART);  // Reserve space for 3 sprites
+//
+//    int decrease = 1800;
+//    for (int i = 0; i < NUM_HEART; ++i) {
+//
+//        m_heart[i].setTexture(GetTexture(HEART));  // Assign texture to sprite
+//        SetSprite(m_heart[i], decrease, 50.f, 0.2f);  // Set position and scale
+//        decrease -= 50;  // Decrease the position for the next sprite
+//    }
+//
+//
+//
+//}
 
 
 
@@ -113,6 +156,8 @@ void ToolbarGame::draw(sf::RenderWindow& window) {
     window.draw(resourceManager.getText("timer"));
     window.draw(m_muteButton);
     window.draw(m_scoreText);  // Draw the score in the toolbar
+    window.draw(m_levelText);  // Draw the level text
+
 
     // Draw present text if it's been less than 2 seconds
     if (m_presentClock.getElapsedTime().asSeconds() < 2.0f) {
@@ -149,6 +194,8 @@ void ToolbarGame::IncreaseTime(const int extraTime) {
 
 //functions for timer
 void ToolbarGame::UpdateTimer() {
+    if (m_isPaused) return; // Skip updating time when paused
+
     if (m_isTimerRunning) {
         float elapsed = m_clock.getElapsedTime().asSeconds();
         m_TimeLeft = std::max(0.0f, m_LevelDuration - elapsed);  // Ensure time updates properly
@@ -194,13 +241,19 @@ float ToolbarGame::getTimeLeft() const {
 float ToolbarGame::getLevelDuration() const {
     return m_LevelDuration;
 }
-
+//void ToolbarGame::CallUpdateTimer() {
+//    UpdateTimer();
+//}
 
 void ToolbarGame::setTimer(const float duration) {
     setLevelDuration(duration);
 }
 
-
+//void ToolbarGame::callUpdateToolbar(const float deltaTime)
+//{
+//    updateTimerDisplay(deltaTime);
+//
+//}
 
 
 
@@ -226,7 +279,7 @@ void ToolbarGame::ShowPresent(const char Present) {
     }
 
     // Set position in the upper part of the window
-    m_presentText.setPosition(WINDOW_WIDTH - 1500.f, 20.f);
+    m_presentText.setPosition(WINDOW_WIDTH / 2 - 55.f, 0.f);
 
     // Scale down the sprite so it's small
     m_presentText.setScale(0.5f, 0.5f);
@@ -234,6 +287,7 @@ void ToolbarGame::ShowPresent(const char Present) {
     // Start a timer so it disappears after some time
     m_presentClock.restart();
 }
+
 
 
 
@@ -347,4 +401,35 @@ void ToolbarGame::startTimer() {
 
 bool ToolbarGame::getIsTimerRunning() const {
 	return m_isTimerRunning;
+}
+
+void ToolbarGame::pauseTimer() {
+    if (!m_isPaused) {  // Prevent double pausing
+        m_isPaused = true;
+        m_timePaused = getTimeLeft();
+        sf::Listener::setGlobalVolume( 0.0f); // Mute all sounds in SFML
+    }
+}
+
+
+void ToolbarGame::resumeTimer() {
+    if (m_isPaused) {  // Only resume if it was paused
+        m_isPaused = false;
+		setTimer(m_timePaused);
+        sf::Listener::setGlobalVolume(100.0f);
+    }
+}
+
+void ToolbarGame::setLevel(int level) {
+    m_levelText.setString("Level: " + std::to_string(level));
+}
+
+int ToolbarGame::getScore() {
+    return m_score;
+}
+void ToolbarGame::setScore(int score) {
+	m_score = score;
+}
+void ToolbarGame::resetLives() {
+    m_num_heart = 3;
 }
