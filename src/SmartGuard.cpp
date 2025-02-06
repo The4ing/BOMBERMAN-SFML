@@ -98,16 +98,20 @@ void SmartGuard::updateAnimation() {
 
 
 void SmartGuard::update(float deltaTime) {
-
     sf::Sprite& sprite = getSprite();
-
     setPrevPpos(getPosition());
 
-    calculateVelocity();
-    sprite.move(getVelocity() * deltaTime);
+    // Change direction only if 2 seconds have passed
+    if (m_directionLockClock.getElapsedTime().asSeconds() >= 2.0f) {
+        calculateVelocity();
+        m_directionLockClock.restart(); // Restart timer when direction changes
+    }
 
+    // Move the guard
+    sprite.move(getVelocity() * deltaTime);
     updateAnimation();
 
+    // Random direction change interval logic
     if (m_directionChangeClock.getElapsedTime() >= m_randomChangeInterval) {
         randomizeBehavior();
         m_directionChangeClock.restart();
@@ -116,18 +120,19 @@ void SmartGuard::update(float deltaTime) {
 
 
 
-void SmartGuard::handleCollisionWith(Wall&) {
- 
 
-    if (getVelocity().x != 0 || getVelocity().y != 0) {
-        // First, switch to alternate direction
-        updateVelocity(alternateDirection);
-    }
-    else {
-        // If alternate direction is also blocked, try random direction
-        moveInAnyAvailableDirection();
-    }
-}
+//void SmartGuard::handleCollisionWith(Wall&) {
+// 
+//
+//    if (getVelocity().x != 0 || getVelocity().y != 0) {
+//        // First, switch to alternate direction
+//        updateVelocity(alternateDirection);
+//    }
+//    else {
+//        // If alternate direction is also blocked, try random direction
+//        moveInAnyAvailableDirection();
+//    }
+//}
 
 
 
@@ -146,7 +151,7 @@ void SmartGuard::handleCollisionWith(Bomb&, bool ) {
 
 void SmartGuard::handleCollisionWith(Guard&) {
   //  std::cout << "SmartGuard collided with another Guard.\n";
-    setVelocity(sf::Vector2f(0.f, 0.f));
+   // setVelocity(sf::Vector2f(0.f, 0.f));
 }
 
 
