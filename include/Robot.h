@@ -8,26 +8,12 @@
 #include "Door.h"
 #include "Guard.h"
 
-// Constants
-const float ROBOT_SPEED = 200.f;    // Speed in pixels per second
-const int SPRITE_WIDTH = 20;        // Sprite width in pixels
-const int SPRITE_HEIGHT = 30;       // Sprite height in pixels
-const float ROBOT_SCALE = 2.0f;     // Scale factor
-
 class Robot : public MovingGameObject {
 public:
     Robot();
-   
-    
-    // Overridden methods
-    char getSymbol() const override { return '/'; }
+    char getSymbol() const override;
     void update(float deltaTime) override;
-    void handleInput(sf::Keyboard::Key key, bool isPressed);
     void draw(sf::RenderWindow& window) const override;
-    void playDeathAnimation();
-   
-   
-
     void handleCollision(GameObject& other) override;
     void handleCollisionWith(Robot& ) override{}
     void handleCollisionWith(Wall& wall) override;
@@ -39,29 +25,14 @@ public:
     void resolveCollision(const GameObject& object);
     const bool isRobotHit() const ;
     void setHitStatus(bool status);
-
-    //virtual sf::FloatRect getBoundingBox() const override;
-    // Grid-related helper
-    sf::Vector2i getCurrentCell() const; // Return the grid cell dynamically
-
     sf::CircleShape getCollisionShape() const override;
 
 private:
-    bool validKeys(sf::Keyboard::Key key);
-    Direction m_direction;           // Current movement direction
-    bool m_arrowKeyPressed;          // Flag for movement animation
-    std::set<sf::Keyboard::Key> activeKeys; // Store currently pressed keys
+    Direction m_direction; 
     sf::Vector2f m_velocity;
     sf::Vector2f m_previousPosition;
-    int lastDirection;
-
-    
-        
-    sf::Sprite m_sprite;
-    // Animation-related members
-    int m_animationFrame;            // Current animation frame index
-    sf::Clock m_animationClock;      // Clock for animation timing
-    sf::Time m_animationTimer;       // Time per animation frame
-    //sf::CircleShape m_collisionShape;
+    int m_animationFrame;            
+    sf::Clock m_animationClock;      
+    sf::Time m_animationTimer;      
     bool m_robotHit;
 };
