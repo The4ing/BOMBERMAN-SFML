@@ -40,6 +40,7 @@ enum screenStates {
     PLAYING,
     LOST_LIFE,
     LOST_GAME,
+    TIMES_UP,
     WON
 };
 
