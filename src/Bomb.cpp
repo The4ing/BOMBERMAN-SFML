@@ -85,6 +85,7 @@ void Bomb::update(const float deltaTime) {
   
     if (!m_exploded && std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() >= 4) {
         SetXplode();
+
     }
 
     // Ensure the bomb disappears after the explosion
@@ -99,6 +100,10 @@ void Bomb::update(const float deltaTime) {
 // Set explosion state
 void Bomb::SetXplode() {
     if (!m_exploded) {
+        ResourceManager& resourceManager = ResourceManager::getInstance();
+        sf::Sound& explosionSound = resourceManager.getSound("explosion");
+        explosionSound.setVolume(25);
+        explosionSound.play();
         m_exploded = true;
         m_explosionTime = std::chrono::steady_clock::now();
     }
