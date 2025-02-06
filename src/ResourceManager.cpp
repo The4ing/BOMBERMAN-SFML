@@ -13,7 +13,6 @@ ResourceManager& ResourceManager::getInstance() {
     return instance;
 }
 
-
 void ResourceManager::loadMusic() {
     std::vector<std::pair<std::string, std::string>> musicFiles = {
         {"menuMusic", "menuMusic.ogg"},
@@ -30,9 +29,6 @@ void ResourceManager::loadMusic() {
         }
     }
 }
-
-
-
 
 void ResourceManager::loadSound() {
     std::vector<std::pair<std::string, std::string>> soundFiles = {
@@ -117,23 +113,18 @@ void ResourceManager::loadString()
     };
 }
 
-
-
-
-
-
 void ResourceManager::loadTextures() {
     std::vector<std::string> textureFiles = {
         "wall.png", "rock.png", "rick_guard.png", "door.png", "empty.png",
-        "bomb.png", "present.png", "arrow.png", "bombXPLD.png", "clock.png",
+        "bomb.png", "present.png", "bombXPLD.png",
         "explosion.png", "heart.png", "helpBackground.png", "menu.png",
-        "mute.png", "Robot.png", "RobotXPL.png", "robot_spritesheet.png",
+        "mute.png", "Robot.png", "robot_spritesheet.png",
         "Rock.png", "scary_guard_spritesheet.png", "smartGuardSprite.png",
         "timer.png", "unmute.png", "background1.png", "background2.png",
         "background3.png", "background4.png", "background5.png",
         "background6.png", "lost_life_screen.png", "guard_morty.png", "Coin.png",
         "levelComplete.png", "gameOver.png", "ESC.png", "timesUp.png", "pauseSign.png",
-        "ExtraLife.png", "ExtraTime.png",  "RemoveGuard.png","GuardFreeze.png", "won.png"
+        "ExtraLife.png", "ExtraTime.png",  "RemoveGuard.png","GuardFreeze.png", "won.png", "button_frame.png"
     };
 
     for (const auto& filename : textureFiles) {
@@ -161,10 +152,6 @@ void ResourceManager::loadFonts() {
         }
     }
 }
-
-
-
-
 sf::Sound& ResourceManager::getSound(const std::string& key) {
     auto it = m_sounds.find(key);
     if (it != m_sounds.end()) {
