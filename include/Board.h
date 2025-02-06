@@ -43,7 +43,7 @@ public:
     const int getHeartCount();
 
     // Other members and variables for game state
-    bool loadFromFile(const std::string& fileName);
+    bool loadFromFile(const std::string& fileName, int level);
     bool loadPresent(const std::string& fileName);
     bool isPresentAtPosition(const sf::Vector2f& position);
     void display(sf::RenderWindow& window);
@@ -52,18 +52,23 @@ public:
 
     sf::Vector2f getCellSize() const;
     void handleMouseClick(sf::RenderWindow& window, const sf::Vector2i& mousePixelPosition);
-    bool setSmartGuard(int level);
+    bool setSmartGuard();
 
-    int update(float deltaTime, const int level);
+    int update(float deltaTime);
     void removeAllBombs();
     void handleInput(sf::Keyboard::Key key, bool isPressed);
-    bool isGuardSmart(int level);
+    bool isGuardSmart();
     void showTransitionScreen(sf::RenderWindow& window, const std::string& message, sf::Color backgroundColor);
     void handleCollisions();
     void setPause();
     void startTimer();
     void GenerateBomb();
     bool isLevelComplete();
+    void togglePause();
+    void reset();
+    bool isPaused();
+    void resetObjectsLocation();
+
 private:
 
     void checkIfSmartGuard(MovingGameObject* obj);
@@ -82,9 +87,8 @@ private:
     int m_rows, m_cols;
     bool m_levelComplete;
     int m_guardCount;
-
+    int m_currentLevel;
     ToolbarGame m_Toolbar;
     sf::Vector2f m_robotStartingPosition;
-    void resetObjectsLocation();
     sf::View m_view;
 };
