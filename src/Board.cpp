@@ -1,18 +1,15 @@
 #include "Board.h"
 
-
 Board::Board()
-    : m_rows(0), m_cols(0),m_guardCount(0), m_FreezeGuardsStatus(false), m_pause(false), m_pausedByHit(false), m_levelComplete(false), m_lives(3), m_pauseDuration(2) {
+    : m_rows(0), m_cols(0),m_guardCount(0), m_pause(false), m_pausedByHit(false), m_levelComplete(false), m_lives(NUM_OF_LIVES) {
     m_robot = std::make_unique<Robot>();
     srand(static_cast<unsigned int>(time(0)));
 }
 
-
 bool Board::loadFromFile(const std::string& fileName, int level) {
-    m_Toolbar.setTimer(120);
+    m_Toolbar.setTimer(LEVEL_DURATION);
     m_currentLevel = level;
     m_levelComplete = false;
-    isGuardSmart();
     std::ifstream file(fileName);
     if (!file.is_open()) {
         std::cerr << "Error: Cannot open file " << fileName << std::endl;
@@ -29,7 +26,7 @@ bool Board::loadFromFile(const std::string& fileName, int level) {
     m_rows = static_cast<int>(lines.size());
     m_cols = lines.empty() ? 0 : static_cast<int>(lines[0].size());
 
-    float gridHeight = WINDOW_HEIGHT - TOOLBAR_HEIGHT; // Remaining height after the toolbar
+    float gridHeight = WINDOW_HEIGHT - TOOLBAR_HEIGHT;
 
     m_cellSize.x = WINDOW_WIDTH / static_cast<float>(m_cols);
     m_cellSize.y = gridHeight / static_cast<float>(m_rows);
@@ -39,18 +36,17 @@ bool Board::loadFromFile(const std::string& fileName, int level) {
     for (int i = 0; i < m_rows; ++i) {
         for (int j = 0; j < m_cols; ++j) {
             char symbol = lines[i][j];
-            sf::Vector2f position(j * m_cellSize.x, i * m_cellSize.y + TOOLBAR_HEIGHT); // Offset by toolbar height
+            sf::Vector2f position(j * m_cellSize.x, i * m_cellSize.y + TOOLBAR_HEIGHT); 
             switch (symbol) {
             case '#': {
                 auto wall = std::make_unique<Wall>();
                 wall->setPosition(position.x, position.y);
-                wall->setScale(scaleX, scaleY); // Ensure consistent scaling
+                wall->setScale(scaleX, scaleY); 
                 m_objects.push_back(std::move(wall));
                 break;
             }
             case '/':
                 m_robot->setPosition(position.x, position.y);
-                std::cout << "Robot initial position: (" << position.x << ", " << position.y << ")\n";
                 m_robotStartingPosition = sf::Vector2f(position.x, position.y);
                 break;
 
@@ -59,62 +55,56 @@ bool Board::loadFromFile(const std::string& fileName, int level) {
 
                 if (isGuardSmart()) {
                    
-                    guard = std::make_unique<SmartGuard>();  // Create a smart guard
+                    guard = std::make_unique<SmartGuard>(); 
                 }
                 else {
                    
-                    guard = std::make_unique<StupidGuard>();  // Create a stupid guard
+                    guard = std::make_unique<StupidGuard>();  
                 }
 
                 guard->setPosition(position.x, position.y);
                 guard->setStartingPosition(position.x, position.y);
 
-                // Scale guards based on individual frame dimensions
-                float guardScaleX = m_cellSize.x / 127.5f;  // 127.5 = guard frame width
-                float guardScaleY = m_cellSize.y / 163.33f; // 163.33 = guard frame height
+                float guardScaleX = m_cellSize.x / GUARD_WIDTH;  
+                float guardScaleY = m_cellSize.y / GUARD_HEIGHT; 
                 guard->setScale(guardScaleX, guardScaleY);
                 m_movingObjects.push_back(std::move(guard));
-
-                //  m_guardsStartingPositions.push_back(sf::Vector2f(position.x, position.y));
 
                 m_guardCount++;
                 break;
             }
 
-
             case '@': {
                 auto rock = std::make_unique<Rock>();
                 rock->setPosition(position.x, position.y);
-                rock->setScale(scaleX, scaleY); // Ensure consistent scaling
+                rock->setScale(scaleX, scaleY);
                 m_objects.push_back(std::move(rock));
                 break;
             }
+
             case 'D': {
                 auto door = std::make_unique<Door>();
                 door->setPosition(position.x, position.y);
-                door->setScale(scaleX, scaleY); // Ensure consistent scaling
+                door->setScale(scaleX, scaleY); 
                 m_objects.push_back(std::move(door));
                 break;
             }
+
             case ' ':
-                // 20% chance to spawn a coin in empty space
-                if (rand() % 10 == 0) { // 1 in 5 chance (adjust as needed)
+                // 10% chance to spawn a coin in empty space
+                if (rand() % 10 == 0) {
                     auto coin = std::make_unique<Coin>();
                     coin->setPosition(position.x, position.y);
-                    coin->setScale(15*scaleX, 15*scaleY);
+                    coin->setScale(COIN_SCALE*scaleX, COIN_SCALE *scaleY);
                     m_objects.push_back(std::move(coin));
                 }
                 break;
-
-           
             default:
                 break;
             }
-
         }
     }
     return true;
-
 }
 
 bool Board::loadPresent(const std::string& fileName) {
@@ -123,7 +113,6 @@ bool Board::loadPresent(const std::string& fileName) {
         std::cerr << "Error: Cannot open file " << fileName << std::endl;
         return false;
     }
-
     std::vector<std::string> lines;
     std::string line;
     while (std::getline(file, line)) {
@@ -134,9 +123,7 @@ bool Board::loadPresent(const std::string& fileName) {
     float scaleX = m_cellSize.x / SINGLE_SPRITE_DIMENSIONS;
     float scaleY = m_cellSize.y / SINGLE_SPRITE_DIMENSIONS;
 
-    int maxAttempts = 10; // Limit the number of attempts to prevent infinite loops
-
-    for (int attempts = 0; attempts < maxAttempts; ++attempts) {
+    for (int attempts = 0; attempts < MAX_ATTEMPTS; ++attempts) {
         // Check if the present count exceeds the limit before generating a new one
         if (Present::getPresentCount() > NUM_PRESENT) {
             return false; // Stop trying if we already have 6 presents
@@ -152,7 +139,7 @@ bool Board::loadPresent(const std::string& fileName) {
             int randomChance = rand() % 10; // 1 in 10 chance to place a present
 
             if (randomChance < 5) { // 50% chance to place a present
-                int random = rand() % 4; // Random number to decide which present type
+                int random = rand() % NUM_OF_PRESENTS; // Random number to decide which present type
                
                 std::unique_ptr<Present> present;
                 switch (random) {
@@ -182,7 +169,6 @@ bool Board::loadPresent(const std::string& fileName) {
     return false; // No suitable empty space found after attempts
 }
 
-
 bool Board::isPresentAtPosition(const sf::Vector2f& position) {
     for (const auto& obj : m_objects) {
         if (dynamic_cast<Present*>(obj.get())) {
@@ -194,32 +180,21 @@ bool Board::isPresentAtPosition(const sf::Vector2f& position) {
     return false;
 }
 
+// Function to decide if a guard is smart
+bool Board::isGuardSmart() {
+    int intelligence = rand() % 100 + 1;
+    int probability = std::min(100, m_currentLevel * 10);
 
-
-
-// Set the probability based on the level
-// For example, level 1 = 10% chance, level 10 = 90% chance, and so on
-bool Board::setSmartGuard() {
-    // Seed random number generator
-    srand(static_cast<unsigned int>(time(0)));
-    int probability = std::min(100, m_currentLevel * 10);  // Cap the probability at 100%
-
-    // Generate a random number between 1 and 100
-    int randomNumber = rand() % 100 + 1;
-
-    // Return true if the random number is less than or equal to the probability
-    return randomNumber <= probability;
+    return intelligence < probability;
 }
-
 
 void Board::PowerUp(const char choice) {
     switch (choice) {
-        // 🧊 Freeze All Guards for 10 Seconds
     case 'F':
         m_Toolbar.ShowPresent('F');
         for (const auto& obj : m_movingObjects) {
             if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
-                guard->setFreezeGaurd(true);  // Freeze guard
+                guard->setFreezeGaurd(true);  
             }
         }
         
@@ -228,21 +203,16 @@ void Board::PowerUp(const char choice) {
             std::this_thread::sleep_for(std::chrono::seconds(3));
             for (const auto& obj : m_movingObjects) {
                 if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
-                    guard->setFreezeGaurd(false);  // Unfreeze guard
+                    guard->setFreezeGaurd(false);  
                 }
          }
         }).detach();  // Detach the thread to avoid blocking
-
-        std::cout << "All guards frozen for 3 seconds!" << std::endl;
         break;
-
 
     case 'L':
         m_Toolbar.ShowPresent('L');
-        m_Toolbar.IncreaseHeart(true);  // Assuming a function to add lives
-        std::cout << "Extra life granted!" << std::endl;
+        m_Toolbar.IncreaseHeart(true); 
         break;
-
 
     case 'R':
 
@@ -250,99 +220,60 @@ void Board::PowerUp(const char choice) {
         for (auto it = m_movingObjects.begin(); it != m_movingObjects.end(); ++it) {
             if (dynamic_cast<Guard*>(it->get())) {
                 m_movingObjects.erase(it);
-                std::cout << "A guard has been removed!" << std::endl;
                 m_Toolbar.addToScore(DEAD_GUARD_SCORE);
-                break;  // Remove only one guard
+                break;  
             }
         }
         break;
 
-        // ⏳ Increase Time
     case 'T':
         m_Toolbar.IncreaseTime(10);
         m_Toolbar.ShowPresent('T');
         break;
 
     default:
-        std::cout << "Invalid power-up choice!" << std::endl;
         break;
     }
 }
 
-
-
-
-
-//void Board::callUpdateToolbar(const float deltatime) {
-//   // m_Toolbar.callUpdateToolbar(deltatime);
-//    m_Toolbar.updateTimerDisplay(deltatime);
-//}
-
-void Board::draw(sf::RenderWindow& window) {
-    m_Toolbar.draw(window);
-}
-
-const int Board::getHeartCount() {
-    return m_Toolbar.getHeartCount();
-}
-
-void Board::SetSprite(sf::Sprite& picture, const float POSx, const float POSy, const float thicknes) const {
-    picture.setOrigin(picture.getGlobalBounds().width / 2, picture.getGlobalBounds().height / 2);
-    picture.setPosition(POSx, POSy);
-    picture.setScale(thicknes, thicknes);
-}
-
-
-
-
 void Board::display(sf::RenderWindow& window) {
-    // Draw the toolbar
+
     m_Toolbar.draw(window);
 
-    // Draw static objects
     for (const auto& obj : m_objects) {
         obj->draw(window);
     }
 
-    // Draw moving objects
     for (const auto& obj : m_movingObjects) {
         obj->draw(window);
     }
-
-    // Draw the robot separately
     m_robot->draw(window);
-
 }
 
-sf::Vector2f Board::getCellSize() const {
-    return m_cellSize;
-}
 int Board::update(float deltaTime) {
 
     if (m_pause) {
-       // m_Toolbar.toggleMute();
         return PLAYING;
     }
 
     if (m_pausedByHit) {
-        if (m_pauseClock.getElapsedTime().asSeconds() >= m_pauseDuration) {
+        if (m_pauseClock.getElapsedTime().asSeconds() >= PAUSE_DURATION) {
             m_pausedByHit = false;
-            resetObjectsLocation();  // Reset robot & guards
-            removeAllBombs();        // Remove bombs
+            resetObjectsLocation(); 
+            removeAllBombs();      
             m_Toolbar.updateTimerDisplay(deltaTime);
             return PLAYING;
            
         }
-        else {
-            std::cout << "Paused by hit. Waiting for 2 seconds..." << std::endl;
-            return PLAYING;  // Skip updates while paused
-        }
+        // else { not needed
+        //     return PLAYING;  
+        //     }
     }
 
     if (m_robot->isRobotHit()) {
         m_lives--;
         if (m_lives <= 0) return LOST_GAME;
-        m_pauseClock.restart();  // Start pause timer
+        m_pauseClock.restart();  
         m_pausedByHit = true;
         m_robot->setHitStatus(false);
          m_Toolbar.IncreaseTime(3);        
@@ -373,7 +304,6 @@ int Board::update(float deltaTime) {
     m_robot->update(deltaTime);
     m_Toolbar.updateTimerDisplay(deltaTime);
 
-    // Timer for placing presents periodically (for example, every 5 seconds)
     static float timeElapsed = 0.0f;
     timeElapsed += deltaTime;
 
@@ -383,12 +313,10 @@ int Board::update(float deltaTime) {
         timeElapsed = 0.0f;  // Reset the timer
     }
 
-    // Use an iterator-based loop for safe removal
     for (auto it = m_movingObjects.begin(); it != m_movingObjects.end(); ) {
         auto* bomb = dynamic_cast<Bomb*>((*it).get());
 
         if (bomb && bomb->CanBeRemoved()) {
-            std::cout << "Bomb removed!\n";
             it = m_movingObjects.erase(it); // Erase bomb & update iterator
         }
         else { // Ensure we only increment if not erased
@@ -403,51 +331,13 @@ int Board::update(float deltaTime) {
             ++it; // Only increment if not erased
         }
     }
-
     handleCollisions();
-
-
     return PLAYING;
 }
 
-
-
-
-
-
-void Board::handleInput(sf::Keyboard::Key key, bool isPressed) {
-    if (!isPressed) return; // Only process key press, not release
-
-    if (m_robot) {
-        m_robot->handleInput(key, isPressed); // Forward input to the robot
-    }
-
-    if (key == sf::Keyboard::B) {
-        GenerateBomb(); // Generate a bomb when 'B' is pressed
-    }
-
-}
-
-bool Board::isGuardSmart() {
-    // Generate a random number between 0 and 99
-    int intelligence = rand() % 100;
-
-    // Scale the probability based on the level
-    int probability = std::min(100, m_currentLevel * 10);
-
-    // Return true if the intelligence value falls within the probability range
-    return intelligence < probability;
-}
-
-
-
 void Board::checkIfSmartGuard(MovingGameObject* obj) {
     if (auto* smartGuard = dynamic_cast<SmartGuard*>(obj)) {
-        //std::cout << "This is a SmartGuard.\n";
         smartGuard->setPlayerPosition(m_robot->getPosition());
-    }
-    else {
-        //std::cout << "This is not a SmartGuard.\n";
     }
 }
 
@@ -479,15 +369,11 @@ void Board::handleCollisions() {
             // Check if the robot collides with a Coin
             if (auto* coin = dynamic_cast<Coin*>(obj.get())) {
                 if (robotShape.getGlobalBounds().intersects(coin->getCollisionShape().getGlobalBounds())) {
-                    // Handle coin collection (e.g., increase score)
                     m_Toolbar.addToScore(COIN_SCORE); 
                     sf::Sound& coinSound = resourceManager.getSound("coin");
                     coinSound.setVolume(15);
                     coinSound.play();
-                    // Remove the coin from the game objects
                     staticObjectsToRemove.push_back(obj.get());
-
-                    std::cout << "Coin collected!" << std::endl;
                 }
             }
         }
@@ -497,13 +383,10 @@ void Board::handleCollisions() {
     for (const auto& obj : m_movingObjects) {
         const sf::Shape& movingShape = obj->getCollisionShape();
         if (robotShape.getGlobalBounds().intersects(movingShape.getGlobalBounds())) {
-
             //erase heart
             if (dynamic_cast<Guard*>(obj.get())) {
                 m_Toolbar.IncreaseHeart(false);
-               // continue;
             }
-
             m_robot->handleCollision(*obj);
             obj->handleCollision(*m_robot);
         }
@@ -513,7 +396,6 @@ void Board::handleCollisions() {
             for (const auto& rect : bomb->getExplosionPlusShapeBounds()) {
                 // Check if the robot is hit by the explosion
                 if (rect.intersects(robotShape.getGlobalBounds())) {
-                    std::cout << "Robot was hit by an explosion!" << std::endl;
                     m_robot->setHitStatus(true);
                     m_Toolbar.IncreaseHeart(false);
                 }
@@ -561,11 +443,6 @@ void Board::handleCollisions() {
         }), m_movingObjects.end());
 }
 
-
-
-
-
-
 void Board::GenerateBomb() {
     auto bomb = std::make_unique<Bomb>();
     sf::Vector2f robotPos = m_robot->getPosition();
@@ -575,7 +452,6 @@ void Board::GenerateBomb() {
     // Get the collision shape of the new bomb
     sf::CircleShape newBombCollisionShape = bomb->getCollisionShape();
 
-    // Check if the new bomb's collision shape overlaps with any existing bomb
     for (const auto& obj : m_movingObjects) {
         if (auto* existingBomb = dynamic_cast<Bomb*>(obj.get())) {
             // Get the collision shape of the existing bomb
@@ -589,26 +465,18 @@ void Board::GenerateBomb() {
         }
     }
 
-    // Add the bomb to the moving objects if no overlap
     m_movingObjects.push_back(std::move(bomb));
-   // std::cout << "Bomb placed successfully at: (" << robotPos.x << ", " << robotPos.y << ").\n";
 }
 
 void Board::resetObjectsLocation() {
-    // Reset robot's position
     m_robot->setPosition(m_robotStartingPosition.x, m_robotStartingPosition.y);
 
-    // Reset guards' positions
     for (const auto& obj : m_movingObjects) {
         if (auto* guard = dynamic_cast<Guard*>(obj.get())) {
             guard->setPosition(guard->getStartingPosition().x, guard->getStartingPosition().y);
             std::cout << "Guard reset to: (" << guard->getPosition().x << ", " << guard->getPosition().y << ").\n";
         }
     }
-}
-
-void Board::setPause() {
-    m_pause = false;
 }
 
 void Board::removeAllBombs() {
@@ -641,42 +509,6 @@ bool Board::isLevelComplete() {
     return false;
 }
 
-
-
-
-
-//todo change this function according to resource manager
-void Board::showTransitionScreen(sf::RenderWindow& window, const std::string& message, sf::Color backgroundColor) {
-    // Create overlay
-    sf::RectangleShape overlay(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
-    overlay.setFillColor(backgroundColor);
-
-    // Load font (ensure you have a font file)
-    static sf::Font font;
-    if (!font.loadFromFile("arial.ttf")) {
-        std::cerr << "Error loading font!" << std::endl;
-        return;
-    }
-
-    // Create text
-    sf::Text text;
-    text.setFont(font);
-    text.setString(message);
-    text.setCharacterSize(50);
-    text.setFillColor(sf::Color::White);
-    text.setStyle(sf::Text::Bold);
-    text.setPosition(WINDOW_WIDTH / 2 - 150, WINDOW_HEIGHT / 2 - 50); // Centered
-
-    // Display transition screen for 2 seconds
-    sf::Clock clock;
-    while (clock.getElapsedTime().asSeconds() < 2) {
-        window.clear();
-        window.draw(overlay);
-        window.draw(text);
-        window.display();
-    }
-}
-
 void Board::togglePause() {
     m_pause = !m_pause;
 
@@ -686,8 +518,6 @@ void Board::togglePause() {
     else {
         m_Toolbar.resumeTimer(); // Resume the timer
     }
-
-    std::cout << (m_pause ? "Game Paused!" : "Game Resumed!") << std::endl;
 }
 
 void Board::reset() {
@@ -695,14 +525,12 @@ void Board::reset() {
     m_movingObjects.clear();   // Clear moving objects
     m_guardCount = 0;          // Reset guard count
     m_robot->setPosition(m_robotStartingPosition.x, m_robotStartingPosition.y); // Reset robot position
-    m_Toolbar.setTimer(120);   // Reset timer
-   // m_Toolbar.setScore(0);     // Reset score
+    m_Toolbar.setTimer(LEVEL_DURATION);   // Reset timer
     m_Toolbar.addToScore(-m_Toolbar.getScore());
     m_Toolbar.setLevel(1);      // Reset level
-    //m_Toolbar.resetLives();    // Reset lives counter
     m_robot->setHitStatus(false);
     m_lives = 3;
-    for(int i=0; i<m_lives;i++){
+    for(int createLives = 0; createLives < m_lives; createLives++){
         m_Toolbar.IncreaseHeart(true);
 	}
 }
